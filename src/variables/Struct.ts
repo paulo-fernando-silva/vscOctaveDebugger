@@ -38,11 +38,13 @@ export class Struct extends Variable {
 	{
 		Struct.getFields(name, runtime, (fields: Array<string>) => {
 			// TODO: Then parent sync issue is fixed display something interesting.
-			const value = this.typename();
-			const struct = new Struct(name, value, fields);
+			Struct.getFieldValues(fields, runtime, (values: Array<string>) => {
+				const value = values.join(', ');
+				const struct = new Struct(name, `{${value}}`, fields);
 
-			Variables.addReferenceTo(struct);
-			callback(struct);
+				Variables.addReferenceTo(struct);
+				callback(struct);
+			});
 		});
 	}
 
@@ -78,5 +80,21 @@ export class Struct extends Variable {
 
 		runtime.send(`fieldnames(${name})`);
 		syncRegex = Runtime.syncRegEx(runtime.sync());
+	}
+
+
+	//**************************************************************************
+	public static getFieldValues(	fields: Array<string>,
+									runtime: Runtime,
+									callback: (values: Array<string>) => void): void
+	{
+		var values = new Array<string>();
+
+		fields.forEach(field => Variables.getValue(field, runtime, (value: string) => {
+			values.push(value);
+
+			if(values.length === fields.length)
+				callback(values);
+		}));
 	}
 }

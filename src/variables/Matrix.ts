@@ -44,13 +44,13 @@ export class Matrix extends Variable {
 			// So, we skip showing the child value in parent value.
 			// TODO: avoid displaying the contents of very large matrices.
 
-			// Variables.getValue(name, runtime, (value: string) => {
-				const value = size.join('x');
+			Variables.getValue(name, runtime, (value: string) => {
+				// const value = size.join('x');
 				const matrix = new Matrix(name, value, size);
 				// Matrices are registered as they have children.
 				Variables.addReferenceTo(matrix);
 				callback(matrix);
-			// });
+			});
 		});
 	}
 

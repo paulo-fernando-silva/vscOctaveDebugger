@@ -18,11 +18,12 @@
 + get matrix children
 + when a child changes, the parent might need to update its displayed value
 + remove ans from vars (add note in README or similar)
++ handle structs
 
-- handle structs
 - why two stack requests?
 - don't evaluate function names. That messes up the debug session, e.g. adds additional calls to the stack, and potentially has side effects.
 - Bug in octave, after a "dbclear all", setting another breakpoint will bring back previously set breakpoints. Apparently if I add and delete one by one, it'll work correctly.
+- homogenize return types
 
 ------------------------------------
 Debug session begin or step
