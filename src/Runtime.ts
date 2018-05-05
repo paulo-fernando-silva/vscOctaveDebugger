@@ -7,10 +7,12 @@ import { functionFromPath } from './Utils';
 
 export class Runtime extends EventEmitter {
 	//**************************************************************************
-	private static readonly PROMPT = 'debug> ';
+	public static readonly PROMPT = 'debug> ';
+	//**************************************************************************
+	private static readonly PROMPT_REGEX = new RegExp(`^(?:${Runtime.PROMPT})*`);
 	private static readonly SYNC = `vsc::${Constants.MODULE_NAME}`;
 	private static readonly TERMINATOR = `end::${Runtime.SYNC}`;
-	private static readonly TERMINATOR_TAG = new RegExp(`^(?:${Runtime.PROMPT})*${Runtime.TERMINATOR}$`);
+	private static readonly TERMINATOR_REGEX = new RegExp(`^(?:${Runtime.PROMPT})*${Runtime.TERMINATOR}$`);
 
 
 	//**************************************************************************
@@ -102,19 +104,20 @@ export class Runtime extends EventEmitter {
 
 	//**************************************************************************
 	public evaluate(expression: string, callback: (value: string) => void) {
-		var value = '';
-		var syncRegex;
+		let value = '';
+		let syncRegex;
 
 		this._inputHandler.push((str: string) => {
 			if(str.match(syncRegex) !== null) {
 				callback(value);
 				return true;
 			} else {
-				str = str.replace(/^debug>/, '').trim();
+				str = str.replace(Runtime.PROMPT_REGEX, '').trim();
 
 				if(str.length !== 0) {
-					if(value.length !== 0)
+					if(value.length !== 0) {
 						value += '\n';
+					}
 
 					value += str;
 				}
@@ -146,8 +149,9 @@ export class Runtime extends EventEmitter {
 		if(!this.terminated(data)) {
 			const callback = this._inputHandler.shift();
 
-			if(callback !== undefined && !callback(data.toString()))
+			if(callback !== undefined && !callback(data.toString())) {
 				this._inputHandler.unshift(callback);
+			}
 		}
 	}
 
@@ -176,7 +180,7 @@ export class Runtime extends EventEmitter {
 
 	//**************************************************************************
 	private terminated(data: string): boolean {
-		if(data.match(Runtime.TERMINATOR_TAG) !== null) {
+		if(data.match(Runtime.TERMINATOR_REGEX) !== null) {
 			this.emit('end');
 			return true;
 		}
