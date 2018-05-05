@@ -19,11 +19,12 @@
 + when a child changes, the parent might need to update its displayed value
 + remove ans from vars (add note in README or similar)
 + handle structs
++ Bug in octave, after a "dbclear all", setting another breakpoint will bring back previously set breakpoints. Apparently if I add and delete one by one, it'll work correctly.
 
 - why two stack requests?
-- don't evaluate function names. That messes up the debug session, e.g. adds additional calls to the stack, and potentially has side effects.
-- Bug in octave, after a "dbclear all", setting another breakpoint will bring back previously set breakpoints. Apparently if I add and delete one by one, it'll work correctly.
+- don't evaluate function names. That messes up the debug session, e.g. adds additional calls to the stack, and potentially has other side effects.
 - homogenize return types
+- stange atempts to evaluate "function" and "printf"
 
 ------------------------------------
 Debug session begin or step
