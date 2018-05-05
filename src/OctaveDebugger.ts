@@ -42,6 +42,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 	private static THREAD_ID = 1;
 	private _runtime: Runtime;
 	private _stackManager: StackFramesManager;
+	private _runCallback: () => void;
 
 
 	//**************************************************************************
@@ -109,6 +110,14 @@ class OctaveDebugSession extends LoggingDebugSession {
 
 
 	//**************************************************************************
+	protected configurationDoneRequest(	response: DebugProtocol.ConfigurationDoneResponse,
+										args: DebugProtocol.ConfigurationDoneArguments): void
+	{
+		this._runCallback();
+	}
+
+
+	//**************************************************************************
 	protected launchRequest(response: DebugProtocol.LaunchResponse,
 							args: LaunchRequestArguments): void
 	{
@@ -116,9 +125,10 @@ class OctaveDebugSession extends LoggingDebugSession {
 		logger.setup(args.trace ? Logger.LogLevel.Verbose : Logger.LogLevel.Stop, false);
 
 		// start the program in the runtime
-		this._runtime.start(args.program, !!args.stopOnEntry);
-
-		this.sendResponse(response);
+		this._runCallback = () => {
+			this._runtime.start(args.program, !!args.stopOnEntry);
+			this.sendResponse(response);
+		};
 	}
 
 

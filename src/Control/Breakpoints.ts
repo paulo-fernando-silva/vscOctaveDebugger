@@ -19,7 +19,7 @@ export class Breakpoints {
 						callback: (breakpoints: Array<Breakpoint>) => void): void
 	{
 		const confirmedBreakpoints = new Array<Breakpoint>();
-		var syncRegex;
+		let syncRegex;
 		runtime.addInputHandler((str: string) => {
 			if(str.match(syncRegex) !== null) {
 				callback(confirmedBreakpoints);
@@ -27,7 +27,7 @@ export class Breakpoints {
 			}
 
 			const match = str.match(/^(?:ans =)?\s*((?:\d+\s*)+)$/);
-			if(match !== null && match.length == 2) {
+			if(match !== null && match.length === 2) {
 				const lines = match[1].split(' ').filter((val) => val);
 				const octaveBreakpoints = lines.map(l => this.toBreakpoint(l));
 				octaveBreakpoints.forEach(b => confirmedBreakpoints.push(b));
@@ -37,12 +37,13 @@ export class Breakpoints {
 		});
 
 		const fname = functionFromPath(path);
-		var lines = '';
+		let lines = '';
 		breakpoints.forEach(b => {
-			if(b.condition !== undefined && b.condition.length !== 0)
+			if(b.condition !== undefined && b.condition.length !== 0) {
 				runtime.send(`dbstop in ${fname} at ${b.line} if ${b.condition}`);
-			else
+			} else {
 				lines += `${b.line} `;
+			}
 		});
 		runtime.send(`dbstop ${fname} ${lines}`);
 		syncRegex = Runtime.syncRegEx(runtime.sync());
