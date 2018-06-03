@@ -1,0 +1,123 @@
+{
+	"name": "octave-debugger",
+	"displayName": "Octave Debugger",
+	"version": "0.1.0",
+	"publisher": "paulo",
+	"description": "Starter extension for developing debug adapters for VS Code.",
+	"author": {
+		"name": "hm...",
+		"email": "hm@somewhere.com"
+	},
+	"keywords": [
+		"multi-root ready"
+	],
+	"engines": {
+		"vscode": "^1.17.0",
+		"node": "^7.9.0"
+	},
+	"icon": "images/OctaveDebuggerIcon.png",
+	"categories": [
+		"Debuggers"
+	],
+	"private": true,
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/paulo-fernando-silva/octave-debugger.git"
+	},
+	"bugs": {
+		"url": "https://github.com/paulo-fernando-silva/octave-debugger/issues"
+	},
+	"dependencies": {
+		"vscode-debugprotocol": "^1.25.0-pre.0",
+		"vscode-debugadapter": "^1.25.0-pre.0"
+	},
+	"devDependencies": {
+		"@types/node": "^6.0.50",
+		"@types/mocha": "^2.2.44",
+		"typescript": "^2.5.3",
+		"mocha": "^3.5.0",
+		"vscode": "^1.1.6",
+		"vscode-debugadapter-testsupport": "^1.24.0",
+		"tslint": "^5.8.0",
+		"vsce": "^1.31.2",
+		"path": "0.12.7"
+	},
+	"scripts": {
+		"prepublish": "tsc -p ./src",
+		"compile": "tsc -p ./src",
+		"tslint": "tslint ./src/**/*.ts",
+		"watch": "tsc -w -p ./src",
+		"test": "mocha -u tdd ./out/tests/",
+		"postinstall": "node ./node_modules/vscode/bin/install",
+		"package": "vsce package",
+		"publish": "vsce publish"
+	},
+	"main": "./out/extension",
+	"activationEvents": [
+		"onDebug",
+		"onCommand:extension.octave-debugger.getProgramName"
+	],
+	"contributes": {
+		"breakpoints": [
+			{
+				"language": "matlab"
+			}
+		],
+		"debuggers": [
+			{
+				"type": "OctaveDebugger",
+				"label": "Octave Debugger",
+				"program": "./out/OctaveDebugger.js",
+				"runtime": "node",
+				"configurationAttributes": {
+					"launch": {
+						"required": [
+							"program"
+						],
+						"properties": {
+							"program": {
+								"type": "string",
+								"description": "Absolute path to a text file.",
+								"default": "${workspaceFolder}/${command:AskForProgramName}"
+							},
+							"stopOnEntry": {
+								"type": "boolean",
+								"description": "Automatically stop after launch.",
+								"default": true
+							},
+							"trace": {
+								"type": "boolean",
+								"description": "Enable logging of the Debug Adapter Protocol.",
+								"default": true
+							}
+						}
+					}
+				},
+				"initialConfigurations": [
+					{
+						"type": "OctaveDebugger",
+						"request": "launch",
+						"name": "Ask for file name",
+						"program": "${workspaceFolder}/${command:AskForProgramName}",
+						"stopOnEntry": true
+					}
+				],
+				"configurationSnippets": [
+					{
+						"label": "Octave Debugger: Launch",
+						"description": "A new configuration for launching octave.",
+						"body": {
+							"type": "OctaveDebugger",
+							"request": "launch",
+							"name": "${2:Launch Program}",
+							"program": "^\"\\${workspaceFolder}/${1:Program}\""
+						}
+					}
+				],
+				"variables": {
+					"AskForProgramName": "extension.octave-debugger.getProgramName"
+				}
+			}
+		]
+	}
+}

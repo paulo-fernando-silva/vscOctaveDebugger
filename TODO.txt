@@ -1,0 +1,32 @@
++ set breakpoint
++ stopOnBreakpoint
++ request stack
++ receive stack
++ remove breakpoint
++ step
++ step in
++ step out
++ end program
++ request variables
++ receive variables
++ edit variables
++ variable hover
++ conditional breakpoint
++ should commandSeparator and SYNC_TAG have a related name?
++ Separate scopes local & global
++ refactor/modularize code
++ get matrix children
++ when a child changes, the parent might need to update its displayed value
++ remove ans from vars (add note in README or similar)
+
+- handle structs
+- why two stack requests?
+- don't evaluate function names. That messes up the debug session, e.g. adds additional calls to the stack, and potentially has side effects.
+- Bug in octave, after a "dbclear all", setting another breakpoint will bring back previously set breakpoints. Apparently if I add and delete one by one, it'll work correctly.
+
+------------------------------------
+Debug session begin or step
+	request stack frames
+		request scopes for selected frame (usually 0, the top frame, but can go up to n where n is the current stack frames depth).
+			request variables for current open scopes (scope reference is only fetched if > 0) If scope is different than 0, then we need to do a dbup or dbdown before fetching the variables.
+				request child variables as needed (child variable ref > 0)
