@@ -26,6 +26,8 @@ export abstract class Variable {
 
 	//**************************************************************************
 	public abstract listChildren(	runtime: Runtime,
+									count: number,
+									start: number,
 									callback: (vars: Array<Variable>) => void);
 
 

@@ -38,6 +38,8 @@ export class Scalar extends Variable  {
 
 	//**************************************************************************
 	public listChildren(runtime: Runtime,
+						count: number,
+						start: number,
 						callback: (vars: Array<Variable>) => void)
 	{} // Scalars have no children.
 }

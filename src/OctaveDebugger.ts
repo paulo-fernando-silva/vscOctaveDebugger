@@ -235,7 +235,13 @@ class OctaveDebugSession extends LoggingDebugSession {
 			this.sendResponse(response);
 		};
 
-		Variables.listByReference(args.variablesReference, this._runtime, callback);
+		const count = args.count || 0;
+		const start = args.start || 0;
+		Variables.listByReference(	args.variablesReference,
+									this._runtime,
+									count,
+									start,
+									callback);
 	}
 
 

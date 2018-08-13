@@ -57,19 +57,25 @@ export class Matrix extends Variable {
 
 	//**************************************************************************
 	public listChildren(runtime: Runtime,
+						count: number,
+						start: number,
 						callback: (vars: Array<Variable>) => void)
 	{
 		const variables = new Array<Variable>();
-		const N = this._size[this._firstNonOne];
+		const Nmax = this._size[this._firstNonOne];
+		const cnt = (count === 0? Nmax : count);
+		const end = start + cnt;
+		const N = Math.min(end, Nmax);
 
-		for(var i = 0; i != N; ++i) {
+		for(let i = start; i !== N; ++i) {
 			const child = this.childName(this.name(), i, this._size.length, this._firstNonOne);
 
 			Variables.loadVariable(child, runtime, (v: Variable) => {
 				variables.push(v);
 
-				if(variables.length === N)
+				if(variables.length === cnt) {
 					callback(variables);
+				}
 			});
 		}
 	}
@@ -77,10 +83,11 @@ export class Matrix extends Variable {
 
 	//**************************************************************************
 	private static firstNonOne(size: Array<number>) {
-		for(var i = 0; i != size.length; ++i)
+		for(let i = 0; i !== size.length; ++i) {
 			if(size[i] > 1) {
 				return i;
 			}
+		}
 
 		return size.length;
 	}
@@ -92,7 +99,7 @@ export class Matrix extends Variable {
 						dimensions: number,
 						firstNonOne: number) : string
 	{
-		var prefix = '', suffix = '';
+		let prefix = '', suffix = '';
 
 		// Extract any existing indices if any
 		const match = name.match(/^(\w+)\(([^:]+,):(.*)\)$/);
@@ -101,11 +108,13 @@ export class Matrix extends Variable {
 			prefix = match[2];
 			suffix = match[3];
 		} else { // calculate new indices
-			for(var i = 0; i != firstNonOne; ++i)
+			for(let i = 0; i !== firstNonOne; ++i) {
 				prefix += '1,'; // Same as prefix = Array(firstNonOne).join('1,'
+			}
 
-			for(var i = 1 + firstNonOne; i != dimensions; ++i)
+			for(let i = 1 + firstNonOne; i !== dimensions; ++i) {
 				suffix += ',:'; // Same as suffix = Array(dimensions - firstNonOne).join(',:')
+			}
 		}
 
 		return `${name}(${prefix}${index+1}${suffix})`;

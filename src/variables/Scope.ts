@@ -2,7 +2,8 @@ import { Variables } from './Variables';
 import { Variable } from './Variable';
 import { Runtime } from '../Runtime';
 
-
+//**************************************************************************
+// The idea here is that a Scope is a variable that contains other variables.
 export class Scope extends Variable  {
 	//**************************************************************************
 	private static readonly HEADER_REGEX = new RegExp(`^(?:${Runtime.PROMPT})*Variables in the current scope:$`);
@@ -34,6 +35,8 @@ export class Scope extends Variable  {
 
 	//**************************************************************************
 	public listChildren(runtime: Runtime,
+						count: number,
+						start: number,
 						callback: (vars: Array<Variable>) => void)
 	{
 		let matchesHeader = false;

@@ -51,8 +51,11 @@ export class Struct extends Variable {
 
 	//**************************************************************************
 	public listChildren(runtime: Runtime,
+						count: number,
+						start: number,
 						callback: (vars: Array<Variable>) => void): void
 	{
+		// TODO: handle children range
 		Variables.listVariables(this._fields, runtime, callback);
 	}
 
