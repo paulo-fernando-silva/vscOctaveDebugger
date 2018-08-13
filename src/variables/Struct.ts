@@ -62,8 +62,8 @@ export class Struct extends Variable {
 							runtime: Runtime,
 							callback: (f: Array<string>) => void): void
 	{
-		var fieldnames = new Array<string>();
-		var syncRegex;
+		let fieldnames = new Array<string>();
+		let syncRegex;
 
 		runtime.addInputHandler((str: string) => {
 			if(str.match(syncRegex) !== null) {
@@ -72,8 +72,9 @@ export class Struct extends Variable {
 			}
 
 			const match = str.match(/^(?:\s*\[\d+,1\] = )(\w+)$/);
-			if(match !== null && match.length > 1)
+			if(match !== null && match.length > 1) {
 				fieldnames.push(`${name}.${match[match.length - 1]}`);
+			}
 
 			return false;
 		});
@@ -88,13 +89,14 @@ export class Struct extends Variable {
 									runtime: Runtime,
 									callback: (values: Array<string>) => void): void
 	{
-		var values = new Array<string>();
+		let values = new Array<string>();
 
 		fields.forEach(field => Variables.getValue(field, runtime, (value: string) => {
 			values.push(value);
 
-			if(values.length === fields.length)
+			if(values.length === fields.length) {
 				callback(values);
+			}
 		}));
 	}
 }

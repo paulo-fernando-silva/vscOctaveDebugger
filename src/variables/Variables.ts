@@ -36,10 +36,12 @@ export class Variables {
 	public static getByReference(reference: number): Variable | null {
 		if(reference > 0) {
 			const index = reference - 1; // References start at 1;
-			if(index < Variables._REFS.length)
+			if(index < Variables._REFS.length) {
 				return Variables._REFS[index];
-		} else
+			}
+		} else {
 			console.log(`Error: getVariable(${reference})!`);
+		}
 
 		return null;
 	}
@@ -56,13 +58,16 @@ export class Variables {
 	//**************************************************************************
 	public static listByReference(	ref: number,
 									runtime: Runtime,
+									count: number,
+									start: number,
 									callback: (variables: Array<Variable>) => void)
 	{
 		const variable = Variables.getByReference(ref);
 		if(variable !== null) {
-			variable.listChildren(runtime, callback);
-		} else
+			variable.listChildren(runtime, count, start, callback);
+		} else {
 			console.log(`Error: listByReference invalid reference ${ref}`);
+		}
 	}
 
 
@@ -72,18 +77,20 @@ export class Variables {
 								callback: (variables: Array<Variable>) => void)
 	{
 		const variables = new Array<Variable>();
-		var skipped = 0;
+		let skipped = 0;
 
 		names.forEach(name => {
 			Variables.loadVariable(name, runtime, (v: Variable | null) => {
 				if(v === null) {
 					console.log(`Error: could not load variable '${name}'!`);
 					++skipped;
-				} else
+				} else {
 					variables.push(v);
+				}
 
-				if(variables.length + skipped === names.length)
+				if(variables.length + skipped === names.length) {
 					callback(variables);
+				}
 			});
 		});
 	}
@@ -96,7 +103,7 @@ export class Variables {
 	{
 		if(name !== 'ans') {
 			Variables.getType(name, runtime, (type: string) => {
-				for(var i = 0; i != Variables._FACTORIES.length; ++i) {
+				for(let i = 0; i !== Variables._FACTORIES.length; ++i) {
 					const factory = Variables._FACTORIES[i];
 
 					if(factory.loads(type)) {
@@ -105,13 +112,16 @@ export class Variables {
 					}
 				}
 
-				if(Variables._FALLBACK !== null && Variables._FALLBACK.loads(type))
+				if(Variables._FALLBACK !== null && Variables._FALLBACK.loads(type)) {
+
 					Variables._FALLBACK.load(name, runtime, callback);
-				else
+				} else {
 					callback(null);
+				}
 			});
-		} else
+		} else {
 			callback(null);
+		}
 	}
 
 
