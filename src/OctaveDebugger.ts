@@ -104,7 +104,17 @@ class OctaveDebugSession extends LoggingDebugSession {
 		response.body.supportsHitConditionalBreakpoints = true;
 		response.body.supportsSetVariable = true;
 		response.body.supportsStepBack = false;
+		response.body.supportTerminateDebuggee = true;
 
+		this.sendResponse(response);
+	}
+
+
+	//**************************************************************************
+	protected disconnectRequest(response: DebugProtocol.DisconnectResponse,
+								args: DebugProtocol.DisconnectArguments): void
+	{
+		this._runtime.disconnect();
 		this.sendResponse(response);
 	}
 

@@ -29,14 +29,14 @@ export class Runtime extends EventEmitter {
 	public constructor(processName: string) {
 		super();
 		this._processName = processName;
-		this.setupProcess();
+		this.connect();
 		this.clearInputHandlers();
 		this.clearEventHandlers();
 	}
 
 
 	//**************************************************************************
-	private setupProcess() {
+	private connect() {
 		this._process = spawn(this._processName);
 
 		this._processStdout = createInterface({ input: this._process.stdout, terminal: false });
@@ -45,6 +45,12 @@ export class Runtime extends EventEmitter {
 		this._process.on('close', code => { this.onExit(code); });
 		this._processStdout.on('line', data => { this.onStdout(data); });
 		this._processStderr.on('line', data => { this.onStderr(data); });
+	}
+
+
+	//**************************************************************************
+	public disconnect() {
+		this._process.kill();
 	}
 
 
