@@ -22,10 +22,10 @@
 	"private": true,
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/paulo-fernando-silva/octave-debugger.git"
+		"url": "https://github.com/paulo-fernando-silva/vscOctaveDebugger.git"
 	},
 	"bugs": {
-		"url": "https://github.com/paulo-fernando-silva/octave-debugger/issues"
+		"url": "https://github.com/paulo-fernando-silva/vscOctaveDebugger/issues"
 	},
 	"dependencies": {
 		"vscode-debugadapter": "^1.25.0-pre.0",
