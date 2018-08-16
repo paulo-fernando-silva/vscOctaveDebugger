@@ -13,6 +13,8 @@ This extension supports:
  * *expression evaluation*, *hover expression evaluation*
  * *stack visualization*
 
+![Demo](images/OctaveDebugger.gif)
+
 This extension does not support drilling down into arrays.
 As of now it displays the value of arrays as a string.
 If you want to edit the value of an array element you can double click on it, and type the assignment as you would if you were writing code.
