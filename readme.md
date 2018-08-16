@@ -15,8 +15,7 @@ This extension supports:
 
 ![Demo](images/OctaveDebugger.gif)
 
-This extension does not support drilling down into arrays.
-As of now it displays the value of arrays as a string.
+
 If you want to edit the value of an array element you can double click on it, and type the assignment as you would if you were writing code.
 That expression will be evaluated and if successful the variable will be updated with the new value.
 Improved support for array types is on the TODO list, and it's the next thing I plan to work on.
@@ -46,3 +45,5 @@ Project homepage and source available
 
 * The variable ans is used by the debugger internally, so the code should not rely on its value. For that reason ans is also not displayed in the local stack even though it's part of it.
 * Debug session will not terminate automatically if we step beyond the last instruction. In that case the user needs to press stop. Only continue will terminate automatically.
+* When you hover over a function, that function will be evaluated. That can cause side-effects. I left this one because I like to be able to evaluate expressions that do not cause side effects. Might add an option for this in the future. To fix it I need to find out how to distinguish functions in expressions.
+* Even though vsc now automatically takes care of splitting fields chunks of 100 children, unfolding a matrix can still take a few milliseconds maybe up to a second. Have to change this to parse the matrix directly instead of asking child by child.
