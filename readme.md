@@ -39,7 +39,7 @@ More information about debugging with Octave can be found
 * Press the green 'play' button to start debugging. If you have the default keybindings then F5 should also work.
 
 Project homepage and source available
-[here](https://github.com/paulo-fernando-silva/octave-debugger.git).
+[here](https://github.com/paulo-fernando-silva/vscOctaveDebugger.git).
 
 ## Notes and Known Issues
 
