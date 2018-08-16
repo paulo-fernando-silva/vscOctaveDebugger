@@ -1,11 +1,11 @@
 {
-	"name": "octave-debugger",
+	"name": "vscOctaveDebuggerAdaptor",
 	"displayName": "Octave Debugger",
 	"version": "0.1.0",
-	"publisher": "paulo-fernando-silva",
+	"publisher": "paulosilva",
 	"description": "Octave debugger adaptor for vsc.",
 	"author": {
-		"name": "paulo.fernando.silva",
+		"name": "paulo silva",
 		"email": "paulo.fernando.silva@gmail.com"
 	},
 	"keywords": [
@@ -35,7 +35,7 @@
 		"@types/node": "^6.0.50",
 		"@types/mocha": "^2.2.44",
 		"typescript": "^2.5.3",
-		"mocha": "^3.5.0",
+		"mocha": "5.2.0",
 		"vscode": "^1.1.6",
 		"vscode-debugadapter-testsupport": "^1.24.0",
 		"tslint": "^5.8.0",
@@ -45,7 +45,7 @@
 		"readline": "1.3.0"
 	},
 	"scripts": {
-		"prepublish": "tsc -p ./src",
+		"prepare": "tsc -p ./src",
 		"compile": "tsc -p ./src",
 		"tslint": "tslint ./src/**/*.ts",
 		"watch": "tsc -w -p ./src",
