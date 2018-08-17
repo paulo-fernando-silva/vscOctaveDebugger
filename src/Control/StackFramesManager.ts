@@ -22,12 +22,13 @@ export class StackFramesManager {
 							runtime: Runtime,
 							callback: () => void): void
 	{
-		if(i === this._frame)
+		if(i === this._frame) {
 			callback();
-		else if(i < this._frame)
+		} else if(i < this._frame) {
 			this.down(this._frame - i, runtime, callback);
-		else
+		} else {
 			this.up(i - this._frame, runtime, callback);
+		}
 	}
 
 
@@ -36,10 +37,11 @@ export class StackFramesManager {
 				runtime: Runtime,
 				callback: () => void): void
 	{
-		if(n > 0)
-			runtime.evaluate(`dbup ${n}`, (output: string) => callback);
-		else
+		if(n > 0) {
+			runtime.evaluate(`dbup ${n}`, (output: string) => callback());
+		} else {
 			console.log(`Error: up(${n})!`);
+		}
 	}
 
 
@@ -48,10 +50,11 @@ export class StackFramesManager {
 					runtime: Runtime,
 					callback: () => void): void
 	{
-		if(n > 0)
-			runtime.evaluate(`dbdown ${n}`, (output: string) => callback);
-		else
+		if(n > 0) {
+			runtime.evaluate(`dbdown ${n}`, (output: string) => callback());
+		} else {
 			console.log(`Error: down(${n})!`);
+		}
 	}
 
 
@@ -70,7 +73,7 @@ debug>
 				callback: (frames: Array<StackFrame>) => void): void
 	{
 		const stackframes = new Array<StackFrame>();
-		var syncRegex;
+		let syncRegex;
 		runtime.addInputHandler((str: string) => {
 			if(str.match(syncRegex) !== null) {
 				callback(stackframes);
