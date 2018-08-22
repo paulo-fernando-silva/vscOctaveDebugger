@@ -11,7 +11,7 @@ This extension supports:
  * *breakpoints*, *conditional breakpoints*,
  * *variable visualization*, *variable editing*
  * *expression evaluation*, *hover expression evaluation*
- * *stack visualization*
+ * *stack navigation and visualization*
 
 ![Demo](images/OctaveDebugger.gif)
 
@@ -40,6 +40,7 @@ More information about debugging with Octave can be found
 
 Project homepage and source available
 [here](https://github.com/paulo-fernando-silva/vscOctaveDebugger.git).
+Please submit bugs there too.
 
 ## Notes and Known Issues
 
