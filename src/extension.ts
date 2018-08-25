@@ -54,15 +54,17 @@ class OctaveDebuggerConfigurationProvider implements vscode.DebugConfigurationPr
 			if(editor && editor.document.languageId === Constants.LANGUAGE) {
 				config.type = Constants.DEBUGGER_TYPE;
 				config.name = 'Launch';
-				config.request = 'launch'; // TODO: unique literal?
+				config.request = 'launch';
 				config.program = '${file}';
-				config.stopOnEntry = true;
+				config.octave = Constants.DEFAULT_EXECUTABLE;
+				config.sourceFolder = '${workspaceFolder}';
+				config.stopOnEntry = false; // Not sure if this can be supported. Must search.
 			}
 		}
 
 		if (!config.program) {
 			return vscode.window.showInformationMessage("Select the main file.").then(_ => {
-				return undefined;	// abort launch
+				return undefined; // abort launch
 			});
 		}
 

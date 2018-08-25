@@ -26,12 +26,18 @@ export class Runtime extends EventEmitter {
 
 
 	//**************************************************************************
-	public constructor(processName: string) {
+	public constructor(	processName: string,
+						sourceFolder: string)
+	{
 		super();
 		this._processName = processName;
 		this.connect();
 		this.clearInputHandlers();
 		this.clearEventHandlers();
+
+		// This allows us to run code from anywhere on our HD.
+		this.send(`addpath('${sourceFolder}')`);
+		this.sync();
 	}
 
 
@@ -140,8 +146,9 @@ export class Runtime extends EventEmitter {
 	//**************************************************************************
 	// Execution control
 	//**************************************************************************
-	public start(program: string, stopOnEntry: boolean) {
-		// TODO: stopOnEntry
+	public start(	program: string,
+					stopOnEntry: boolean) // TODO: support
+	{
 		this.send(functionFromPath(program) + ';' + this.echo(Runtime.TERMINATOR));
 	}
 

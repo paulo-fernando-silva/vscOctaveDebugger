@@ -1,7 +1,7 @@
 {
 	"name": "vscOctaveDebuggerAdaptor",
 	"displayName": "Octave Debugger",
-	"version": "0.1.3",
+	"version": "0.1.4",
 	"publisher": "paulosilva",
 	"description": "Octave debugger adaptor for vsc.",
 	"author": {
@@ -91,6 +91,16 @@
 								"type": "boolean",
 								"description": "Enable logging of the Debug Adapter Protocol.",
 								"default": true
+							},
+							"octave": {
+								"type": "string",
+								"description": "Path to the octave-cli.",
+								"default": "octave-cli"
+							},
+							"sourceFolder": {
+								"type": "string",
+								"description": "Absolute path to the project source folder.",
+								"default": "${workspaceFolder}"
 							}
 						}
 					}
@@ -101,7 +111,9 @@
 						"request": "launch",
 						"name": "Ask for file name",
 						"program": "${workspaceFolder}/${command:AskForProgramName}",
-						"stopOnEntry": true
+						"stopOnEntry": true,
+						"octave": "octave-cli",
+						"sourceFolder": "${workspaceFolder}"
 					}
 				],
 				"configurationSnippets": [

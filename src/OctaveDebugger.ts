@@ -34,6 +34,10 @@ interface LaunchRequestArguments extends DebugProtocol.LaunchRequestArguments {
 	stopOnEntry?: boolean;
 	/** enable logging the Debug Adapter Protocol */
 	trace?: boolean;
+	/** Path to the octave-cli. */
+	octave: string;
+	/** Absolute path to the project source folder. */
+	sourceFolder: string;
 }
 
 
@@ -43,7 +47,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 	private _runtime: Runtime;
 	private _stackManager: StackFramesManager;
 	private _runCallback: () => void;
-
+	private _breakpointsCallbacks = new Array<(r: Runtime) => void>();
 
 	//**************************************************************************
 	public constructor() {
@@ -56,7 +60,6 @@ class OctaveDebugSession extends LoggingDebugSession {
 		this.setDebuggerColumnsStartAt1(true);
 
 		this.setupVariables();
-		this.setupRuntime();
 	}
 
 
@@ -71,8 +74,12 @@ class OctaveDebugSession extends LoggingDebugSession {
 
 
 	//**************************************************************************
-	private setupRuntime() {
-		this._runtime = new Runtime(Constants.DEFAULT_EXECUTABLE);
+	private setupRuntime(	octave: string,
+							sourceFolder: string)
+	{
+		if(this._runtime) { return; }
+
+		this._runtime = new Runtime(octave, sourceFolder);
 
 		this._runtime.on('end', () => {
 			this.sendEvent(new TerminatedEvent());
@@ -134,6 +141,9 @@ class OctaveDebugSession extends LoggingDebugSession {
 		// make sure to 'Stop' the buffered logging if 'trace' is not set
 		logger.setup(args.trace ? Logger.LogLevel.Verbose : Logger.LogLevel.Stop, false);
 
+		this.setupRuntime(args.octave, args.sourceFolder);
+		this.runSetBreakpoints();
+
 		// start the program in the runtime
 		this._runCallback = () => {
 			this._runtime.start(args.program, !!args.stopOnEntry);
@@ -143,25 +153,44 @@ class OctaveDebugSession extends LoggingDebugSession {
 
 
 	//**************************************************************************
+	private runSetBreakpoints() {
+		if(this._runtime && this._breakpointsCallbacks.length !== 0) {
+			this._breakpointsCallbacks.forEach(callback => {
+				callback(this._runtime);
+			});
+			this._breakpointsCallbacks.length = 0;
+		}
+	}
+
+
+	//**************************************************************************
 	protected setBreakPointsRequest(response: DebugProtocol.SetBreakpointsResponse,
 									args: DebugProtocol.SetBreakpointsArguments): void
 	{
-		const vscBreakpoints = args.breakpoints;
-		if(vscBreakpoints !== undefined && args.source.path !== undefined) {
-			const path = <string>args.source.path;
+		const callback = (runtime: Runtime) => {
+			const vscBreakpoints = args.breakpoints;
+			if(vscBreakpoints !== undefined && args.source.path !== undefined) {
+				const path = <string>args.source.path;
 
-			Breakpoints.clearAllBreakpointsIn(path, this._runtime, () => {
-				Breakpoints.set(vscBreakpoints, path, this._runtime,
-					(breakpoints: Array<Breakpoint>) => {
-						response.body = {
-							breakpoints: breakpoints
-						};
-						this.sendResponse(response);
-					}
-				);
-			});
+				Breakpoints.clearAllBreakpointsIn(path, runtime, () => {
+					Breakpoints.set(vscBreakpoints, path, runtime,
+						(breakpoints: Array<Breakpoint>) => {
+							response.body = {
+								breakpoints: breakpoints
+							};
+							this.sendResponse(response);
+						}
+					);
+				});
+			} else {
+				this.sendResponse(response);
+			}
+		};
+
+		if(this._runtime) {
+			callback(this._runtime);
 		} else {
-			this.sendResponse(response);
+			this._breakpointsCallbacks.push(callback);
 		}
 	}
 
