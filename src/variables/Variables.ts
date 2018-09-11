@@ -113,7 +113,6 @@ export class Variables {
 				}
 
 				if(Variables._FALLBACK !== null && Variables._FALLBACK.loads(type)) {
-
 					Variables._FALLBACK.load(name, runtime, callback);
 				} else {
 					callback(null);

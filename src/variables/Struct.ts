@@ -1,105 +1,73 @@
-import { Variable } from './Variable';
 import { Variables } from './Variables';
+import { Variable } from './Variable';
+import { AbstractArray } from './AbstractArray';
 import { Runtime } from '../Runtime';
 
 
-export class Struct extends Variable {
+// This is actually an array much like a matrix.
+export class Struct extends AbstractArray {
 	//**************************************************************************
-	private _fields: Array<string>;
+	protected _size: Array<number>;
+	protected _firstNonOne: number;
 
 
 	//**************************************************************************
 	constructor(name: string = '',
 				value: string = '',
-				fields: Array<string> = [])
+				size: Array<number> = [])
 	{
 		super();
 		this._name = name;
 		this._value = value;
-		this._fields = fields;
-		this._indexedVariables = this._fields.length;
+		this._size = size;
+		this._firstNonOne = AbstractArray.firstNonOne(size);
+		this._numberOfChildren = this._size[this._firstNonOne];
 	}
 
 
 	//**************************************************************************
-	public typename(): string { return 'scalar struct'; }
-
-
-	//**************************************************************************
-	public loads(type: string): boolean {
-		return type === this.typename();
-	}
-
-
-	//**************************************************************************
-	public load(name: string,
-				runtime: Runtime,
-				callback: (v: Variable) => void): void
+	protected makeConcreteType(
+		name: string,
+		value: string,
+		size: Array<number>
+	): AbstractArray
 	{
-		Struct.getFields(name, runtime, (fields: Array<string>) => {
-			// TODO: Then parent sync issue is fixed display something interesting.
-			Struct.getFieldValues(fields, runtime, (values: Array<string>) => {
-				const value = values.join(', ');
-				const struct = new Struct(name, `{${value}}`, fields);
-
-				Variables.addReferenceTo(struct);
-				callback(struct);
-			});
-		});
+		return new Struct(name, value, size);
 	}
 
 
 	//**************************************************************************
 	public listChildren(runtime: Runtime,
-						count: number,
-						start: number,
-						callback: (vars: Array<Variable>) => void): void
+		count: number,
+		start: number,
+		callback: (vars: Array<Variable>) => void)
 	{
-		// TODO: handle children range
-		Variables.listVariables(this._fields, runtime, callback);
+		const variables = new Array<Variable>();
+		const Nmax = this._size[this._firstNonOne];
+		const cnt = (count === 0? Nmax : count);
+		const end = start + cnt;
+		const N = Math.min(end, Nmax);
+
+		for(let i = start; i !== N; ++i) {
+			const child = AbstractArray.childName(this.name(), i, this._size.length, this._firstNonOne);
+
+			Variables.loadVariable(child, runtime, (v: Variable) => {
+				variables.push(v);
+
+				if(variables.length === cnt) {
+					callback(variables);
+				}
+			});
+		}
 	}
 
 
 	//**************************************************************************
-	public static getFields(name: string,
-							runtime: Runtime,
-							callback: (f: Array<string>) => void): void
-	{
-		let fieldnames = new Array<string>();
-		let syncRegex;
-
-		runtime.addInputHandler((str: string) => {
-			if(str.match(syncRegex) !== null) {
-				callback(fieldnames);
-				return true;
-			}
-
-			const match = str.match(/^(?:\s*\[\d+,1\] = )(\w+)$/);
-			if(match !== null && match.length > 1) {
-				fieldnames.push(`${name}.${match[match.length - 1]}`);
-			}
-
-			return false;
-		});
-
-		runtime.send(`fieldnames(${name})`);
-		syncRegex = Runtime.syncRegEx(runtime.sync());
-	}
+	public typename(): string { return 'struct'; }
 
 
 	//**************************************************************************
-	public static getFieldValues(	fields: Array<string>,
-									runtime: Runtime,
-									callback: (values: Array<string>) => void): void
-	{
-		let values = new Array<string>();
-
-		fields.forEach(field => Variables.getValue(field, runtime, (value: string) => {
-			values.push(value);
-
-			if(values.length === fields.length) {
-				callback(values);
-			}
-		}));
+	public loads(type: string): boolean {
+		return type === this.typename()
 	}
 }
