@@ -62,7 +62,7 @@ class OctaveDebuggerConfigurationProvider implements vscode.DebugConfigurationPr
 			}
 		}
 
-		if (!config.program) {
+		if(!config.program) {
 			return vscode.window.showInformationMessage("Select the main file.").then(_ => {
 				return undefined; // abort launch
 			});

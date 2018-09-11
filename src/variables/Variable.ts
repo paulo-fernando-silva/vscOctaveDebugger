@@ -15,7 +15,7 @@ export abstract class Variable {
 	protected _value: string = '';
 	protected _reference: number = 0;
 	protected _namedVariables: number = 0;
-	protected _indexedVariables: number = 0;
+	protected _numberOfChildren: number = 0;
 
 
 	//**************************************************************************
@@ -56,7 +56,7 @@ export abstract class Variable {
 
 
 	//**************************************************************************
-	public indexedVariables(): number { return this._indexedVariables; }
+	public indexedVariables(): number { return this._numberOfChildren; }
 
 
 	//**************************************************************************
