@@ -19,7 +19,7 @@ export class Matrix extends Variable {
 		this._value = value;
 		this._size = size;
 		this._firstNonOne = Matrix.firstNonOne(size);
-		this._indexedVariables = this._size[this._firstNonOne];
+		this._numberOfChildren = this._size[this._firstNonOne];
 	}
 
 
@@ -29,8 +29,7 @@ export class Matrix extends Variable {
 
 	//**************************************************************************
 	public loads(type: string): boolean {
-		return type === this.typename()
-			|| type === 'struct'; // Struct only types are actually arrays.
+		return type === this.typename();
 	}
 
 
