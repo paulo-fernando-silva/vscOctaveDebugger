@@ -10,14 +10,9 @@
             "name": "TestOctaveDebugger",
             "program": "TestOctaveDebugger",
             "stopOnEntry": true,
+            "octave": "octave-cli",
+            "sourceFolder": "${workspaceFolder}",
             "debugServer": 4711
-        },
-        {
-            "type": "OctaveDebugger",
-            "request": "launch",
-            "name": "Ask for file name",
-            "program": "${workspaceFolder}/${command:AskForProgramName}",
-            "stopOnEntry": true
         }
     ]
 }
