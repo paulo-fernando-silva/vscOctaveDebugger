@@ -59,6 +59,7 @@ class OctaveDebuggerConfigurationProvider implements vscode.DebugConfigurationPr
 				config.octave = Constants.DEFAULT_EXECUTABLE;
 				config.sourceFolder = '${workspaceFolder}';
 				config.stopOnEntry = false; // Not sure if this can be supported. Must search.
+				config.prefetchCount = Constants.MAXIMUM_INDICES_PREFETCH;
 			}
 		}
 

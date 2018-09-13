@@ -38,19 +38,34 @@ export class Matrix extends Variable {
 				runtime: Runtime,
 				callback: (v: Variable) => void)
 	{
-		Variables.getSize(name, runtime, (size: Array<number>) => {
+		const N = Matrix.product(size);
+		const buildCallback = (size: Array<number>) => {
 			// TODO: VSC doesn't seem to support updating parents when children change.
 			// So, we skip showing the child value in parent value.
-			// TODO: avoid displaying the contents of very large matrices.
-
-			Variables.getValue(name, runtime, (value: string) => {
-				// const value = size.join('x');
+			const buildMatrix = (value: string,) => {
 				const matrix = new Matrix(name, value, size);
-				// Matrices are registered as they have children.
 				Variables.addReferenceTo(matrix);
 				callback(matrix);
-			});
-		});
+			};
+
+			if(N <= Variables.getPrefetch()) {
+				Variables.getValue(name, runtime, (value: string) => {
+					buildMatrix(value);
+				});
+			} else {
+				const value = size.join('x');
+				buildMatrix(value);
+			}
+		};
+
+		if(this._size !== undefined && this._size.length !== 0) {
+			const prefix = (this._firstNonOne === 0? [] : this._size.slice(0, this._firstNonOne));
+			const suffix = this._size.slice(this._firstNonOne + 1);
+			const childSize = prefix.concat([1]).concat(suffix);
+			buildCallback(childSize);
+		} else {
+			Variables.getSize(name, runtime, buildCallback);
+		}
 	}
 
 
@@ -65,11 +80,18 @@ export class Matrix extends Variable {
 		const cnt = (count === 0? Nmax : count);
 		const end = start + cnt;
 		const N = Math.min(end, Nmax);
+		const childrenAreMatrices = this._size.length !== this._firstNonOne + 1;
+		const self = this;
+		const loadCallback = (!childrenAreMatrices? Variables.loadVariable :
+			(n: string, r: Runtime, cb: (v: Variable) => void) => {
+				self.load(n, r, cb);
+			}
+		);;
 
 		for(let i = start; i !== N; ++i) {
 			const child = this.childName(this.name(), i, this._size.length, this._firstNonOne);
 
-			Variables.loadVariable(child, runtime, (v: Variable) => {
+			loadCallback(child, runtime, (v: Variable) => {
 				variables.push(v);
 
 				if(variables.length === cnt) {
@@ -117,5 +139,21 @@ export class Matrix extends Variable {
 		}
 
 		return `${name}(${prefix}${index+1}${suffix})`;
+	}
+
+
+	//**************************************************************************
+	private static product(vec: Array<number>): number {
+		if(vec.length === 0) {
+			return 0;
+		}
+
+		let val = vec[0];
+
+		for(let i = 1; i !== vec.length; ++i) {
+			val *= vec[i];
+		}
+
+		return val;
 	}
 }

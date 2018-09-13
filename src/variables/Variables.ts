@@ -1,5 +1,6 @@
 import { Runtime } from '../Runtime';
 import { Variable } from './Variable';
+import * as Constants from '../Constants';
 
 
 export class Variables {
@@ -7,6 +8,20 @@ export class Variables {
 	private static _FACTORIES = new Array<Variable>();
 	private static _FALLBACK: Variable;
 	private static _REFS = new Array<Variable>();
+	private static _MAXIMUM_INDICES_PREFETCH = Constants.MAXIMUM_INDICES_PREFETCH;
+
+	//**************************************************************************
+	public static setPrefetch(n: number) {
+		if(n >= 0) {
+			Variables._MAXIMUM_INDICES_PREFETCH = n;
+		}
+	}
+
+
+	//**************************************************************************
+	public static getPrefetch(): number {
+		return Variables._MAXIMUM_INDICES_PREFETCH;
+	}
 
 
 	//**************************************************************************
