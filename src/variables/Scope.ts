@@ -46,7 +46,7 @@ export class Scope extends Variable  {
 		runtime.addInputHandler((str: string) => {
 			if(str.match(syncRegex) !== null) {
 				if(vars.length !== 0) {
-					const names = vars.split(' ').filter((val) => val);
+					const names = vars.trim().split(/\s+/).sort();
 					Variables.listVariables(names, runtime, callback);
 				} else {
 					callback(new Array<Variable>());
@@ -56,7 +56,7 @@ export class Scope extends Variable  {
 			}
 
 			if(matchesHeader) {
-				vars += str;
+				vars += ' ' + str;
 			} else if(str.match(Scope.HEADER_REGEX) !== null) {
 				matchesHeader = true;
 			}

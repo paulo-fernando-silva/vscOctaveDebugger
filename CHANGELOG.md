@@ -1,3 +1,6 @@
+## 0.1.6
+* Fix for issue #7 "scope list children fails when answer contains new lines"
+
 ## 0.1.5
 * Refactored the matrix fetch to allow only fetching a predefined number of elements. That way the amount of time taken to obtain the contents of a matrix or sub-matrix can be somewhat controlled. A prefetchCount = 1 is the fastest, but also only shows elements when at the leaf level. A prefetchCount = 2 ~ 99 costs about the same as the cost is mainly dependent on the pipe communication.
 
