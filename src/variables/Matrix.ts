@@ -34,38 +34,42 @@ export class Matrix extends Variable {
 
 
 	//**************************************************************************
+	private static buildMatrix(
+		name: string,
+		runtime: Runtime,
+		sizeProduct: number,
+		size: Array<number>,
+		callback: (v: Variable) => void
+	)
+	{
+		// TODO: VSC doesn't seem to support updating parents when children change.
+		// So, we skip showing the child value in parent value.
+		const buildCallback = (value: string,) => {
+			const matrix = new Matrix(name, value, size);
+			Variables.addReferenceTo(matrix);
+			callback(matrix);
+		};
+
+		if(sizeProduct <= Variables.getPrefetch()) {
+			Variables.getValue(name, runtime, (value: string) => {
+				buildCallback(value);
+			});
+		} else {
+			const value = size.join('x');
+			buildCallback(value);
+		}
+	}
+
+
+	//**************************************************************************
 	public load(name: string,
 				runtime: Runtime,
 				callback: (v: Variable) => void)
 	{
-		const N = Matrix.product(size);
-		const buildCallback = (size: Array<number>) => {
-			// TODO: VSC doesn't seem to support updating parents when children change.
-			// So, we skip showing the child value in parent value.
-			const buildMatrix = (value: string,) => {
-				const matrix = new Matrix(name, value, size);
-				Variables.addReferenceTo(matrix);
-				callback(matrix);
-			};
-
-			if(N <= Variables.getPrefetch()) {
-				Variables.getValue(name, runtime, (value: string) => {
-					buildMatrix(value);
-				});
-			} else {
-				const value = size.join('x');
-				buildMatrix(value);
-			}
-		};
-
-		if(this._size !== undefined && this._size.length !== 0) {
-			const prefix = (this._firstNonOne === 0? [] : this._size.slice(0, this._firstNonOne));
-			const suffix = this._size.slice(this._firstNonOne + 1);
-			const childSize = prefix.concat([1]).concat(suffix);
-			buildCallback(childSize);
-		} else {
-			Variables.getSize(name, runtime, buildCallback);
-		}
+		Variables.getSize(name, runtime, (size: Array<number>) => {
+			const sizeProduct = Matrix.product(size);
+			Matrix.buildMatrix(name, runtime, sizeProduct, size, callback);
+		});
 	}
 
 
@@ -80,17 +84,20 @@ export class Matrix extends Variable {
 		const cnt = (count === 0? Nmax : count);
 		const end = start + cnt;
 		const N = Math.min(end, Nmax);
-		const childrenAreMatrices = this._size.length !== this._firstNonOne + 1;
-		const self = this;
+		const prefix = (this._firstNonOne === 0? [] : this._size.slice(0, this._firstNonOne));
+		const suffix = this._size.slice(this._firstNonOne + 1);
+		const childSize = prefix.concat([1]).concat(suffix);
+		const sizeProduct = Matrix.product(suffix);
+		const childrenAreMatrices = sizeProduct > 1;
+
 		const loadCallback = (!childrenAreMatrices? Variables.loadVariable :
 			(n: string, r: Runtime, cb: (v: Variable) => void) => {
-				self.load(n, r, cb);
+				Matrix.buildMatrix(n, r, sizeProduct, childSize, cb);
 			}
-		);;
+		);
 
 		for(let i = start; i !== N; ++i) {
 			const child = this.childName(this.name(), i, this._size.length, this._firstNonOne);
-
 			loadCallback(child, runtime, (v: Variable) => {
 				variables.push(v);
 

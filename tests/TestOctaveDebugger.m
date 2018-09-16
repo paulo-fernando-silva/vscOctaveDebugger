@@ -18,7 +18,7 @@ function TestOctaveDebugger()
 	testNestedFunction();
 	y = [1*x 2*x; 3*x 4*x];
 	yy = [y y];
-	z = rand(1000, 201);
+	z = rand(1000, 1);
 	s11 = struct('a', 1, 'b', 1);
 	s12 = struct('a', 1, 'b', 2);
 	s21 = struct('a', 2, 'b', 1);
