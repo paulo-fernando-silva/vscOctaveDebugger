@@ -31,10 +31,12 @@
 				"-u", "tdd",
 				"--timeout", "999999",
 				"--colors",
-				"./out/tests/"
+				"./out/tests/",
+				"--debug-brk"
 			],
 			"outFiles": [ "${workspaceFolder}/out/**/*.js" ],
-			"internalConsoleOptions": "openOnSessionStart"
+			"internalConsoleOptions": "openOnSessionStart",
+			"protocol": "inspector"
 		},
 		{
 			"type": "octave",

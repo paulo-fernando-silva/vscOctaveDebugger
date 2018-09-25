@@ -42,14 +42,12 @@ export class Matrix extends Variable {
 		callback: (v: Variable) => void
 	)
 	{
-		// TODO: VSC doesn't seem to support updating parents when children change.
-		// So, we skip showing the child value in parent value.
 		const buildCallback = (value: string,) => {
 			const matrix = new Matrix(name, value, size);
 			Variables.addReferenceTo(matrix);
 			callback(matrix);
 		};
-
+		// We only fetch the contents of 2D matrices under a certain #elements.
 		if(sizeProduct <= Variables.getPrefetch()) {
 			Variables.getValue(name, runtime, (value: string) => {
 				buildCallback(value);

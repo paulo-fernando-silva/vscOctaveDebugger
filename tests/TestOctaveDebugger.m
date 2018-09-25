@@ -20,6 +20,7 @@ function TestOctaveDebugger()
 	yy = [y y];
 	aReallyLongVariableName = 0;
 	z = rand(1000, 1);
+	m = rand(3,9,1) * (1 + i);
 	s11 = struct('a', 1, 'b', 1);
 	s12 = struct('a', 1, 'b', 2);
 	s21 = struct('a', 2, 'b', 1);
