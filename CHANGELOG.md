@@ -1,3 +1,8 @@
+## 0.1.7
+* Refactored the matrix code. Now it retrives the value once, and then parses the children from that value. This is only done for two (#indices) dimensional matrices, independent of their size in each dimension.
+* struct has also been separated from matrix. Now it uses the old matrix code. I'm assuming it'll never have as many elements as a matrix.
+
+
 ## 0.1.6
 * Fix for issue #7 "scope list children fails when answer contains new lines"
 

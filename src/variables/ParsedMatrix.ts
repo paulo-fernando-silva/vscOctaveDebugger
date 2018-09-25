@@ -52,17 +52,6 @@ export class ParsedMatrix extends Variable {
 
 
 	//**************************************************************************
-	protected makeConcreteType(
-		name: string,
-		value: string,
-		size: Array<number>
-	): AbstractArray
-	{
-		return new ParsedMatrix(name, value, size);
-	}
-
-
-	//**************************************************************************
 	public typename(): string { return 'matrix'; }
 
 
@@ -73,16 +62,26 @@ export class ParsedMatrix extends Variable {
 
 
 	//**************************************************************************
-	public load(name: string,
-				runtime: Runtime,
-				callback: (v: Variable) => void)
+	public load(
+		name: string,
+		runtime: Runtime,
+		callback: (v: Variable) => void)
 	{
 		Variables.getSize(name, runtime, (size: Array<number>) => {
-			Variables.getValue(name, runtime, (value: string) => {
-				const array = this.makeConcreteType(name, value, size);
-				Variables.addReferenceTo(array);
-				callback(array);
-			});
+			const buildWith = (value) => {
+				const matrix = new ParsedMatrix(name, value, size);
+				Variables.addReferenceTo(matrix);
+				callback(matrix);
+			};
+
+			const N = size.reduce((acc, val) => acc *= val);
+			const is2DOrLess = size.length < 3;
+
+			if(is2DOrLess && N <= Variables.getPrefetch()) {
+				Variables.getValue(name, runtime, buildWith);
+			} else {
+				buildWith(size.join(Constants.SIZE_SEPARATOR));
+			}
 		});
 	}
 
@@ -99,47 +98,59 @@ export class ParsedMatrix extends Variable {
 			throw "Error: matrix has no children!";
 		}
 
+		const self = this;
+		const cb = () => {
+			if(count === 0) {
+				callback(self._children);
+			} else {
+				callback(self._children.slice(start, count));
+			}
+		};
+
 		if(this._children === undefined) {
-			this._children = ParsedMatrix.parse(
+			ParsedMatrix.parseChildren(
 				this._matrixName,
 				this._value,
 				this._freeIndices,
-				this._fixedIndices
+				this._fixedIndices,
+				(children: Array<ParsedMatrix>) => {
+					self._children = children;
+					cb();
+				}
 			);
-		}
-
-		if(count === 0) {
-			callback(this._children);
 		} else {
-			callback(this._children.slice(start, count));
+			cb();
 		}
 	}
 
 
 	//**************************************************************************
-	public static parse(
+	public static parseChildren(
 		name: string,
 		value: string,
 		freeIndices: Array<number>,
-		fixedIndices: Array<number>
-	): Array<Variable>
+		fixedIndices: Array<number>,
+		callback: (vars: Array<ParsedMatrix>) => void
+	)
 	{
 		const N = freeIndices.length;
 		switch (N) {
-			case 1: return ParsedMatrix.parse1D(name, value, freeIndices, fixedIndices);
-			case 2: return ParsedMatrix.parse2D(name, value, freeIndices, fixedIndices);
-			default: return ParsedMatrix.parseND(name, value, freeIndices, fixedIndices);
+			case 1: ParsedMatrix.parseChildren1D(name, value, freeIndices, fixedIndices, callback);
+			case 2: ParsedMatrix.parseChildren2D(name, value, freeIndices, fixedIndices, callback);
+			case 3: ParsedMatrix.parseChildren3D(name, value, freeIndices, fixedIndices, callback);
+			default: ParsedMatrix.parseChildrenND(name, value, freeIndices, fixedIndices, callback);
 		}
 	}
 
 
 	//**************************************************************************
-	public static parse1D(
+	public static parseChildren1D(
 		name: string,
 		value: string,
 		freeIndices: Array<number>,
-		fixedIndices: Array<number>
-	): Array<Variable>
+		fixedIndices: Array<number>,
+		callback: (vars: Array<ParsedMatrix>) => void
+	): void
 	{
 		if(freeIndices.length !== 1) {
 			throw `freeIndices.length: ${freeIndices.length}, expected 1!`;
@@ -149,7 +160,7 @@ export class ParsedMatrix extends Variable {
 		const childrenFreeIndices = [];
 		const prefixedIndices = fixedIndices.slice(0, 1);
 		const suffixedIndices = fixedIndices.slice(1);
-		const vars = new Array<Variable>(N);
+		const vars = new Array<ParsedMatrix>(N);
 		const values = ParsedMatrix.extractValuesLine(value);
 		// This is the only line that needs to change when parsing imaginary numbers.
 		const columns = values.trim().split(Constants.SEPARATOR);
@@ -163,17 +174,18 @@ export class ParsedMatrix extends Variable {
 			vars[i] = new ParsedMatrix(name, columns[i], childrenFreeIndices, childrenFixedIndices);
 		}
 
-		return vars;
+		callback(vars);
 	}
 
 
 	//**************************************************************************
-	public static parse2D(
+	public static parseChildren2D(
 		name: string,
 		value: string,
 		freeIndices: Array<number>,
-		fixedIndices: Array<number>
-	): Array<Variable>
+		fixedIndices: Array<number>,
+		callback: (vars: Array<ParsedMatrix>) => void
+	): void
 	{
 		if(freeIndices.length !== 2) {
 			throw `freeIndices.length: ${freeIndices.length}, expected 2!`;
@@ -183,7 +195,7 @@ export class ParsedMatrix extends Variable {
 		// This contrasts with ND which is from the right most index and leftwards.
 		const N = freeIndices[0]; // #rows
 		const childrenFreeIndices = [freeIndices[1]]; // #columns
-		const vars = new Array<Variable>(N);
+		const vars = new Array<ParsedMatrix>(N);
 		const rows = ParsedMatrix.extractValuesLines(value);
 
 		if(rows.length !== N) {
@@ -197,37 +209,78 @@ export class ParsedMatrix extends Variable {
 			vars[i] = new ParsedMatrix(name, row, childrenFreeIndices, childrenFixedIndices);
 		}
 
-		return vars;
+		callback(vars);
 	}
 
 
 	//**************************************************************************
-	public static parseND(
+	public static parseChildren3D(
 		name: string,
 		value: string,
 		freeIndices: Array<number>,
-		fixedIndices: Array<number>
-	): Array<Variable>
+		fixedIndices: Array<number>,
+		callback: (vars: Array<ParsedMatrix>) => void
+	): void
 	{
-		if(freeIndices.length < 3) {
-			throw `freeIndices.length: ${freeIndices.length}, expected >2!`;
+		if(freeIndices.length !== 3) {
+			throw `freeIndices.length: ${freeIndices.length}, expected 3!`;
 		}
-		// When parsing ND matrices we break by the right most index and leftwards.
-		const Nchildren = freeIndices[freeIndices.length - 1]; // #children
-		const Nrows = freeIndices[0]; // #rows
-		// Every other index but the rightmost is free.
-		const childrenFreeIndices = freeIndices.slice(0, freeIndices.length - 1);
-		const vars = new Array<Variable>(Nchildren);
 
-		for(let i = 0; i !== Nchildren; ++i, begin += linesPerChild) {
+		const Nchildren = freeIndices[freeIndices.length - 1]; // #children
+		const childrenFreeIndices = freeIndices.slice(0, freeIndices.length - 1);
+		const childElementCount = childrenFreeIndices.reduce((acc, val) => acc *= val);
+		const vars = new Array<ParsedMatrix>(Nchildren);
+		let count = 0;
+
+		const buildWith = (value) => {
+			const childrenFixedIndices = [count + 1].concat(fixedIndices);
+			const matrix = new ParsedMatrix(name, value, childrenFreeIndices, childrenFixedIndices);
+			Variables.addReferenceTo(matrix);
+			vars[count++] = matrix;
+
+			if(count === Nchildren) {
+				callback(vars);
+			}
+		};
+
+		if(childElementCount <= Variables.getPrefetch()) {
+			for(let i = 0; i !== Nchildren; ++i) {
+				Variables.getValue(name, runtime, buildWith);
+			}
+		} else {
+			const value = childrenFreeIndices.join(Constants.SIZE_SEPARATOR);
+			for(let i = 0; i !== Nchildren; ++i) {
+				buildWith(value);
+			}
+		}
+	}
+
+
+	//**************************************************************************
+	public static parseChildrenND(
+		name: string,
+		value: string,
+		freeIndices: Array<number>,
+		fixedIndices: Array<number>,
+		callback: (vars: Array<ParsedMatrix>) => void
+	): void
+	{
+		if(freeIndices.length > 3) {
+			throw `freeIndices.length: ${freeIndices.length}, expected > 3!`;
+		}
+		// When parsing ND matrices we just use load to directly.
+		const Nchildren = freeIndices[freeIndices.length - 1]; // #children
+		const childrenFreeIndices = freeIndices.slice(0, freeIndices.length - 1);
+		const value = childrenFreeIndices.join(Constants.SIZE_SEPARATOR);
+		const vars = new Array<ParsedMatrix>(Nchildren);
+
+		for(let i = 0; i !== Nchildren; ++i) {
 			// Indices in matlab start at 1, hence the +1
 			const childrenFixedIndices = [i + 1].concat(fixedIndices);
-			const end = begin + Nrows;
-			const value = lines.slice(begin, end).join('\n');
 			vars[i] = new ParsedMatrix(name, value, childrenFreeIndices, childrenFixedIndices);
 		}
 
-		return vars;
+		callback(vars);
 	}
 
 

@@ -39,32 +39,35 @@ const value =
 		});
 	});
 
-	describe('Matrix.parse1D short', function() {
+	describe('Matrix.parseChildren1D short', function() {
 		const name = 'm1D';
 		const values = [0.59733, 0.48898, 0.97283];
 		const value = `		${values[0]}   ${values[1]}   ${values[2]}`;
 		const freeIndices = [values.length];
 		const fixedIndices = [2,4,5];
 
-		const children = ParsedMatrix.parse1D(name, value, freeIndices, fixedIndices);
-		const expectedChildCount = freeIndices[0];
+		ParsedMatrix.parseChildren1D(name, value, freeIndices, fixedIndices,
+			(children: Array<ParsedMatrix>) => {
+				const expectedChildCount = freeIndices[0];
 
-		it(`Should create ${expectedChildCount} child variables`, function() {
-			assert.equal(children.length, expectedChildCount);
-		});
+				it(`Should create ${expectedChildCount} child variables`, function() {
+					assert.equal(children.length, expectedChildCount);
+				});
 
-		for(let i = 0; i !== values.length; ++i) {
-			const val = values[i];
-			const child = children[i];
-			const expectedName =
-			`${name}(${fixedIndices[0]},${i+1},${fixedIndices[1]},${fixedIndices[2]})`;
-			it(`Should match ${i}-th child value ${val}`, function() {
-				assert.equal(child.value(), val);
-			});
-			it(`Should match name ${expectedName}`, function() {
-				assert.equal(child.name(), expectedName);
-			});
-		}
+				for(let i = 0; i !== values.length; ++i) {
+					const val = values[i];
+					const child = children[i];
+					const expectedName =
+					`${name}(${fixedIndices[0]},${i+1},${fixedIndices[1]},${fixedIndices[2]})`;
+					it(`Should match ${i}-th child value ${val}`, function() {
+						assert.equal(child.value(), val);
+					});
+					it(`Should match name ${expectedName}`, function() {
+						assert.equal(child.name(), expectedName);
+					});
+				}
+			}
+		);
 	});
 
 	describe('Matrix.parse1D imaginary', function() {
@@ -74,25 +77,29 @@ const value =
 		const freeIndices = [values.length];
 		const fixedIndices = [2,4,5];
 
-		const children = ParsedMatrix.parse1D(name, value, freeIndices, fixedIndices);
-		const expectedChildCount = freeIndices[0];
 
-		it(`Should create ${expectedChildCount} child variables`, function() {
-			assert.equal(children.length, expectedChildCount);
-		});
+		ParsedMatrix.parseChildren1D(name, value, freeIndices, fixedIndices,
+			(children: Array<ParsedMatrix>) => {
+				const expectedChildCount = freeIndices[0];
 
-		for(let i = 0; i !== values.length; ++i) {
-			const val = values[i];
-			const child = children[i];
-			const expectedName =
-				`${name}(${fixedIndices[0]},${i+1},${fixedIndices[1]},${fixedIndices[2]})`;
-			it(`Should match ${i}-th child value ${val}`, function() {
-				assert.equal(child.value(), val);
-			});
-			it(`Should match name ${expectedName}`, function() {
-				assert.equal(child.name(), expectedName);
-			});
-		}
+				it(`Should create ${expectedChildCount} child variables`, function() {
+					assert.equal(children.length, expectedChildCount);
+				});
+
+				for(let i = 0; i !== values.length; ++i) {
+					const val = values[i];
+					const child = children[i];
+					const expectedName =
+						`${name}(${fixedIndices[0]},${i+1},${fixedIndices[1]},${fixedIndices[2]})`;
+					it(`Should match ${i}-th child value ${val}`, function() {
+						assert.equal(child.value(), val);
+					});
+					it(`Should match name ${expectedName}`, function() {
+						assert.equal(child.name(), expectedName);
+					});
+				}
+			}
+		);
 	});
 
 	describe('Matrix.parse1D long', function() {
@@ -114,25 +121,28 @@ const value =
 		const freeIndices = [values.length];
 		const fixedIndices = [2,4,5];
 
-		const children = ParsedMatrix.parse1D(name, value, freeIndices, fixedIndices);
-		const expectedChildCount = freeIndices[0];
+		ParsedMatrix.parseChildren1D(name, value, freeIndices, fixedIndices,
+			(children: Array<ParsedMatrix>) => {
+				const expectedChildCount = freeIndices[0];
 
-		it(`Should create ${expectedChildCount} child variables`, function() {
-			assert.equal(children.length, expectedChildCount);
-		});
+				it(`Should create ${expectedChildCount} child variables`, function() {
+					assert.equal(children.length, expectedChildCount);
+				});
 
-		for(let i = 0; i !== values.length; ++i) {
-			const val = values[i];
-			const child = children[i];
-			const expectedName =
-			`${name}(${fixedIndices[0]},${i+1},${fixedIndices[1]},${fixedIndices[2]})`;
-			it(`Should match ${i}-th child value ${val}`, function() {
-				assert.equal(child.value(), val);
-			});
-			it(`Should match name ${expectedName}`, function() {
-				assert.equal(child.name(), expectedName);
-			});
-		}
+				for(let i = 0; i !== values.length; ++i) {
+					const val = values[i];
+					const child = children[i];
+					const expectedName =
+					`${name}(${fixedIndices[0]},${i+1},${fixedIndices[1]},${fixedIndices[2]})`;
+					it(`Should match ${i}-th child value ${val}`, function() {
+						assert.equal(child.value(), val);
+					});
+					it(`Should match name ${expectedName}`, function() {
+						assert.equal(child.name(), expectedName);
+					});
+				}
+			}
+		);
 	});
 
 	describe('Matrix.parse2D', function() {
@@ -178,23 +188,26 @@ const value =
 		const freeIndices = [3,9]; // with 3 and 9 dimensions respectively.
 		const fixedIndices = [4,5]; // 4 and 5 are actually 1-based indices
 
-		const children = ParsedMatrix.parse2D(name, value, freeIndices, fixedIndices);
-		const expectedChildCount = freeIndices[0];
+		ParsedMatrix.parseChildren2D(name, value, freeIndices, fixedIndices,
+			(children: Array<ParsedMatrix>) => {
+				const expectedChildCount = freeIndices[0];
 
-		it(`Should create ${expectedChildCount} child variables`, function() {
-			assert.equal(children.length, expectedChildCount);
-		});
+				it(`Should create ${expectedChildCount} child variables`, function() {
+					assert.equal(children.length, expectedChildCount);
+				});
 
-		for(let i = 0; i !== rows.length; ++i) {
-			const val = rows[i];
-			const child = children[i];
-			const expectedName = `${name}(${i+1},:,${fixedIndices[0]},${fixedIndices[1]})`;
-			it(`Should match ${i}-th child value ${val}`, function() {
-				assert.equal(child.value(), val);
-			});
-			it(`Should match name ${expectedName}`, function() {
-				assert.equal(child.name(), expectedName);
-			});
-		}
+				for(let i = 0; i !== rows.length; ++i) {
+					const val = rows[i];
+					const child = children[i];
+					const expectedName = `${name}(${i+1},:,${fixedIndices[0]},${fixedIndices[1]})`;
+					it(`Should match ${i}-th child value ${val}`, function() {
+						assert.equal(child.value(), val);
+					});
+					it(`Should match name ${expectedName}`, function() {
+						assert.equal(child.name(), expectedName);
+					});
+				}
+			}
+		);
 	});
 });
