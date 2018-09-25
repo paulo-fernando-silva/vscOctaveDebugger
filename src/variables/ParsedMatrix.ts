@@ -1,6 +1,5 @@
 import { Variable } from './Variable';
 import { Variables } from './Variables';
-import { AbstractArray } from './AbstractArray';
 import { Runtime } from '../Runtime';
 import * as Constants from '../Constants';
 
@@ -8,7 +7,7 @@ import * as Constants from '../Constants';
  * Class that adds support for number based matrices.
  * This doesn't support string or character matrices.
  */
-export class ParsedMatrix extends AbstractArray {
+export class ParsedMatrix extends Variable {
 	//**************************************************************************
 	private _matrixName: string;
 	private _fixedIndices: Array<number>;
@@ -219,7 +218,6 @@ export class ParsedMatrix extends AbstractArray {
 		// Every other index but the rightmost is free.
 		const childrenFreeIndices = freeIndices.slice(0, freeIndices.length - 1);
 		const vars = new Array<Variable>(Nchildren);
-		const childValue
 
 		for(let i = 0; i !== Nchildren; ++i, begin += linesPerChild) {
 			// Indices in matlab start at 1, hence the +1
