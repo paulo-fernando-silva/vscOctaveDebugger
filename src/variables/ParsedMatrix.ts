@@ -68,7 +68,7 @@ export class ParsedMatrix extends Variable {
 		callback: (v: Variable) => void)
 	{
 		Variables.getSize(name, runtime, (size: Array<number>) => {
-			const buildWith = (value) => {
+			const buildWith = (value: string) => {
 				const matrix = new ParsedMatrix(name, value, size);
 				Variables.addReferenceTo(matrix);
 				callback(matrix);
@@ -232,7 +232,7 @@ export class ParsedMatrix extends Variable {
 		const vars = new Array<ParsedMatrix>(Nchildren);
 		let count = 0;
 
-		const buildWith = (value) => {
+		const buildWith = (value: string) => {
 			const childrenFixedIndices = [count + 1].concat(fixedIndices);
 			const matrix = new ParsedMatrix(name, value, childrenFreeIndices, childrenFixedIndices);
 			Variables.addReferenceTo(matrix);
@@ -265,19 +265,19 @@ export class ParsedMatrix extends Variable {
 		callback: (vars: Array<ParsedMatrix>) => void
 	): void
 	{
-		if(freeIndices.length > 3) {
+		if(freeIndices.length < 4) {
 			throw `freeIndices.length: ${freeIndices.length}, expected > 3!`;
 		}
 		// When parsing ND matrices we just use load to directly.
 		const Nchildren = freeIndices[freeIndices.length - 1]; // #children
 		const childrenFreeIndices = freeIndices.slice(0, freeIndices.length - 1);
-		const value = childrenFreeIndices.join(Constants.SIZE_SEPARATOR);
+		const childValue = childrenFreeIndices.join(Constants.SIZE_SEPARATOR);
 		const vars = new Array<ParsedMatrix>(Nchildren);
 
 		for(let i = 0; i !== Nchildren; ++i) {
 			// Indices in matlab start at 1, hence the +1
 			const childrenFixedIndices = [i + 1].concat(fixedIndices);
-			vars[i] = new ParsedMatrix(name, value, childrenFreeIndices, childrenFixedIndices);
+			vars[i] = new ParsedMatrix(name, childValue, childrenFreeIndices, childrenFixedIndices);
 		}
 
 		callback(vars);

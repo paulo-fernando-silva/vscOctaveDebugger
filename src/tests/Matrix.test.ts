@@ -48,13 +48,13 @@ const value =
 
 		ParsedMatrix.parseChildren1D(name, value, freeIndices, fixedIndices,
 			(children: Array<ParsedMatrix>) => {
-				const expectedChildCount = freeIndices[0];
+				const expectedChildCount = values.length;
 
 				it(`Should create ${expectedChildCount} child variables`, function() {
 					assert.equal(children.length, expectedChildCount);
 				});
 
-				for(let i = 0; i !== values.length; ++i) {
+				for(let i = 0; i !== expectedChildCount; ++i) {
 					const val = values[i];
 					const child = children[i];
 					const expectedName =
@@ -70,7 +70,7 @@ const value =
 		);
 	});
 
-	describe('Matrix.parse1D imaginary', function() {
+	describe('Matrix.parseChildren1D imaginary', function() {
 		const name = 'm1D';
 		const values = ['0.0720969 + 0.0720969i', '0.8437697 + 0.8437697i', '0.4532340 + 0.4532340i'];
 		const value = `		${values[0]}   ${values[1]}   ${values[2]}`;
@@ -80,13 +80,13 @@ const value =
 
 		ParsedMatrix.parseChildren1D(name, value, freeIndices, fixedIndices,
 			(children: Array<ParsedMatrix>) => {
-				const expectedChildCount = freeIndices[0];
+				const expectedChildCount = values.length;
 
 				it(`Should create ${expectedChildCount} child variables`, function() {
 					assert.equal(children.length, expectedChildCount);
 				});
 
-				for(let i = 0; i !== values.length; ++i) {
+				for(let i = 0; i !== expectedChildCount; ++i) {
 					const val = values[i];
 					const child = children[i];
 					const expectedName =
@@ -102,7 +102,7 @@ const value =
 		);
 	});
 
-	describe('Matrix.parse1D long', function() {
+	describe('Matrix.parseChildren1D long', function() {
 		const name = 'm1D';
 		const values = [
 			4.6334e-01, 7.9992e-01, 7.4334e-01, 3.5166e-01, 7.7881e-01, 5.7979e-01,
@@ -123,13 +123,13 @@ const value =
 
 		ParsedMatrix.parseChildren1D(name, value, freeIndices, fixedIndices,
 			(children: Array<ParsedMatrix>) => {
-				const expectedChildCount = freeIndices[0];
+				const expectedChildCount = values.length;
 
 				it(`Should create ${expectedChildCount} child variables`, function() {
 					assert.equal(children.length, expectedChildCount);
 				});
 
-				for(let i = 0; i !== values.length; ++i) {
+				for(let i = 0; i !== expectedChildCount; ++i) {
 					const val = values[i];
 					const child = children[i];
 					const expectedName =
@@ -145,7 +145,7 @@ const value =
 		);
 	});
 
-	describe('Matrix.parse2D', function() {
+	describe('Matrix.parseChildren2D', function() {
 		const name = 'm2D';
 		const values = [[
 			'0.0720969 + 0.0720969i', '0.8437697 + 0.8437697i', '0.4532340 + 0.4532340i',
@@ -185,18 +185,18 @@ const value =
 			values[2].join(Constants.SEPARATOR)
 		];
 		// freeIndices.size == two free indices
-		const freeIndices = [3,9]; // with 3 and 9 dimensions respectively.
+		const freeIndices = [rows.length,9]; // with 3 and 9 dimensions respectively.
 		const fixedIndices = [4,5]; // 4 and 5 are actually 1-based indices
 
 		ParsedMatrix.parseChildren2D(name, value, freeIndices, fixedIndices,
 			(children: Array<ParsedMatrix>) => {
-				const expectedChildCount = freeIndices[0];
+				const expectedChildCount = rows.length;
 
 				it(`Should create ${expectedChildCount} child variables`, function() {
 					assert.equal(children.length, expectedChildCount);
 				});
 
-				for(let i = 0; i !== rows.length; ++i) {
+				for(let i = 0; i !== expectedChildCount; ++i) {
 					const val = rows[i];
 					const child = children[i];
 					const expectedName = `${name}(${i+1},:,${fixedIndices[0]},${fixedIndices[1]})`;
@@ -205,6 +205,55 @@ const value =
 					});
 					it(`Should match name ${expectedName}`, function() {
 						assert.equal(child.name(), expectedName);
+					});
+				}
+			}
+		);
+	});
+
+	describe('Matrix.parseChildrenND', function() {
+		const name = 'mND';
+		const freeIndices = [1, 2, 2, 2];
+		const fixedIndices = [];
+		const values = ['0.0720969 + 0.0720969i', '0.8437697 + 0.8437697i', '0.4532340 + 0.4532340i'];
+const value = `ans(:,:,1,1) =
+
+0.46858   0.12056
+
+ans(:,:,2,1) =
+
+0.89633   0.76832
+
+ans(:,:,1,2) =
+
+0.54348   0.88416
+
+ans(:,:,2,2) =
+
+0.40381   0.97541`;
+
+		ParsedMatrix.parseChildrenND(name, value, freeIndices, fixedIndices,
+			(children: Array<ParsedMatrix>) => {
+				const consumedIndex = freeIndices.length - 1;
+				const expectedfreeIndices = freeIndices.slice(0, consumedIndex);
+				const expectedChildCount = freeIndices[consumedIndex];
+				const expectedValue = expectedfreeIndices.join(Constants.SIZE_SEPARATOR);
+				const prefix = (expectedfreeIndices.length !== 0?
+					':,'.repeat(expectedfreeIndices.length) : '');
+				const suffix = (fixedIndices.length !== 0? ',' + fixedIndices.join(',') : '');
+
+				it(`Should create ${expectedChildCount} child variables`, function() {
+					assert.equal(children.length, expectedChildCount);
+				});
+
+				for(let i = 0; i !== expectedChildCount; ++i) {
+					const child = children[i];
+					const expectedName = `${name}(${prefix}${i+1}${suffix})`;
+					it(`Should match name ${expectedName}`, function() {
+						assert.equal(child.name(), expectedName);
+					});
+					it(`Should match ${i}-th child value ${expectedValue}`, function() {
+						assert.equal(child.value(), expectedValue);
 					});
 				}
 			}
