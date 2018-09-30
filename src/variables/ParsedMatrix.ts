@@ -109,6 +109,7 @@ export class ParsedMatrix extends Variable {
 
 		if(this._children === undefined) {
 			ParsedMatrix.parseChildren(
+				runtime,
 				this._matrixName,
 				this._value,
 				this._freeIndices,
@@ -126,6 +127,7 @@ export class ParsedMatrix extends Variable {
 
 	//**************************************************************************
 	public static parseChildren(
+		runtime: Runtime,
 		name: string,
 		value: string,
 		freeIndices: Array<number>,
@@ -135,10 +137,14 @@ export class ParsedMatrix extends Variable {
 	{
 		const N = freeIndices.length;
 		switch (N) {
-			case 1: ParsedMatrix.parseChildren1D(name, value, freeIndices, fixedIndices, callback);
-			case 2: ParsedMatrix.parseChildren2D(name, value, freeIndices, fixedIndices, callback);
-			case 3: ParsedMatrix.parseChildren3D(name, value, freeIndices, fixedIndices, callback);
-			default: ParsedMatrix.parseChildrenND(name, value, freeIndices, fixedIndices, callback);
+			case 1: ParsedMatrix.parseChildren1D(
+				name, value, freeIndices, fixedIndices, callback);
+			case 2: ParsedMatrix.parseChildren2D(
+				name, value, freeIndices, fixedIndices, callback);
+			case 3: ParsedMatrix.parseChildren3D(runtime,
+				name, value, freeIndices, fixedIndices, callback);
+			default: ParsedMatrix.parseChildrenND(
+				name, value, freeIndices, fixedIndices, callback);
 		}
 	}
 
@@ -215,6 +221,7 @@ export class ParsedMatrix extends Variable {
 
 	//**************************************************************************
 	public static parseChildren3D(
+		runtime: Runtime,
 		name: string,
 		value: string,
 		freeIndices: Array<number>,
@@ -245,7 +252,10 @@ export class ParsedMatrix extends Variable {
 
 		if(childElementCount <= Variables.getPrefetch()) {
 			for(let i = 0; i !== Nchildren; ++i) {
-				Variables.getValue(name, runtime, buildWith);
+				const childrenFixedIndices = [i + 1].concat(fixedIndices);
+				const childName =
+					ParsedMatrix.makeName(name, childrenFreeIndices, childrenFixedIndices);
+				Variables.getValue(childName, runtime, buildWith);
 			}
 		} else {
 			const value = childrenFreeIndices.join(Constants.SIZE_SEPARATOR);

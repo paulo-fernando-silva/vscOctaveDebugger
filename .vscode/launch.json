@@ -24,7 +24,7 @@
 		{
 			"type": "node",
 			"request": "launch",
-			"name": "Tests",
+			"name": "Unit Tests",
 			"cwd": "${workspaceFolder}",
 			"program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
 			"args": [

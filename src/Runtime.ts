@@ -23,14 +23,18 @@ export class Runtime extends EventEmitter {
 	private _processStderr: ReadLine;
 	private _inputHandler: Array<(str: string) => boolean>;
 	private _eventHandler: Array<(str: string) => boolean>;
+	private _log: boolean = true;
 
 
 	//**************************************************************************
-	public constructor(	processName: string,
-						sourceFolder: string)
+	public constructor(
+		processName: string,
+		sourceFolder: string,
+		log: boolean = true)
 	{
 		super();
 		this._processName = processName;
+		this.setLog(log);
 		this.connect();
 		this.clearInputHandlers();
 		this.clearEventHandlers();
@@ -38,6 +42,18 @@ export class Runtime extends EventEmitter {
 		// This allows us to run code from anywhere on our HD.
 		this.send(`addpath('${sourceFolder}')`);
 		this.sync();
+	}
+
+
+	//**************************************************************************
+	public setLog(log: boolean): void {
+		this._log = log;
+	}
+
+
+	//**************************************************************************
+	public getLog(): boolean {
+		return this._log;
 	}
 
 
@@ -56,7 +72,7 @@ export class Runtime extends EventEmitter {
 
 	//**************************************************************************
 	public disconnect() {
-		this._process.kill();
+		this.send('quit');
 	}
 
 
@@ -89,7 +105,7 @@ export class Runtime extends EventEmitter {
 	//**************************************************************************
 	public send(cmd: string) {
 		++this._commandNumber;
-		console.log(`${this._processName}:${this._commandNumber}> ${cmd}`);
+		this.log(`${this._processName}:${this._commandNumber}> ${cmd}`);
 		this._process.stdin.write(`${cmd}\n`);
 	}
 
@@ -111,6 +127,27 @@ export class Runtime extends EventEmitter {
 		const id = this._commandNumber;
 		this.send(this.echo(Runtime.syncString(id)));
 		return id;
+	}
+
+
+	//**************************************************************************
+	public waitSync(callback: () => void): void {
+		let syncRegex;
+		this.addInputHandler((str: string) => {
+			if(str.match(syncRegex) !== null) {
+				callback();
+				return true;
+			}
+			return false;
+		});
+		syncRegex = Runtime.syncRegEx(this.sync());
+	}
+
+
+	//**************************************************************************
+	public waitSend(cmd: string, callback: () => void): void {
+		this.send(cmd);
+		this.waitSync(callback);
 	}
 
 
@@ -157,7 +194,7 @@ export class Runtime extends EventEmitter {
 	// Private interface
 	//**************************************************************************
 	private onStdout(data) {
-		console.log(`stdout> ${data}`);
+		this.log(`stdout> ${data}`);
 
 		if(!this.terminated(data)) {
 			const callback = this._inputHandler.shift();
@@ -174,13 +211,13 @@ export class Runtime extends EventEmitter {
 		this._eventHandler.some(callback => {
 			return callback(data);
 		});
-		console.log(`stderr> ${data}`);
+		this.log(`stderr> ${data}`);
 	}
 
 
 	//**************************************************************************
 	private onExit(code) {
-		console.log(`${this._processName} exited with code: code`);
+		this.log(`${this._processName} exited with code: ${code}`);
 		this.emit('end');
 	}
 
@@ -199,5 +236,13 @@ export class Runtime extends EventEmitter {
 		}
 
 		return false;
+	}
+
+
+	//**************************************************************************
+	private log(str: string): void {
+		if(this._log) {
+			console.log(str);
+		}
 	}
 }

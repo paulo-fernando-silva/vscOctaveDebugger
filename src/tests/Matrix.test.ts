@@ -1,6 +1,7 @@
 import { ParsedMatrix } from '../variables/ParsedMatrix';
 import * as assert from 'assert';
 import * as Constants from '../Constants';
+import { Runtime } from '../Runtime';
 
 describe('Test Matrix', function() {
 	describe('Matrix.makeName', function() {
@@ -215,7 +216,6 @@ const value =
 		const name = 'mND';
 		const freeIndices = [1, 2, 2, 2];
 		const fixedIndices = [];
-		const values = ['0.0720969 + 0.0720969i', '0.8437697 + 0.8437697i', '0.4532340 + 0.4532340i'];
 const value = `ans(:,:,1,1) =
 
 0.46858   0.12056
@@ -258,5 +258,54 @@ ans(:,:,2,2) =
 				}
 			}
 		);
+	});
+
+	describe('Matrix.parseChildren3D', async function() {
+		const name = 'm3D';
+		const freeIndices = [1, 2, 2];
+		const fixedIndices = [];
+		const values = ['0.71780   0.57914', '0.62359   0.98442'];
+		const value = freeIndices.join(Constants.SIZE_SEPARATOR);
+		const consumedIndex = freeIndices.length - 1;
+		const expectedfreeIndices = freeIndices.slice(0, consumedIndex);
+		const expectedChildCount = freeIndices[consumedIndex];
+		const prefix = (expectedfreeIndices.length !== 0?
+			':,'.repeat(expectedfreeIndices.length) : '');
+		const suffix = (fixedIndices.length !== 0? ',' + fixedIndices.join(',') : '');
+
+		let children;
+
+		before((done) => {
+			const runtime = new Runtime(Constants.DEFAULT_EXECUTABLE, '.', true);
+			const cmd = `${name}(:,:,1) = [${values[0]}];${name}(:,:,2) = [${values[1]}];`;
+			runtime.waitSend(cmd, () => {
+				ParsedMatrix.parseChildren3D(runtime, name, value, freeIndices, fixedIndices,
+					(parsedChildren: Array<ParsedMatrix>) => {
+						children = parsedChildren;
+						runtime.disconnect();
+						done();
+					}
+				);
+			});
+		});
+
+		describe('Matrix.parseChildren3D load from runtime', async function() {
+			it(`Should create ${expectedChildCount} child variables`, function() {
+				assert.equal(children.length, expectedChildCount);
+			});
+
+			for(let i = 0; i !== expectedChildCount; ++i) {
+				const val = values[i];
+				const expectedName = `${name}(${prefix}${i+1}${suffix})`;
+				it(`Should match name ${expectedName}`, async function() {
+					const child = children[i];
+					assert.equal(child.name(), expectedName);
+				});
+				it(`Should match ${i}-th child value ${val}`, async function() {
+					const child = children[i];
+					assert.equal(child.value(), val);
+				});
+			}
+		});
 	});
 });
