@@ -40,14 +40,17 @@ const value =
 		});
 	});
 
-	describe('Matrix.parseChildren1D short', function() {
+	describe('Matrix.parseChildrenOf1DMatrix short', function() {
 		const name = 'm1D';
 		const values = [0.59733, 0.48898, 0.97283];
-		const value = `		${values[0]}   ${values[1]}   ${values[2]}`;
+const value = `
+   ${values[0]}
+   ${values[1]}
+   ${values[2]}`;
 		const freeIndices = [values.length];
 		const fixedIndices = [2,4,5];
 
-		ParsedMatrix.parseChildren1D(name, value, freeIndices, fixedIndices,
+		ParsedMatrix.parseChildrenOf1DMatrix(name, value, freeIndices, fixedIndices,
 			(children: Array<ParsedMatrix>) => {
 				const expectedChildCount = values.length;
 
@@ -58,8 +61,7 @@ const value =
 				for(let i = 0; i !== expectedChildCount; ++i) {
 					const val = values[i];
 					const child = children[i];
-					const expectedName =
-					`${name}(${fixedIndices[0]},${i+1},${fixedIndices[1]},${fixedIndices[2]})`;
+					const expectedName = `${name}(${i+1},${fixedIndices.join(',')})`;
 					it(`Should match ${i}-th child value ${val}`, function() {
 						assert.equal(child.value(), val);
 					});

@@ -150,7 +150,7 @@ export class ParsedMatrix extends Variable {
 
 
 	//**************************************************************************
-	public static parseChildren1D(
+	public static parseChildrenOf1DMatrix(
 		name: string,
 		value: string,
 		freeIndices: Array<number>,
@@ -163,21 +163,23 @@ export class ParsedMatrix extends Variable {
 		}
 
 		const N = freeIndices[0];
-		const childrenFreeIndices = [];
-		const prefixedIndices = fixedIndices.slice(0, 1);
-		const suffixedIndices = fixedIndices.slice(1);
+		const childFreeIndices = [];
 		const vars = new Array<ParsedMatrix>(N);
-		const values = ParsedMatrix.extractValuesLine(value);
-		// This is the only line that needs to change when parsing imaginary numbers.
-		const columns = values.trim().split(Constants.SEPARATOR);
+		const vectors = ParsedMatrix.extractColumnVectors(value);
 
-		if(columns.length !== N) {
-			throw `columns.length: ${columns.length} != ${N}!`;
+		if(vectors.length !== 1) {
+			throw `vectors.length: ${vectors.length} != 1!`;
+		}
+
+		const vector = vectors[0];
+
+		if(vector.length !== N) {
+			throw `vector.length: ${vector.length} != ${N}!`;
 		}
 
 		for(let i = 0; i !== N; ++i) {
-			const childrenFixedIndices = prefixedIndices.concat([i + 1].concat(suffixedIndices));
-			vars[i] = new ParsedMatrix(name, columns[i], childrenFreeIndices, childrenFixedIndices);
+			const childFixedIndices = [i + 1].concat(fixedIndices);
+			vars[i] = new ParsedMatrix(name, vector[i], childFreeIndices, childFixedIndices);
 		}
 
 		callback(vars);
@@ -338,7 +340,7 @@ export class ParsedMatrix extends Variable {
 					++i; // skip line
 					let j = 0;
 					while(i !== N && inLines[i].match(regex) === null) {
-						outLines[j++] += Constants.SEPARATOR + inLines[i++].trim();
+						outLines[j++] += Constants.ROW_ELEMENTS_SEPARATOR + inLines[i++].trim();
 					}
 				}
 			} else {
@@ -353,6 +355,41 @@ export class ParsedMatrix extends Variable {
 	//**************************************************************************
 	public static extractValuesLine(value: string): string {
 		const lines = ParsedMatrix.extractValuesLines(value);
-		return lines.join(Constants.SEPARATOR).trim();
+		return lines.join(Constants.ROW_ELEMENTS_SEPARATOR).trim();
+	}
+
+
+	//**************************************************************************
+	public static extractColumnVectors(value: string): Array<Array<number>> {
+		const lines = ParsedMatrix.extractValuesLines(value);
+		const Nrows = lines.length;
+
+		if(Nrows === 0) {
+			return [];
+		}
+
+		let row = 0;
+		let rowValues = lines[row].trim().split(Constants.ROW_ELEMENTS_SEPARATOR);
+		const Ncols = rowValues.length;
+		const vectors = new Array<Array<number>>(Ncols);
+
+		for(let col = 0; col !== Ncols; ++col) {
+			vectors[col] = new Array<number>(Nrows);
+			vectors[col][row] = rowValues[col];
+		}
+
+		for(row = 1; row !== Nrows; ++row) {
+			rowValues = lines[row].trim().split(Constants.ROW_ELEMENTS_SEPARATOR);
+
+			if(rowValues.length !== Ncols) {
+				throw `rowValues.length !== Ncols: ${rowValues.length} !== ${Ncols}`;
+			}
+
+			for(let col = 0; col !== Ncols; ++col) {
+				vectors[col][row] = rowValues[col];
+			}
+		}
+
+		return vectors;
 	}
 }

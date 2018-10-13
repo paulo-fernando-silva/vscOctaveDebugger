@@ -6,5 +6,6 @@ export const DEBUGGER_TYPE = 'OctaveDebugger';
 export const DEFAULT_EXECUTABLE = 'octave-cli';
 export const LANGUAGE = 'matlab';
 export const MAXIMUM_INDICES_PREFETCH = 2;
-export const SEPARATOR = '   ';
+export const ROW_ELEMENTS_SEPARATOR = '   ';
+export const COLUMN_ELEMENTS_SEPARATOR = '\n';
 export const SIZE_SEPARATOR = 'x';
