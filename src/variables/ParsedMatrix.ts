@@ -301,35 +301,19 @@ export class ParsedMatrix extends Variable {
 		fixedIndices: Array<number>
 	): string
 	{
-		let freeIndicesStr = '', fixedRowIndexStr = '', sufixedIndicesStr = '';
+		let freeIndicesStr = '', fixedIndicesStr = '';
 
-		if(fixedIndices.length === 0) {
+		if(fixedIndices.length !== 0) {
+			fixedIndicesStr = fixedIndices.join(',');
+		} else {
 			return name;
 		}
 
 		if(freeIndices.length !== 0) {
-			freeIndicesStr = ':,'.repeat(freeIndices.length - 1) + ':';
+			freeIndicesStr = ':,'.repeat(freeIndices.length);
 		}
 
-		if(fixedIndices.length !== 0) {
-			let tail = fixedIndices;
-
-			if(freeIndices.length === 1) {
-				// There's at least 1 free column index and a fixed row index.
-				fixedRowIndexStr += fixedIndices[0] + ',';
-				tail = fixedIndices.slice(1);
-			}
-
-			if(tail.length !== 0) {
-				sufixedIndicesStr += tail.join(',');
-
-				if(freeIndices.length !== 0) {
-					freeIndicesStr += ',';
-				}
-			}
-		}
-
-		return `${name}(${fixedRowIndexStr}${freeIndicesStr}${sufixedIndicesStr})`;
+		return `${name}(${freeIndicesStr}${fixedIndicesStr})`;
 	}
 
 

@@ -9,9 +9,9 @@ describe('Test Matrix', function() {
 		it(`Should return ${name}`, function() {
 			assert.equal(ParsedMatrix.makeName(name, [], []), name);
 		});
-		const freeIndices = [2,3];
-		const fixedIndices = [4,5];
-		const expectedName = `${name}(:,:,4,5)`;
+		const freeIndices = [2];
+		const fixedIndices = [3,4,5];
+		const expectedName = `${name}(:,3,4,5)`;
 		it(`Should return ${expectedName}`, function() {
 			assert.equal(ParsedMatrix.makeName(name, freeIndices, fixedIndices), expectedName);
 		});
