@@ -1,6 +1,7 @@
 import { ParsedMatrix } from '../variables/ParsedMatrix';
 import * as assert from 'assert';
 import * as Constants from '../Constants';
+import { Runtime } from '../Runtime';
 
 describe('Test Matrix', function() {
 	// ********************************************************************************
@@ -217,12 +218,11 @@ const value =
 		);
 	});
 
-	describe('Matrix.parseChildren3D', async function() {
+	describe('Matrix.fetchChildren', async function() {
 		const name = 'm3D';
 		const freeIndices = [1, 2, 2];
 		const fixedIndices = [];
 		const values = ['0.71780   0.57914', '0.62359   0.98442'];
-		const value = freeIndices.join(Constants.SIZE_SEPARATOR);
 		const consumedIndex = freeIndices.length - 1;
 		const expectedfreeIndices = freeIndices.slice(0, consumedIndex);
 		const expectedChildCount = freeIndices[consumedIndex];
@@ -236,17 +236,17 @@ const value =
 			const runtime = new Runtime(Constants.DEFAULT_EXECUTABLE, '.', true);
 			const cmd = `${name}(:,:,1) = [${values[0]}];${name}(:,:,2) = [${values[1]}];`;
 			runtime.waitSend(cmd, () => {
-				ParsedMatrix.parseChildren3D(runtime, name, value, freeIndices, fixedIndices,
+				ParsedMatrix.fetchChildren(runtime, name, freeIndices, fixedIndices,
 					(parsedChildren: Array<ParsedMatrix>) => {
 						children = parsedChildren;
-						runtime.disconnect();
 						done();
+						runtime.disconnect();
 					}
 				);
 			});
 		});
 
-		describe('Matrix.parseChildren3D load from runtime', async function() {
+		describe('Matrix.fetchChildren load from runtime', async function() {
 			it(`Should create ${expectedChildCount} child variables`, function() {
 				assert.equal(children.length, expectedChildCount);
 			});
