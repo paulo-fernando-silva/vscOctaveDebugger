@@ -187,7 +187,7 @@ export class ParsedMatrix extends Variable {
 
 
 	//**************************************************************************
-	public static parseChildren2D(
+	public static parseChildrenOf2DMatrix(
 		name: string,
 		value: string,
 		freeIndices: Array<number>,
@@ -199,22 +199,19 @@ export class ParsedMatrix extends Variable {
 			throw `freeIndices.length: ${freeIndices.length}, expected 2!`;
 		}
 
-		// When parsing 2D matrices we break by rows and then columns.
-		// This contrasts with ND which is from the right most index and leftwards.
-		const N = freeIndices[0]; // #rows
-		const childrenFreeIndices = [freeIndices[1]]; // #columns
+		const N = freeIndices[freeIndices.length - 1];
+		const childFreeIndices = freeIndices.slice(0, freeIndices.length - 1);
 		const vars = new Array<ParsedMatrix>(N);
-		const rows = ParsedMatrix.extractValuesLines(value);
+		const vectors = ParsedMatrix.extractColumnVectors(value);
 
-		if(rows.length !== N) {
-			throw `rows.length: ${rows.length} != ${N}!`;
+		if(vectors.length !== N) {
+			throw `vectors.length: ${vectors.length} != ${N}!`;
 		}
 
 		for(let i = 0; i !== N; ++i) {
-			// Indices in matlab start at 1, hence the +1
-			const childrenFixedIndices = [i + 1].concat(fixedIndices);
-			const row = rows[i].trim();
-			vars[i] = new ParsedMatrix(name, row, childrenFreeIndices, childrenFixedIndices);
+			const childFixedIndices = [i + 1].concat(fixedIndices);
+			const childValue = vectors[i].join(Constants.COLUMN_ELEMENTS_SEPARATOR);
+			vars[i] = new ParsedMatrix(name, childValue, childFreeIndices, childFixedIndices);
 		}
 
 		callback(vars);
