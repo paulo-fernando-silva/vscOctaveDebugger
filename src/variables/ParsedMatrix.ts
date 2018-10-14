@@ -62,22 +62,29 @@ export class ParsedMatrix extends Variable {
 
 
 	//**************************************************************************
+	public static loadable(size: Array<number>): boolean {
+		const N = size.reduce((acc, val) => acc *= val);
+		const is2DOrLess = size.length < 3;
+		return is2DOrLess && N <= Variables.getPrefetch();
+	}
+
+
+	//**************************************************************************
 	public load(
 		name: string,
 		runtime: Runtime,
 		callback: (v: Variable) => void)
 	{
 		Variables.getSize(name, runtime, (size: Array<number>) => {
+			const loadable = ParsedMatrix.loadable(size);
+
 			const buildWith = (value: string) => {
-				const matrix = new ParsedMatrix(name, value, size);
+				const matrix = new ParsedMatrix(name, value, size, [], loadable);
 				Variables.addReferenceTo(matrix);
 				callback(matrix);
 			};
 
-			const N = size.reduce((acc, val) => acc *= val);
-			const is2DOrLess = size.length < 3;
-
-			if(is2DOrLess && N <= Variables.getPrefetch()) {
+			if(loadable) {
 				Variables.getValue(name, runtime, buildWith);
 			} else {
 				buildWith(size.join(Constants.SIZE_SEPARATOR));
@@ -219,28 +226,28 @@ export class ParsedMatrix extends Variable {
 
 
 	//**************************************************************************
-	public static parseChildren3D(
+	public static fetchChildren(
 		runtime: Runtime,
 		name: string,
-		value: string,
 		freeIndices: Array<number>,
 		fixedIndices: Array<number>,
 		callback: (vars: Array<ParsedMatrix>) => void
 	): void
 	{
-		if(freeIndices.length !== 3) {
-			throw `freeIndices.length: ${freeIndices.length}, expected 3!`;
+		if(freeIndices.length === 0) {
+			throw `fetchChildren::freeIndices.length: ${freeIndices.length} === 0`;
 		}
 
 		const Nchildren = freeIndices[freeIndices.length - 1]; // #children
 		const childrenFreeIndices = freeIndices.slice(0, freeIndices.length - 1);
-		const childElementCount = childrenFreeIndices.reduce((acc, val) => acc *= val);
 		const vars = new Array<ParsedMatrix>(Nchildren);
+		const loadable = ParsedMatrix.loadable(childrenFreeIndices);
 		let count = 0;
 
 		const buildWith = (value: string) => {
 			const childrenFixedIndices = [count + 1].concat(fixedIndices);
-			const matrix = new ParsedMatrix(name, value, childrenFreeIndices, childrenFixedIndices);
+			const matrix = new ParsedMatrix(
+				name, value, childrenFreeIndices, childrenFixedIndices, loadable);
 			Variables.addReferenceTo(matrix);
 			vars[count++] = matrix;
 
@@ -249,7 +256,7 @@ export class ParsedMatrix extends Variable {
 			}
 		};
 
-		if(childElementCount <= Variables.getPrefetch()) {
+		if(loadable) {
 			for(let i = 0; i !== Nchildren; ++i) {
 				const childrenFixedIndices = [i + 1].concat(fixedIndices);
 				const childName =
@@ -262,34 +269,6 @@ export class ParsedMatrix extends Variable {
 				buildWith(value);
 			}
 		}
-	}
-
-
-	//**************************************************************************
-	public static parseChildrenND(
-		name: string,
-		value: string,
-		freeIndices: Array<number>,
-		fixedIndices: Array<number>,
-		callback: (vars: Array<ParsedMatrix>) => void
-	): void
-	{
-		if(freeIndices.length < 4) {
-			throw `freeIndices.length: ${freeIndices.length}, expected > 3!`;
-		}
-		// When parsing ND matrices we just use load to directly.
-		const Nchildren = freeIndices[freeIndices.length - 1]; // #children
-		const childrenFreeIndices = freeIndices.slice(0, freeIndices.length - 1);
-		const childValue = childrenFreeIndices.join(Constants.SIZE_SEPARATOR);
-		const vars = new Array<ParsedMatrix>(Nchildren);
-
-		for(let i = 0; i !== Nchildren; ++i) {
-			// Indices in matlab start at 1, hence the +1
-			const childrenFixedIndices = [i + 1].concat(fixedIndices);
-			vars[i] = new ParsedMatrix(name, childValue, childrenFreeIndices, childrenFixedIndices);
-		}
-
-		callback(vars);
 	}
 
 

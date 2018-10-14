@@ -184,27 +184,12 @@ const value =
 		);
 	});
 
-	describe('Matrix.parseChildrenND', function() {
+	describe('Matrix.fetchChildren not loadable', function() {
 		const name = 'mND';
 		const freeIndices = [1, 2, 2, 2];
 		const fixedIndices = [];
-const value = `ans(:,:,1,1) =
 
-0.46858   0.12056
-
-ans(:,:,2,1) =
-
-0.89633   0.76832
-
-ans(:,:,1,2) =
-
-0.54348   0.88416
-
-ans(:,:,2,2) =
-
-0.40381   0.97541`;
-
-		ParsedMatrix.parseChildrenND(name, value, freeIndices, fixedIndices,
+		ParsedMatrix.fetchChildren(undefined, name, freeIndices, fixedIndices,
 			(children: Array<ParsedMatrix>) => {
 				const consumedIndex = freeIndices.length - 1;
 				const expectedfreeIndices = freeIndices.slice(0, consumedIndex);
