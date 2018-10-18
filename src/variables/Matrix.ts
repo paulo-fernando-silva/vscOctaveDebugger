@@ -8,7 +8,7 @@ import * as Constants from '../Constants';
  * This doesn't support string or character matrices.
  * 1D matrices are column vectors.
  */
-export class ParsedMatrix extends Variable {
+export class Matrix extends Variable {
 	//**************************************************************************
 	private _matrixName: string;
 	private _fixedIndices: Array<number>;
@@ -34,7 +34,7 @@ export class ParsedMatrix extends Variable {
 	{
 		super();
 		this._matrixName = name;
-		this._name = ParsedMatrix.makeName(name, freeIndices, fixedIndices);
+		this._name = Matrix.makeName(name, freeIndices, fixedIndices);
 		this._value = value;
 		this._freeIndices = freeIndices;
 		this._fixedIndices = fixedIndices;
@@ -75,10 +75,10 @@ export class ParsedMatrix extends Variable {
 		callback: (v: Variable) => void)
 	{
 		Variables.getSize(name, runtime, (size: Array<number>) => {
-			const loadable = ParsedMatrix.loadable(size);
+			const loadable = Matrix.loadable(size);
 
 			const buildWith = (value: string) => {
-				const matrix = new ParsedMatrix(name, value, size, [], loadable);
+				const matrix = new Matrix(name, value, size, [], loadable);
 				Variables.addReferenceTo(matrix);
 				callback(matrix);
 			};
@@ -114,14 +114,14 @@ export class ParsedMatrix extends Variable {
 		};
 
 		if(this._children === undefined) {
-			const updateChildrenCB = (children: Array<ParsedMatrix>) => {
+			const updateChildrenCB = (children: Array<Matrix>) => {
 				self._children = children;
 				cb();
 			};
 			if(this._validValue) {
 				this.parseChildren(updateChildrenCB);
 			} else {
-				ParsedMatrix.fetchChildren(
+				Matrix.fetchChildren(
 					runtime, this._name, this._freeIndices,
 					this._fixedIndices, updateChildrenCB);
 			}
@@ -132,7 +132,7 @@ export class ParsedMatrix extends Variable {
 
 
 	//**************************************************************************
-	public parseChildren(callback: (vars: Array<ParsedMatrix>) => void): void {
+	public parseChildren(callback: (vars: Array<Matrix>) => void): void {
 		const name = this._matrixName;
 		const value = this._value;
 		const freeIndices = this._freeIndices;
@@ -140,9 +140,9 @@ export class ParsedMatrix extends Variable {
 		const N = freeIndices.length;
 
 		switch(N) {
-			case 1: ParsedMatrix.parseChildrenOf1DMatrix(
+			case 1: Matrix.parseChildrenOf1DMatrix(
 				name, value, freeIndices, fixedIndices, callback); break;
-			case 2: ParsedMatrix.parseChildrenOf2DMatrix(
+			case 2: Matrix.parseChildrenOf2DMatrix(
 				name, value, freeIndices, fixedIndices, callback); break;
 			default:
 				throw "Parsing of n > 2 dimensional matrices is not supported!";
@@ -156,7 +156,7 @@ export class ParsedMatrix extends Variable {
 		value: string,
 		freeIndices: Array<number>,
 		fixedIndices: Array<number>,
-		callback: (vars: Array<ParsedMatrix>) => void
+		callback: (vars: Array<Matrix>) => void
 	): void
 	{
 		if(freeIndices.length !== 1) {
@@ -165,8 +165,8 @@ export class ParsedMatrix extends Variable {
 
 		const N = freeIndices[0];
 		const childFreeIndices = [];
-		const vars = new Array<ParsedMatrix>(N);
-		const vectors = ParsedMatrix.extractColumnVectors(value);
+		const vars = new Array<Matrix>(N);
+		const vectors = Matrix.extractColumnVectors(value);
 
 		if(vectors.length !== 1) {
 			throw `vectors.length: ${vectors.length} != 1!`;
@@ -180,7 +180,7 @@ export class ParsedMatrix extends Variable {
 
 		for(let i = 0; i !== N; ++i) {
 			const childFixedIndices = [i + 1].concat(fixedIndices);
-			vars[i] = new ParsedMatrix(name, ''+vector[i], childFreeIndices, childFixedIndices);
+			vars[i] = new Matrix(name, ''+vector[i], childFreeIndices, childFixedIndices);
 		}
 
 		callback(vars);
@@ -193,7 +193,7 @@ export class ParsedMatrix extends Variable {
 		value: string,
 		freeIndices: Array<number>,
 		fixedIndices: Array<number>,
-		callback: (vars: Array<ParsedMatrix>) => void
+		callback: (vars: Array<Matrix>) => void
 	): void
 	{
 		if(freeIndices.length !== 2) {
@@ -202,8 +202,8 @@ export class ParsedMatrix extends Variable {
 
 		const N = freeIndices[freeIndices.length - 1];
 		const childFreeIndices = freeIndices.slice(0, freeIndices.length - 1);
-		const vars = new Array<ParsedMatrix>(N);
-		const vectors = ParsedMatrix.extractColumnVectors(value);
+		const vars = new Array<Matrix>(N);
+		const vectors = Matrix.extractColumnVectors(value);
 
 		if(vectors.length !== N) {
 			throw `vectors.length: ${vectors.length} != ${N}!`;
@@ -212,7 +212,7 @@ export class ParsedMatrix extends Variable {
 		for(let i = 0; i !== N; ++i) {
 			const childFixedIndices = [i + 1].concat(fixedIndices);
 			const childValue = vectors[i].join(Constants.COLUMN_ELEMENTS_SEPARATOR);
-			vars[i] = new ParsedMatrix(name, childValue, childFreeIndices, childFixedIndices);
+			vars[i] = new Matrix(name, childValue, childFreeIndices, childFixedIndices);
 		}
 
 		callback(vars);
@@ -225,7 +225,7 @@ export class ParsedMatrix extends Variable {
 		name: string,
 		freeIndices: Array<number>,
 		fixedIndices: Array<number>,
-		callback: (vars: Array<ParsedMatrix>) => void
+		callback: (vars: Array<Matrix>) => void
 	): void
 	{
 		if(freeIndices.length === 0) {
@@ -234,13 +234,13 @@ export class ParsedMatrix extends Variable {
 
 		const Nchildren = freeIndices[freeIndices.length - 1]; // #children
 		const childrenFreeIndices = freeIndices.slice(0, freeIndices.length - 1);
-		const vars = new Array<ParsedMatrix>(Nchildren);
-		const loadable = ParsedMatrix.loadable(childrenFreeIndices);
+		const vars = new Array<Matrix>(Nchildren);
+		const loadable = Matrix.loadable(childrenFreeIndices);
 		let count = 0;
 
 		const buildWith = (value: string) => {
 			const childrenFixedIndices = [count + 1].concat(fixedIndices);
-			const matrix = new ParsedMatrix(
+			const matrix = new Matrix(
 				name, value, childrenFreeIndices, childrenFixedIndices, loadable);
 			Variables.addReferenceTo(matrix);
 			vars[count++] = matrix;
@@ -254,7 +254,7 @@ export class ParsedMatrix extends Variable {
 			for(let i = 0; i !== Nchildren; ++i) {
 				const childrenFixedIndices = [i + 1].concat(fixedIndices);
 				const childName =
-					ParsedMatrix.makeName(name, childrenFreeIndices, childrenFixedIndices);
+					Matrix.makeName(name, childrenFreeIndices, childrenFixedIndices);
 				Variables.getValue(childName, runtime, buildWith);
 			}
 		} else {
@@ -324,14 +324,14 @@ export class ParsedMatrix extends Variable {
 
 	//**************************************************************************
 	public static extractValuesLine(value: string): string {
-		const lines = ParsedMatrix.extractValuesLines(value);
+		const lines = Matrix.extractValuesLines(value);
 		return lines.join(Constants.ROW_ELEMENTS_SEPARATOR).trim();
 	}
 
 
 	//**************************************************************************
 	public static extractColumnVectors(value: string): Array<Array<string>> {
-		const lines = ParsedMatrix.extractValuesLines(value);
+		const lines = Matrix.extractValuesLines(value);
 		const Nrows = lines.length;
 
 		if(Nrows === 0) {

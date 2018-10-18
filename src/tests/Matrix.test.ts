@@ -1,20 +1,22 @@
-import { ParsedMatrix } from '../variables/ParsedMatrix';
+import { Variable } from '../variables/Variable';
+import { Matrix } from '../variables/Matrix';
 import * as assert from 'assert';
 import * as Constants from '../Constants';
 import { Runtime } from '../Runtime';
+
 
 describe('Test Matrix', function() {
 	// ********************************************************************************
 	describe('Matrix.makeName', function() {
 		const name = 'm0D';
 		it(`Should return ${name}`, function() {
-			assert.equal(ParsedMatrix.makeName(name, [], []), name);
+			assert.equal(Matrix.makeName(name, [], []), name);
 		});
 		const freeIndices = [2];
 		const fixedIndices = [3,4,5];
 		const expectedName = `${name}(:,3,4,5)`;
 		it(`Should return ${expectedName}`, function() {
-			assert.equal(ParsedMatrix.makeName(name, freeIndices, fixedIndices), expectedName);
+			assert.equal(Matrix.makeName(name, freeIndices, fixedIndices), expectedName);
 		});
 	});
 
@@ -38,7 +40,7 @@ const value =
 		const expectedValue = `${values[0]}   ${values[1]}   ${values[2]}   ${values[3]}   ${values[4]}   ${values[5]}   ${values[6]}   ${values[7]}   ${values[8]}   ${values[9]}   ${values[10]}   ${values[11]}   ${values[12]}`;
 
 		it(`Should match value '${expectedValue}'`, function() {
-			const ans = ParsedMatrix.extractValuesLine(value);
+			const ans = Matrix.extractValuesLine(value);
 			assert.equal(ans, expectedValue);
 		});
 	});
@@ -55,8 +57,8 @@ const value = `
 		const freeIndices = [values.length];
 		const fixedIndices = [2,4,5];
 
-		ParsedMatrix.parseChildrenOf1DMatrix(name, value, freeIndices, fixedIndices,
-			(children: Array<ParsedMatrix>) => {
+		Matrix.parseChildrenOf1DMatrix(name, value, freeIndices, fixedIndices,
+			(children: Array<Matrix>) => {
 				const expectedChildCount = values.length;
 
 				it(`Should create ${expectedChildCount} child variables`, function() {
@@ -90,8 +92,8 @@ const value = `
 		const freeIndices = [values.length];
 		const fixedIndices = [2,4,5];
 
-		ParsedMatrix.parseChildrenOf1DMatrix(name, value, freeIndices, fixedIndices,
-			(children: Array<ParsedMatrix>) => {
+		Matrix.parseChildrenOf1DMatrix(name, value, freeIndices, fixedIndices,
+			(children: Array<Matrix>) => {
 				const expectedChildCount = values.length;
 
 				it(`Should create ${expectedChildCount} child variables`, function() {
@@ -162,8 +164,8 @@ const value =
 		const freeIndices = [columns[0].length, columns.length];
 		const fixedIndices = [4,5]; // 4 and 5 are actually 1-based indices
 
-		ParsedMatrix.parseChildrenOf2DMatrix(name, value, freeIndices, fixedIndices,
-			(children: Array<ParsedMatrix>) => {
+		Matrix.parseChildrenOf2DMatrix(name, value, freeIndices, fixedIndices,
+			(children: Array<Matrix>) => {
 				const expectedChildCount = columns.length;
 
 				it(`Should create ${expectedChildCount} child variables`, function() {
@@ -190,8 +192,8 @@ const value =
 		const freeIndices = [1, 2, 2, 2];
 		const fixedIndices = [];
 
-		ParsedMatrix.fetchChildren(undefined, name, freeIndices, fixedIndices,
-			(children: Array<ParsedMatrix>) => {
+		Matrix.fetchChildren(undefined, name, freeIndices, fixedIndices,
+			(children: Array<Matrix>) => {
 				const consumedIndex = freeIndices.length - 1;
 				const expectedfreeIndices = freeIndices.slice(0, consumedIndex);
 				const expectedChildCount = freeIndices[consumedIndex];
@@ -241,8 +243,8 @@ const value =
 			runtime = new Runtime(Constants.DEFAULT_EXECUTABLE, '.', true);
 			const cmd = `${name}(:,:,1) = [${values[0]}];${name}(:,:,2) = [${values[1]}];`;
 			runtime.waitSend(cmd, () => {
-				ParsedMatrix.fetchChildren(runtime, name, freeIndices, fixedIndices,
-					(parsedChildren: Array<ParsedMatrix>) => {
+				Matrix.fetchChildren(runtime, name, freeIndices, fixedIndices,
+					(parsedChildren: Array<Matrix>) => {
 						children = parsedChildren;
 						for(let i = 0; i !== children.length; ++i) {
 							const child = children[i];
