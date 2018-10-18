@@ -6,6 +6,7 @@ import * as Constants from '../Constants';
 /*
  * Class that adds support for number based matrices.
  * This doesn't support string or character matrices.
+ * 1D matrices are column vectors.
  */
 export class ParsedMatrix extends Variable {
 	//**************************************************************************
@@ -13,6 +14,7 @@ export class ParsedMatrix extends Variable {
 	private _fixedIndices: Array<number>;
 	private _freeIndices: Array<number>;
 	private _children: Array<Variable>;
+	private _validValue: boolean;
 
 
 	/***************************************************************************
@@ -20,16 +22,14 @@ export class ParsedMatrix extends Variable {
 	 * @param value the contents of the variable.
 	 * @param freeIndices the number of elements in each dimension.
 	 * @param fixedIndices if this is a part of a larger matrix, the right-most
-	 * indices that are used to access this submatrix.
-	 * If the matrix is 2D, then rows are fixed before columns.
-	 * If it's ND, dimensions > 2 are fixed before rows, and before columns.
-	 * So fixing goes from~to: N-1, N-2, ..., 2, 0 (rows), 1(columns)
+	 * indices that are used to access this submatrix (one based).
 	 **************************************************************************/
 	constructor(
 		name: string = '',
 		value: string = '',
 		freeIndices: Array<number> = [],
-		fixedIndices: Array<number> = []
+		fixedIndices: Array<number> = [],
+		validValue: boolean = true
 	)
 	{
 		super();
@@ -38,11 +38,10 @@ export class ParsedMatrix extends Variable {
 		this._value = value;
 		this._freeIndices = freeIndices;
 		this._fixedIndices = fixedIndices;
-		// As a design decision free indices are used from right to left,
-		// unless there are only two, in which case it's row,column (left to right)
+		this._validValue = validValue;
+
 		if(freeIndices.length !== 0) {
-			this._numberOfChildren =
-				freeIndices[(freeIndices.length < 3 ? 0 : freeIndices.length - 1)];
+			this._numberOfChildren = freeIndices[freeIndices.length - 1];
 
 			if(this._numberOfChildren !== 0) {
 				Variables.addReferenceTo(this);
@@ -115,17 +114,17 @@ export class ParsedMatrix extends Variable {
 		};
 
 		if(this._children === undefined) {
-			ParsedMatrix.parseChildren(
-				runtime,
-				this._matrixName,
-				this._value,
-				this._freeIndices,
-				this._fixedIndices,
-				(children: Array<ParsedMatrix>) => {
-					self._children = children;
-					cb();
-				}
-			);
+			const updateChildrenCB = (children: Array<ParsedMatrix>) => {
+				self._children = children;
+				cb();
+			};
+			if(this._validValue) {
+				this.parseChildren(updateChildrenCB);
+			} else {
+				ParsedMatrix.fetchChildren(
+					runtime, this.name, this.freeIndices,
+					this.fixedIndices, updateChildrenCB);
+			}
 		} else {
 			cb();
 		}
@@ -133,25 +132,20 @@ export class ParsedMatrix extends Variable {
 
 
 	//**************************************************************************
-	public static parseChildren(
-		runtime: Runtime,
-		name: string,
-		value: string,
-		freeIndices: Array<number>,
-		fixedIndices: Array<number>,
-		callback: (vars: Array<ParsedMatrix>) => void
-	)
-	{
+	public parseChildren(callback: (vars: Array<ParsedMatrix>) => void): void {
+		const name = this._matrixName;
+		const value = this._value;
+		const freeIndices = this._freeIndices;
+		const fixedIndices = this._fixedIndices;
 		const N = freeIndices.length;
-		switch (N) {
-			case 1: ParsedMatrix.parseChildren1D(
-				name, value, freeIndices, fixedIndices, callback);
-			case 2: ParsedMatrix.parseChildren2D(
-				name, value, freeIndices, fixedIndices, callback);
-			case 3: ParsedMatrix.parseChildren3D(runtime,
-				name, value, freeIndices, fixedIndices, callback);
-			default: ParsedMatrix.parseChildrenND(
-				name, value, freeIndices, fixedIndices, callback);
+
+		switch(N) {
+			case 1: ParsedMatrix.parseChildrenOf1DMatrix(
+				name, value, freeIndices, fixedIndices, callback); break;
+			case 2: ParsedMatrix.parseChildrenOf2DMatrix(
+				name, value, freeIndices, fixedIndices, callback); break;
+			default:
+				throw "Parsing of n > 2 dimensional matrices is not supported!";
 		}
 	}
 

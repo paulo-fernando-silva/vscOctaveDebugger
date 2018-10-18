@@ -222,7 +222,10 @@ const value =
 		const name = 'm3D';
 		const freeIndices = [1, 2, 2];
 		const fixedIndices = [];
-		const values = ['0.71780   0.57914', '0.62359   0.98442'];
+		const vectors = [['0.71780', '0.62359'], ['0.57914', '0.98442']];
+		const values = [
+			`${vectors[0][0]}   ${vectors[1][0]}`,
+			`${vectors[0][1]}   ${vectors[1][1]}`];
 		const consumedIndex = freeIndices.length - 1;
 		const expectedfreeIndices = freeIndices.slice(0, consumedIndex);
 		const expectedChildCount = freeIndices[consumedIndex];
@@ -230,23 +233,32 @@ const value =
 			':,'.repeat(expectedfreeIndices.length) : '');
 		const suffix = (fixedIndices.length !== 0? ',' + fixedIndices.join(',') : '');
 
+		let runtime;
 		let children;
+		let grandchildren = [];
 
 		before((done) => {
-			const runtime = new Runtime(Constants.DEFAULT_EXECUTABLE, '.', true);
+			runtime = new Runtime(Constants.DEFAULT_EXECUTABLE, '.', true);
 			const cmd = `${name}(:,:,1) = [${values[0]}];${name}(:,:,2) = [${values[1]}];`;
 			runtime.waitSend(cmd, () => {
 				ParsedMatrix.fetchChildren(runtime, name, freeIndices, fixedIndices,
 					(parsedChildren: Array<ParsedMatrix>) => {
 						children = parsedChildren;
-						done();
-						runtime.disconnect();
+						for(let i = 0; i !== children.length; ++i) {
+							const child = children[i];
+							child.listChildren(runtime, 0, 0, (vars: Array<Variable>) => {
+								grandchildren.push(vars);
+								if(grandchildren.length === children.length) {
+									done();
+								}
+							});
+						}
 					}
 				);
 			});
 		});
 
-		describe('Matrix.fetchChildren load from runtime', async function() {
+		describe('Matrix.fetchChildren load from runtime', function() {
 			it(`Should create ${expectedChildCount} child variables`, function() {
 				assert.equal(children.length, expectedChildCount);
 			});
@@ -254,15 +266,31 @@ const value =
 			for(let i = 0; i !== expectedChildCount; ++i) {
 				const val = values[i];
 				const expectedName = `${name}(${prefix}${i+1}${suffix})`;
-				it(`Should match name ${expectedName}`, async function() {
+				it(`Should match name ${expectedName}`, function() {
 					const child = children[i];
 					assert.equal(child.name(), expectedName);
 				});
-				it(`Should match ${i}-th child value ${val}`, async function() {
+				it(`Should match ${i}-th child value ${val}`, function() {
 					const child = children[i];
 					assert.equal(child.value(), val);
 				});
 			}
+		});
+
+		describe('Matrix.listChildren', function() {
+			for(let i = 0; i !== expectedChildCount; ++i) {
+				for(let j = 0; j !== vectors.length; ++j) {
+					const val = vectors[j][i];
+					it(`Should match child[${i}] grandchild[${j}] value ${val}`, function() {
+						const child = grandchildren[i][j];
+						assert.equal(child.value(), val);
+					});
+				}
+			}
+		});
+
+		after(() => {
+			runtime.disconnect();
 		});
 	});
 });
