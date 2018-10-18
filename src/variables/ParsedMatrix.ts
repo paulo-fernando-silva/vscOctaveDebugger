@@ -122,8 +122,8 @@ export class ParsedMatrix extends Variable {
 				this.parseChildren(updateChildrenCB);
 			} else {
 				ParsedMatrix.fetchChildren(
-					runtime, this.name, this.freeIndices,
-					this.fixedIndices, updateChildrenCB);
+					runtime, this._name, this._freeIndices,
+					this._fixedIndices, updateChildrenCB);
 			}
 		} else {
 			cb();
@@ -180,7 +180,7 @@ export class ParsedMatrix extends Variable {
 
 		for(let i = 0; i !== N; ++i) {
 			const childFixedIndices = [i + 1].concat(fixedIndices);
-			vars[i] = new ParsedMatrix(name, vector[i], childFreeIndices, childFixedIndices);
+			vars[i] = new ParsedMatrix(name, ''+vector[i], childFreeIndices, childFixedIndices);
 		}
 
 		callback(vars);
@@ -330,7 +330,7 @@ export class ParsedMatrix extends Variable {
 
 
 	//**************************************************************************
-	public static extractColumnVectors(value: string): Array<Array<number>> {
+	public static extractColumnVectors(value: string): Array<Array<string>> {
 		const lines = ParsedMatrix.extractValuesLines(value);
 		const Nrows = lines.length;
 
@@ -341,10 +341,10 @@ export class ParsedMatrix extends Variable {
 		let row = 0;
 		let rowValues = lines[row].trim().split(Constants.ROW_ELEMENTS_SEPARATOR);
 		const Ncols = rowValues.length;
-		const vectors = new Array<Array<number>>(Ncols);
+		const vectors = new Array<Array<string>>(Ncols);
 
 		for(let col = 0; col !== Ncols; ++col) {
-			vectors[col] = new Array<number>(Nrows);
+			vectors[col] = new Array<string>(Nrows);
 			vectors[col][row] = rowValues[col];
 		}
 
