@@ -3,7 +3,7 @@ import { Variable } from './Variable';
 import { Runtime } from '../Runtime';
 
 
-export class Matrix extends Variable {
+export class MatrixOld extends Variable {
 	//**************************************************************************
 	private _size: Array<number>;
 	private _firstNonOne: number;
@@ -18,7 +18,7 @@ export class Matrix extends Variable {
 		this._name = name;
 		this._value = value;
 		this._size = size;
-		this._firstNonOne = Matrix.firstNonOne(size);
+		this._firstNonOne = MatrixOld.firstNonOne(size);
 		this._numberOfChildren = this._size[this._firstNonOne];
 	}
 
@@ -43,7 +43,7 @@ export class Matrix extends Variable {
 	)
 	{
 		const buildCallback = (value: string,) => {
-			const matrix = new Matrix(name, value, size);
+			const matrix = new MatrixOld(name, value, size);
 			Variables.addReferenceTo(matrix);
 			callback(matrix);
 		};
@@ -65,8 +65,8 @@ export class Matrix extends Variable {
 				callback: (v: Variable) => void)
 	{
 		Variables.getSize(name, runtime, (size: Array<number>) => {
-			const sizeProduct = Matrix.product(size);
-			Matrix.buildMatrix(name, runtime, sizeProduct, size, callback);
+			const sizeProduct = MatrixOld.product(size);
+			MatrixOld.buildMatrix(name, runtime, sizeProduct, size, callback);
 		});
 	}
 
@@ -85,12 +85,12 @@ export class Matrix extends Variable {
 		const prefix = (this._firstNonOne === 0? [] : this._size.slice(0, this._firstNonOne));
 		const suffix = this._size.slice(this._firstNonOne + 1);
 		const childSize = prefix.concat([1]).concat(suffix);
-		const sizeProduct = Matrix.product(suffix);
+		const sizeProduct = MatrixOld.product(suffix);
 		const childrenAreMatrices = sizeProduct > 1;
 
 		const loadCallback = (!childrenAreMatrices? Variables.loadVariable :
 			(n: string, r: Runtime, cb: (v: Variable) => void) => {
-				Matrix.buildMatrix(n, r, sizeProduct, childSize, cb);
+				MatrixOld.buildMatrix(n, r, sizeProduct, childSize, cb);
 			}
 		);
 
