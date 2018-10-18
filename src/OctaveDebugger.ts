@@ -21,7 +21,6 @@ import { StackFramesManager } from './Control/StackFramesManager';
 import { Variables } from './Variables/Variables';
 import { Variable as OctaveVariable } from './Variables/Variable';
 import { Scalar } from './Variables/Scalar';
-import { MatrixOld } from "./Variables/MatrixOld";
 import { Matrix } from './variables/Matrix';
 import { ScalarStruct } from './Variables/ScalarStruct';
 import { Struct } from './Variables/Struct';
@@ -73,7 +72,6 @@ class OctaveDebugSession extends LoggingDebugSession {
 		Variables.register(new ScalarStruct());
 		Variables.register(new Struct());
 		Variables.register(new Matrix());
-		Variables.register(new MatrixOld());
 		// Everything not listed above is treated as a Scalar (string).
 		Variables.registerFallback(new Scalar());
 	}
