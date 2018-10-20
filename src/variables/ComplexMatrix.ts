@@ -25,4 +25,17 @@ export class ComplexMatrix extends Matrix {
 
 	//**************************************************************************
 	public typename(): string { return 'complex matrix'; }
+
+
+	//**************************************************************************
+	public createConcreteType(
+		name: string,
+		value: string ,
+		freeIndices: Array<number>,
+		fixedIndices: Array<number>,
+		validValue: boolean
+	): ComplexMatrix
+	{
+		return new ComplexMatrix(name, value, freeIndices, fixedIndices, validValue);
+	}
 }

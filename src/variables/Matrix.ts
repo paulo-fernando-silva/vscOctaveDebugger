@@ -69,6 +69,19 @@ export class Matrix extends Variable {
 
 
 	//**************************************************************************
+	public createConcreteType(
+		name: string,
+		value: string ,
+		freeIndices: Array<number>,
+		fixedIndices: Array<number>,
+		validValue: boolean
+	): Matrix
+	{
+		return new Matrix(name, value, freeIndices, fixedIndices, validValue);
+	}
+
+
+	//**************************************************************************
 	public load(
 		name: string,
 		runtime: Runtime,
@@ -78,8 +91,7 @@ export class Matrix extends Variable {
 			const loadable = Matrix.loadable(size);
 
 			const buildWith = (value: string) => {
-				const matrix = new Matrix(name, value, size, [], loadable);
-				Variables.addReferenceTo(matrix);
+				const matrix = this.createConcreteType(name, value, size, [], loadable);
 				callback(matrix);
 			};
 
@@ -242,7 +254,6 @@ export class Matrix extends Variable {
 			const childrenFixedIndices = [count + 1].concat(fixedIndices);
 			const matrix = new Matrix(
 				name, value, childrenFreeIndices, childrenFixedIndices, loadable);
-			Variables.addReferenceTo(matrix);
 			vars[count++] = matrix;
 
 			if(count === Nchildren) {

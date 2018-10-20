@@ -1,5 +1,5 @@
-import { Variable } from '../variables/Variable';
-import { Matrix } from '../variables/Matrix';
+import { Variable } from '../Variables/Variable';
+import { Matrix } from '../Variables/Matrix';
 import * as assert from 'assert';
 import * as Constants from '../Constants';
 import { Runtime } from '../Runtime';
@@ -191,9 +191,11 @@ const value =
 		const name = 'mND';
 		const freeIndices = [1, 2, 2, 2];
 		const fixedIndices = [];
+		const runtime = new Runtime(Constants.DEFAULT_EXECUTABLE, '.', true);
 
-		Matrix.fetchChildren(undefined, name, freeIndices, fixedIndices,
+		Matrix.fetchChildren(runtime, name, freeIndices, fixedIndices,
 			(children: Array<Matrix>) => {
+				runtime.disconnect();
 				const consumedIndex = freeIndices.length - 1;
 				const expectedfreeIndices = freeIndices.slice(0, consumedIndex);
 				const expectedChildCount = freeIndices[consumedIndex];
@@ -237,7 +239,7 @@ const value =
 
 		let runtime;
 		let children;
-		let grandchildren = [];
+		let grandchildren: Array<Array<Variable>> = [];
 
 		before((done) => {
 			runtime = new Runtime(Constants.DEFAULT_EXECUTABLE, '.', true);

@@ -14,6 +14,7 @@ function TestOctaveDebugger()
 %
 	printf('hello ');
 	printf('World\n');
+	complexMatrix = rand(2,2) + rand(2,2)*i;
 	x = 10;
 	testNestedFunction();
 	y = [1*x 2*x; 3*x 4*x];
