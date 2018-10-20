@@ -121,7 +121,7 @@ export class Matrix extends Variable {
 			if(count === 0) {
 				callback(self._children);
 			} else {
-				callback(self._children.slice(start, count));
+				callback(self._children.slice(start, start+count));
 			}
 		};
 
