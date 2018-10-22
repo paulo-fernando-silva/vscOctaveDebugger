@@ -13,6 +13,7 @@ export class Scope extends Variable  {
 	constructor(name: string) {
 		super();
 		this._name = name;
+		Variables.addReferenceTo(this);
 	}
 
 

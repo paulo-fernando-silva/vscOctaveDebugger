@@ -39,7 +39,7 @@ export class Variables {
 
 
 	//**************************************************************************
-	// Manage references.
+	// This is used to retrive variables with children.
 	//**************************************************************************
 	public static addReferenceTo(v: Variable): void {
 		v.setReference(Variables._REFS.length + 1); // References start at 1;

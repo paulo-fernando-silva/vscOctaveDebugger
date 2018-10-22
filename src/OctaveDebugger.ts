@@ -247,9 +247,6 @@ class OctaveDebugSession extends LoggingDebugSession {
 			// All stack frames have local and global scopes.
 			const localScope = new OctaveScope(''); // local scope has no name.
 			const globalScope = new OctaveScope('global');
-			// Add references to the scopes so the UI can retrive them.
-			Variables.addReferenceTo(localScope);
-			Variables.addReferenceTo(globalScope);
 			// Tell the UI which scopes are available.
 			response.body = { scopes: [
 				new Scope('local', localScope.reference(), false),
