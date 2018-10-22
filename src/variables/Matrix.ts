@@ -62,7 +62,7 @@ export class Matrix extends Variable {
 
 	//**************************************************************************
 	public static loadable(size: Array<number>): boolean {
-		const N = size.reduce((acc, val) => acc *= val);
+		const N = size.reduce((acc, val) => acc *= val, 0);
 		const is2DOrLess = size.length < 3;
 		return is2DOrLess && N <= Variables.getPrefetch();
 	}

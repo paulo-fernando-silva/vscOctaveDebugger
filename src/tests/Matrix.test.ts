@@ -7,6 +7,15 @@ import { Runtime } from '../Runtime';
 
 describe('Test Matrix', function() {
 	// ********************************************************************************
+	describe('Matrix.loadable empty', function() {
+		it(`Should return true`, function() {
+			const emptySize = [];
+			assert.ok(Matrix.loadable(emptySize));
+		});
+	});
+
+
+	// ********************************************************************************
 	describe('Matrix.makeName', function() {
 		const name = 'm0D';
 		it(`Should return ${name}`, function() {
