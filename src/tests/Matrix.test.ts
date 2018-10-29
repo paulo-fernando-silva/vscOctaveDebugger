@@ -196,13 +196,13 @@ const value =
 		);
 	});
 
-	describe('Matrix.fetchChildren not loadable', function() {
+	describe('Matrix.fetchAllChildren not loadable', function() {
 		const name = 'mND';
 		const freeIndices = [1, 2, 2, 2];
 		const fixedIndices = [];
 		const runtime = new Runtime(Constants.DEFAULT_EXECUTABLE, '.', true);
 
-		Matrix.fetchChildren(runtime, name, freeIndices, fixedIndices,
+		Matrix.fetchAllChildren(runtime, name, freeIndices, fixedIndices,
 			(children: Array<Matrix>) => {
 				runtime.disconnect();
 				const consumedIndex = freeIndices.length - 1;
@@ -231,7 +231,7 @@ const value =
 		);
 	});
 
-	describe('Matrix.fetchChildren', async function() {
+	describe('Matrix.fetchAllChildren', async function() {
 		const name = 'm3D';
 		const freeIndices = [1, 2, 2];
 		const fixedIndices = [];
@@ -240,10 +240,13 @@ const value =
 			`${vectors[0][0]}   ${vectors[1][0]}`,
 			`${vectors[0][1]}   ${vectors[1][1]}`];
 		const consumedIndex = freeIndices.length - 1;
-		const expectedfreeIndices = freeIndices.slice(0, consumedIndex);
+		const expectedFreeIndices = freeIndices.slice(0, consumedIndex);
+		const expectedGranchildFreeIndices = freeIndices.slice(0, consumedIndex - 1);
 		const expectedChildCount = freeIndices[consumedIndex];
-		const prefix = (expectedfreeIndices.length !== 0?
-			':,'.repeat(expectedfreeIndices.length) : '');
+		const prefix = (expectedFreeIndices.length !== 0?
+			':,'.repeat(expectedFreeIndices.length) : '');
+		const granchilPrefix = (expectedGranchildFreeIndices.length !== 0?
+			':,'.repeat(expectedGranchildFreeIndices.length) : '');
 		const suffix = (fixedIndices.length !== 0? ',' + fixedIndices.join(',') : '');
 
 		let runtime;
@@ -254,7 +257,7 @@ const value =
 			runtime = new Runtime(Constants.DEFAULT_EXECUTABLE, '.', true);
 			const cmd = `${name}(:,:,1) = [${values[0]}];${name}(:,:,2) = [${values[1]}];`;
 			runtime.waitSend(cmd, () => {
-				Matrix.fetchChildren(runtime, name, freeIndices, fixedIndices,
+				Matrix.fetchAllChildren(runtime, name, freeIndices, fixedIndices,
 					(parsedChildren: Array<Matrix>) => {
 						children = parsedChildren;
 						for(let i = 0; i !== children.length; ++i) {
@@ -271,7 +274,7 @@ const value =
 			});
 		});
 
-		describe('Matrix.fetchChildren load from runtime', function() {
+		describe('Matrix.fetchAllChildren load from runtime', function() {
 			it(`Should create ${expectedChildCount} child variables`, function() {
 				assert.equal(children.length, expectedChildCount);
 			});
@@ -294,9 +297,14 @@ const value =
 			for(let i = 0; i !== expectedChildCount; ++i) {
 				for(let j = 0; j !== vectors.length; ++j) {
 					const val = vectors[j][i];
+					const expectedName = `${name}(${granchilPrefix}${j+1},${i+1}${suffix})`;
+					it(`Should match name ${expectedName}`, function() {
+						const grandchild = grandchildren[i][j];
+						assert.equal(grandchild.name(), expectedName);
+					});
 					it(`Should match child[${i}] grandchild[${j}] value ${val}`, function() {
-						const child = grandchildren[i][j];
-						assert.equal(child.value(), val);
+						const grandchild = grandchildren[i][j];
+						assert.equal(grandchild.value(), val);
 					});
 				}
 			}

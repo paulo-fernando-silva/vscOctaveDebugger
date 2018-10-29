@@ -12,7 +12,7 @@
             "stopOnEntry": true,
             "octave": "octave-cli",
             "sourceFolder": "${workspaceFolder}",
-            "prefetchCount": 10000,
+            "prefetchCount": 1,
             "debugServer": 4711
         }
     ]

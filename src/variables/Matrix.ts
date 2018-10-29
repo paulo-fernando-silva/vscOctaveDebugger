@@ -1,7 +1,9 @@
 import { Variable } from './Variable';
 import { Variables } from './Variables';
 import { Runtime } from '../Runtime';
+import { Range } from '../Utils/Range';
 import * as Constants from '../Constants';
+
 
 /*
  * Class that adds support for number based matrices.
@@ -10,11 +12,13 @@ import * as Constants from '../Constants';
  */
 export class Matrix extends Variable {
 	//**************************************************************************
-	private _matrixName: string;
+	private _basename: string;
 	private _fixedIndices: Array<number>;
 	private _freeIndices: Array<number>;
 	private _children: Array<Variable>;
+	private _availableChildrenRange: Array<boolean>;
 	private _validValue: boolean;
+	private _parsedValue: boolean;
 
 
 	/***************************************************************************
@@ -33,7 +37,7 @@ export class Matrix extends Variable {
 	)
 	{
 		super();
-		this._matrixName = name;
+		this._basename = name;
 		this._name = Matrix.makeName(name, freeIndices, fixedIndices);
 		this._value = value;
 		this._freeIndices = freeIndices;
@@ -61,10 +65,10 @@ export class Matrix extends Variable {
 
 
 	//**************************************************************************
-	public static loadable(size: Array<number>): boolean {
-		const N = size.reduce((acc, val) => acc *= val, 0);
-		const is2DOrLess = size.length < 3;
-		return is2DOrLess && N <= Variables.getPrefetch();
+	public static loadable(sizes: Array<number>): boolean {
+		const N = sizes.reduce((acc, val) => acc *= val, 0);
+		const is2DOrLess = sizes.length < 3;
+		return is2DOrLess && N <= Variables.getMaximumElementsPrefetch();
 	}
 
 
@@ -116,36 +120,138 @@ export class Matrix extends Variable {
 			throw "Error: matrix has no children!";
 		}
 
+		if(count === 0) {
+			count = this._numberOfChildren;
+		}
+
+		const range = new Range(start, start+count);
 		const self = this;
-		const cb = () => {
-			if(count === 0) {
+
+		this.makeChildrenAvailable(runtime, range, () => {
+			if(self._numberOfChildren !== self._children.length) {
+				throw `Error: listChildren ${self._numberOfChildren} !== ${self._children.length}!`;
+			}
+
+			if(count === self._children.length) {
 				callback(self._children);
 			} else {
 				callback(self._children.slice(start, start+count));
 			}
-		};
+		});
+	}
 
-		if(this._children === undefined) {
-			const updateChildrenCB = (children: Array<Matrix>) => {
-				self._children = children;
-				cb();
-			};
-			if(this._validValue) {
-				this.parseChildren(updateChildrenCB);
+
+	//**************************************************************************
+	public makeChildrenAvailable(
+		runtime: Runtime,
+		range: Range,
+		callback: () => void
+	): void
+	{
+		const self = this;
+		if(this._validValue) {
+			if(!this._parsedValue) {
+				this.parseChildren((children: Array<Matrix>) => {
+					self._children = children;
+					callback();
+				})
 			} else {
-				Matrix.fetchChildren(
-					runtime, this._name, this._freeIndices,
-					this._fixedIndices, updateChildrenCB);
+				callback();
 			}
 		} else {
-			cb();
+			const rangesToFetch = this.unavailableOverlappingRanges(range);
+
+			if(rangesToFetch.length !== 0) {
+				this.fetchRanges(rangesToFetch, runtime, callback);
+			} else {
+				callback();
+			}
 		}
 	}
 
 
 	//**************************************************************************
+	public fetchRanges(
+		ranges: Array<Range>,
+		runtime: Runtime,
+		callback: () => void
+	): void
+	{
+		let fetchedRanges = 0;
+
+		ranges.forEach(range => {
+			Matrix.fetchChildrenRange(
+				range, runtime, this._basename, this._freeIndices, this._fixedIndices,
+				(children: Array<Matrix>) => {
+					this.addChildrenFrom(range, children);
+					++fetchedRanges;
+
+					if(fetchedRanges === ranges.length) {
+						callback();
+					}
+				})
+			}
+		);
+	}
+
+
+	//**************************************************************************
+	public addChildrenFrom(
+		range: Range,
+		children: Array<Matrix>
+	): void
+	{
+		for(let i = 0; i !== children.length; ++i) {
+			this._children[i + range.min()] = children[i];
+		}
+
+		const a = range.min() / Constants.CHUNKS_SIZE;
+		const b = range.max() / Constants.CHUNKS_SIZE + 1;
+
+		for(let i = a; i !== b; ++i) {
+			this._availableChildrenRange[i] = true;
+		}
+	}
+
+
+	//**************************************************************************
+	public unavailableOverlappingRanges(range: Range): Array<Range> {
+		if(this._availableChildrenRange === undefined) {
+			const rangeCount = Math.ceil(this._numberOfChildren / Constants.CHUNKS_SIZE);
+			this._availableChildrenRange = new Array<boolean>(rangeCount);
+		}
+
+		const a = range.min() / Constants.CHUNKS_SIZE;
+		const b = range.max() / Constants.CHUNKS_SIZE + 1;
+		let unavailable = new Array<Range>();
+
+		for(let i = a; i !== b; ++i) {
+			if(!this._availableChildrenRange[i]) {
+				const min = i * Constants.CHUNKS_SIZE;
+				const max = Math.min(min + Constants.CHUNKS_SIZE, this._numberOfChildren);
+				const range = new Range(min, max);
+
+				if(unavailable.length !== 0) {
+					const last = unavailable[unavailable.length - 1];
+					if(last.contigous(range)) {
+						last.expandWith(range);
+					} else {
+						unavailable.push(range);
+					}
+				} else {
+					unavailable.push(range);
+				}
+			}
+		}
+
+		return unavailable;
+	}
+
+
+	//**************************************************************************
 	public parseChildren(callback: (vars: Array<Matrix>) => void): void {
-		const name = this._matrixName;
+		this._parsedValue = true;
+		const name = this._basename;
 		const value = this._value;
 		const freeIndices = this._freeIndices;
 		const fixedIndices = this._fixedIndices;
@@ -235,6 +341,8 @@ export class Matrix extends Variable {
 	public static fetchChildren(
 		runtime: Runtime,
 		name: string,
+		offset: number,
+		count: number,
 		freeIndices: Array<number>,
 		fixedIndices: Array<number>,
 		callback: (vars: Array<Matrix>) => void
@@ -244,36 +352,63 @@ export class Matrix extends Variable {
 			throw `fetchChildren::freeIndices.length: ${freeIndices.length} === 0`;
 		}
 
-		const Nchildren = freeIndices[freeIndices.length - 1]; // #children
 		const childrenFreeIndices = freeIndices.slice(0, freeIndices.length - 1);
-		const vars = new Array<Matrix>(Nchildren);
+		const vars = new Array<Matrix>(count);
 		const loadable = Matrix.loadable(childrenFreeIndices);
-		let count = 0;
+		let loaded = 0;
 
 		const buildWith = (value: string) => {
-			const childrenFixedIndices = [count + 1].concat(fixedIndices);
-			const matrix = new Matrix(
-				name, value, childrenFreeIndices, childrenFixedIndices, loadable);
-			vars[count++] = matrix;
+			const childrenFixedIndices = [offset + loaded + 1].concat(fixedIndices);
+			const matrix = new Matrix(name, value, childrenFreeIndices, childrenFixedIndices, loadable);
+			vars[loaded++] = matrix;
 
-			if(count === Nchildren) {
+			if(loaded === count) {
 				callback(vars);
 			}
 		};
 
 		if(loadable) {
-			for(let i = 0; i !== Nchildren; ++i) {
-				const childrenFixedIndices = [i + 1].concat(fixedIndices);
-				const childName =
-					Matrix.makeName(name, childrenFreeIndices, childrenFixedIndices);
+			for(let i = 0; i !== count; ++i) {
+				const childrenFixedIndices = [offset + i + 1].concat(fixedIndices);
+				const childName = Matrix.makeName(name, childrenFreeIndices, childrenFixedIndices);
 				Variables.getValue(childName, runtime, buildWith);
 			}
 		} else {
 			const value = childrenFreeIndices.join(Constants.SIZE_SEPARATOR);
-			for(let i = 0; i !== Nchildren; ++i) {
+			for(let i = 0; i !== count; ++i) {
 				buildWith(value);
 			}
 		}
+	}
+
+
+	//**************************************************************************
+	public static fetchAllChildren(
+		runtime: Runtime,
+		name: string,
+		freeIndices: Array<number>,
+		fixedIndices: Array<number>,
+		callback: (vars: Array<Matrix>) => void
+	): void
+	{
+		const Nchildren = freeIndices[freeIndices.length - 1]; // #children
+		Matrix.fetchChildren(runtime, name, 0, Nchildren, freeIndices, fixedIndices, callback);
+	}
+
+
+	//**************************************************************************
+	public static fetchChildrenRange(
+		range: Range,
+		runtime: Runtime,
+		name: string,
+		freeIndices: Array<number>,
+		fixedIndices: Array<number>,
+		callback: (vars: Array<Matrix>) => void
+	): void
+	{
+		const offset = range.min();
+		const count = range.size();
+		Matrix.fetchChildren(runtime, name, offset, count, freeIndices, fixedIndices, callback);
 	}
 
 

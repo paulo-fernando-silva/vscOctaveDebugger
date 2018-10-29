@@ -144,7 +144,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 	protected launchRequest(response: DebugProtocol.LaunchResponse,
 							args: LaunchRequestArguments): void
 	{
-		Variables.setPrefetch(args.prefetchCount);
+		Variables.setChunkPrefetch(args.prefetchCount);
 		// make sure to 'Stop' the buffered logging if 'trace' is not set
 		logger.setup(args.trace ? Logger.LogLevel.Verbose : Logger.LogLevel.Stop, false);
 
