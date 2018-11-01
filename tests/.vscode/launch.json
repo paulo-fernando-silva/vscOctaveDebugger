@@ -13,6 +13,7 @@
             "octave": "octave-cli",
             "sourceFolder": "${workspaceFolder}",
             "prefetchCount": 1,
+            "allowArbitraryExpressionEvaluation": true,
             "debugServer": 4711
         }
     ]

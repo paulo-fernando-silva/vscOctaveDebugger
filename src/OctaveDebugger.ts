@@ -40,8 +40,10 @@ interface LaunchRequestArguments extends DebugProtocol.LaunchRequestArguments {
 	octave: string;
 	/** Absolute path to the project source folder. */
 	sourceFolder: string;
-	/** Maximum number of elements to prefetch. */
+	/** Maximum number of chunks of elements to prefetch. */
 	prefetchCount: number;
+	/** Allow arbitrary expression evaluation, e.g. evaluate functions on mouse over */
+	allowArbitraryExpressionEvaluation: boolean;
 }
 
 
@@ -52,6 +54,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 	private _stackManager: StackFramesManager;
 	private _runCallback: () => void;
 	private _breakpointsCallbacks = new Array<(r: Runtime) => void>();
+	private _allowArbitraryExpressionEvaluation: boolean;
 
 	//**************************************************************************
 	public constructor() {
@@ -144,6 +147,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 	protected launchRequest(response: DebugProtocol.LaunchResponse,
 							args: LaunchRequestArguments): void
 	{
+		this._allowArbitraryExpressionEvaluation = args.allowArbitraryExpressionEvaluation;
 		Variables.setChunkPrefetch(args.prefetchCount);
 		// make sure to 'Stop' the buffered logging if 'trace' is not set
 		logger.setup(args.trace ? Logger.LogLevel.Verbose : Logger.LogLevel.Stop, false);
@@ -306,13 +310,21 @@ class OctaveDebugSession extends LoggingDebugSession {
 	protected evaluateRequest(	response: DebugProtocol.EvaluateResponse,
 								args: DebugProtocol.EvaluateArguments): void
 	{
-		this._runtime.evaluate(args.expression, (result: string) => {
+		if(this._allowArbitraryExpressionEvaluation) {
+			this._runtime.evaluate(args.expression, (result: string) => {
+				response.body = {
+					result: result,
+					variablesReference: 0
+				};
+				this.sendResponse(response);
+			});
+		} else {
 			response.body = {
-				result: result,
+				result: '',
 				variablesReference: 0
 			};
 			this.sendResponse(response);
-		});
+		}
 	}
 
 

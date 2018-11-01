@@ -60,6 +60,7 @@ class OctaveDebuggerConfigurationProvider implements vscode.DebugConfigurationPr
 				config.sourceFolder = '${workspaceFolder}';
 				config.stopOnEntry = false; // Not sure if this can be supported. Must search.
 				config.prefetchCount = Constants.CHUNKS_PREFETCH;
+				config.allowArbitraryExpressionEvaluation = false;
 			}
 		}
 
