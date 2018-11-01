@@ -56,7 +56,7 @@ const value =
 
 
 	// ********************************************************************************
-	describe('Matrix.parseChildrenOf1DMatrix short', function() {
+	describe('Matrix.parseAllChildrenOf1DMatrix short', function() {
 		const name = 'm1D';
 		const values = [0.59733, 0.48898, 0.97283];
 const value = `
@@ -66,7 +66,7 @@ const value = `
 		const freeIndices = [values.length];
 		const fixedIndices = [2,4,5];
 
-		Matrix.parseChildrenOf1DMatrix(name, value, freeIndices, fixedIndices,
+		Matrix.parseAllChildrenOf1DMatrix(name, value, freeIndices, fixedIndices,
 			(children: Array<Matrix>) => {
 				const expectedChildCount = values.length;
 
@@ -91,7 +91,7 @@ const value = `
 
 
 	// ********************************************************************************
-	describe('Matrix.parseChildrenOf1DMatrix imaginary', function() {
+	describe('Matrix.parseAllChildrenOf1DMatrix imaginary', function() {
 		const name = 'm1D';
 		const values = ['0.0720969 + 0.0720969i', '0.8437697 + 0.8437697i', '0.4532340 + 0.4532340i'];
 const value = `
@@ -101,7 +101,7 @@ const value = `
 		const freeIndices = [values.length];
 		const fixedIndices = [2,4,5];
 
-		Matrix.parseChildrenOf1DMatrix(name, value, freeIndices, fixedIndices,
+		Matrix.parseAllChildrenOf1DMatrix(name, value, freeIndices, fixedIndices,
 			(children: Array<Matrix>) => {
 				const expectedChildCount = values.length;
 
@@ -126,7 +126,7 @@ const value = `
 
 
 	// ********************************************************************************
-	describe('Matrix.parseChildrenOf2DMatrix', function() {
+	describe('Matrix.parseAllChildrenOf2DMatrix', function() {
 		const name = 'm2D';
 		const values = [
 			['0.0720969 + 0.0720969i', '0.8437697 + 0.8437697i', '0.4532340 + 0.4532340i'],
@@ -173,7 +173,7 @@ const value =
 		const freeIndices = [columns[0].length, columns.length];
 		const fixedIndices = [4,5]; // 4 and 5 are actually 1-based indices
 
-		Matrix.parseChildrenOf2DMatrix(name, value, freeIndices, fixedIndices,
+		Matrix.parseAllChildrenOf2DMatrix(name, value, freeIndices, fixedIndices,
 			(children: Array<Matrix>) => {
 				const expectedChildCount = columns.length;
 
@@ -233,15 +233,17 @@ const value =
 
 	describe('Matrix.fetchAllChildren', async function() {
 		const name = 'm3D';
-		const freeIndices = [1, 2, 2];
+		// TODOing: make this a 2D matrix test
+		const freeIndices = [2, 2];
 		const fixedIndices = [];
-		const vectors = [['0.71780', '0.62359'], ['0.57914', '0.98442']];
-		const values = [
-			`${vectors[0][0]}   ${vectors[1][0]}`,
-			`${vectors[0][1]}   ${vectors[1][1]}`];
+		const values = [['0.71780', '0.62359'], ['0.57914', '0.98442']];
+		const vectors = [
+			`[${values[0].join(Constants.ROW_ELEMENTS_SEPARATOR)}]'`,
+			`[${values[1].join(Constants.ROW_ELEMENTS_SEPARATOR)}]'`];
 		const consumedIndex = freeIndices.length - 1;
 		const expectedFreeIndices = freeIndices.slice(0, consumedIndex);
-		const expectedGranchildFreeIndices = freeIndices.slice(0, consumedIndex - 1);
+		const expectedGranchildFreeIndices =
+			(consumedIndex !== 0? freeIndices.slice(0, consumedIndex - 1) : []);
 		const expectedChildCount = freeIndices[consumedIndex];
 		const prefix = (expectedFreeIndices.length !== 0?
 			':,'.repeat(expectedFreeIndices.length) : '');
@@ -255,7 +257,7 @@ const value =
 
 		before((done) => {
 			runtime = new Runtime(Constants.DEFAULT_EXECUTABLE, '.', true);
-			const cmd = `${name}(:,:,1) = [${values[0]}];${name}(:,:,2) = [${values[1]}];`;
+			const cmd = `${name} = [${vectors[0]},${vectors[1]}];`;
 			runtime.waitSend(cmd, () => {
 				Matrix.fetchAllChildren(runtime, name, freeIndices, fixedIndices,
 					(parsedChildren: Array<Matrix>) => {
@@ -280,7 +282,7 @@ const value =
 			});
 
 			for(let i = 0; i !== expectedChildCount; ++i) {
-				const val = values[i];
+				const val = values[i].join(Constants.COLUMN_ELEMENTS_SEPARATOR);
 				const expectedName = `${name}(${prefix}${i+1}${suffix})`;
 				it(`Should match name ${expectedName}`, function() {
 					const child = children[i];
@@ -294,16 +296,16 @@ const value =
 		});
 
 		describe('Matrix.listChildren', function() {
-			for(let i = 0; i !== expectedChildCount; ++i) {
-				for(let j = 0; j !== vectors.length; ++j) {
-					const val = vectors[j][i];
-					const expectedName = `${name}(${granchilPrefix}${j+1},${i+1}${suffix})`;
+			for(let col = 0; col !== expectedChildCount; ++col) {
+				for(let row = 0; row !== values.length; ++row) {
+					const val = values[col][row];
+					const expectedName = `${name}(${granchilPrefix}${row+1},${col+1}${suffix})`;
 					it(`Should match name ${expectedName}`, function() {
-						const grandchild = grandchildren[i][j];
+						const grandchild = grandchildren[col][row];
 						assert.equal(grandchild.name(), expectedName);
 					});
-					it(`Should match child[${i}] grandchild[${j}] value ${val}`, function() {
-						const grandchild = grandchildren[i][j];
+					it(`Should match child[${col}] grandchild[${row}] value ${val}`, function() {
+						const grandchild = grandchildren[col][row];
 						assert.equal(grandchild.value(), val);
 					});
 				}

@@ -14,14 +14,14 @@ function TestOctaveDebugger()
 %
 	printf('hello ');
 	printf('World\n');
-	complexMatrix = rand(2,2) + rand(2,2)*i;
 	x = 10;
-	testNestedFunction();
 	y = [1*x 2*x; 3*x 4*x];
 	yy = [y y];
+	manyRowsMatrix = rand(1000, 1);
+	manyColumnsMatrix = rand(3,9,1) * (1 + i);
+	complexMatrix = rand(2,2) + rand(2,2)*i;
+	testNestedFunction();
 	aReallyLongVariableName = 0;
-	z = rand(1000, 1);
-	m = rand(3,9,1) * (1 + i);
 	s11 = struct('a', 1, 'b', 1);
 	s12 = struct('a', 1, 'b', 2);
 	s21 = struct('a', 2, 'b', 1);

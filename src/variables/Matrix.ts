@@ -65,10 +65,18 @@ export class Matrix extends Variable {
 
 
 	//**************************************************************************
-	public static loadable(sizes: Array<number>): boolean {
-		const N = sizes.reduce((acc, val) => acc *= val, 0);
-		const is2DOrLess = sizes.length < 3;
-		return is2DOrLess && N <= Variables.getMaximumElementsPrefetch();
+	public static loadable(
+		sizes: Array<number>,
+		count: number = 0
+	): boolean
+	{
+		const N = sizes.reduce((acc, val) => acc *= val, 1);
+
+		if(count !== 0) {
+			return sizes.length <= 1 && N * count <= Variables.getMaximumElementsPrefetch();
+		}
+
+		return sizes.length <= 2 && N <= Variables.getMaximumElementsPrefetch();
 	}
 
 
@@ -151,7 +159,7 @@ export class Matrix extends Variable {
 		const self = this;
 		if(this._validValue) {
 			if(!this._parsedValue) {
-				this.parseChildren((children: Array<Matrix>) => {
+				this.parseAllChildren((children: Array<Matrix>) => {
 					self._children = children;
 					callback();
 				})
@@ -178,12 +186,13 @@ export class Matrix extends Variable {
 	): void
 	{
 		let fetchedRanges = 0;
+		const self = this;
 
 		ranges.forEach(range => {
 			Matrix.fetchChildrenRange(
 				range, runtime, this._basename, this._freeIndices, this._fixedIndices,
 				(children: Array<Matrix>) => {
-					this.addChildrenFrom(range, children);
+					self.addChildrenFrom(range, children);
 					++fetchedRanges;
 
 					if(fetchedRanges === ranges.length) {
@@ -201,12 +210,16 @@ export class Matrix extends Variable {
 		children: Array<Matrix>
 	): void
 	{
+		if(this._children === undefined) {
+			this._children = new Array<Matrix>(this._numberOfChildren);
+		}
+
 		for(let i = 0; i !== children.length; ++i) {
 			this._children[i + range.min()] = children[i];
 		}
 
-		const a = range.min() / Constants.CHUNKS_SIZE;
-		const b = range.max() / Constants.CHUNKS_SIZE + 1;
+		const a = Math.trunc(range.min() / Constants.CHUNKS_SIZE);
+		const b = Math.ceil(range.max() / Constants.CHUNKS_SIZE);
 
 		for(let i = a; i !== b; ++i) {
 			this._availableChildrenRange[i] = true;
@@ -221,8 +234,8 @@ export class Matrix extends Variable {
 			this._availableChildrenRange = new Array<boolean>(rangeCount);
 		}
 
-		const a = range.min() / Constants.CHUNKS_SIZE;
-		const b = range.max() / Constants.CHUNKS_SIZE + 1;
+		const a = Math.trunc(range.min() / Constants.CHUNKS_SIZE);
+		const b = Math.ceil(range.max() / Constants.CHUNKS_SIZE);
 		let unavailable = new Array<Range>();
 
 		for(let i = a; i !== b; ++i) {
@@ -249,19 +262,23 @@ export class Matrix extends Variable {
 
 
 	//**************************************************************************
-	public parseChildren(callback: (vars: Array<Matrix>) => void): void {
-		this._parsedValue = true;
-		const name = this._basename;
-		const value = this._value;
-		const freeIndices = this._freeIndices;
-		const fixedIndices = this._fixedIndices;
+	public static parseChildren(
+		name: string,
+		value: string,
+		offset: number,
+		count: number,
+		freeIndices: Array<number>,
+		fixedIndices: Array<number>,
+		callback: (vars: Array<Matrix>) => void
+	): void
+	{
 		const N = freeIndices.length;
 
 		switch(N) {
 			case 1: Matrix.parseChildrenOf1DMatrix(
-				name, value, freeIndices, fixedIndices, callback); break;
+				name, value, offset, count, fixedIndices, callback); break;
 			case 2: Matrix.parseChildrenOf2DMatrix(
-				name, value, freeIndices, fixedIndices, callback); break;
+				name, value, offset, count, freeIndices, fixedIndices, callback); break;
 			default:
 				throw "Parsing of n > 2 dimensional matrices is not supported!";
 		}
@@ -269,7 +286,62 @@ export class Matrix extends Variable {
 
 
 	//**************************************************************************
+	public parseAllChildren(callback: (vars: Array<Matrix>) => void): void {
+		const name = this._basename;
+		const value = this._value;
+		const freeIndices = this._freeIndices;
+		const fixedIndices = this._fixedIndices;
+
+		if(freeIndices.length > 2) {
+			throw `freeIndices.length: ${freeIndices.length}, expected <= 2!`;
+		}
+
+		const count = freeIndices[freeIndices.length - 1];
+		const self = this;
+
+		Matrix.parseChildren(name, value, 0, count, freeIndices, fixedIndices,
+			(vars: Array<Matrix>) => {
+				self._parsedValue = true;
+				callback(vars);
+			});
+	}
+
+
+	//**************************************************************************
 	public static parseChildrenOf1DMatrix(
+		name: string,
+		value: string,
+		offset: number,
+		count: number,
+		fixedIndices: Array<number>,
+		callback: (vars: Array<Matrix>) => void
+	): void
+	{
+		const childFreeIndices = [];
+		const vars = new Array<Matrix>(count);
+		const vectors = Matrix.extractColumnVectors(value);
+
+		if(vectors.length !== 1) {
+			throw `vectors.length: ${vectors.length} != 1!`;
+		}
+
+		const vector = vectors[0];
+
+		if(vector.length !== count) {
+			throw `vector.length: ${vector.length} != ${count}!`;
+		}
+
+		for(let i = 0; i !== count; ++i) {
+			const childFixedIndices = [i + offset + 1].concat(fixedIndices);
+			vars[i] = new Matrix(name, ''+vector[i], childFreeIndices, childFixedIndices);
+		}
+
+		callback(vars);
+	}
+
+
+	//**************************************************************************
+	public static parseAllChildrenOf1DMatrix(
 		name: string,
 		value: string,
 		freeIndices: Array<number>,
@@ -281,24 +353,33 @@ export class Matrix extends Variable {
 			throw `freeIndices.length: ${freeIndices.length}, expected 1!`;
 		}
 
-		const N = freeIndices[0];
-		const childFreeIndices = [];
-		const vars = new Array<Matrix>(N);
+		Matrix.parseChildrenOf1DMatrix(name, value, 0, freeIndices[0], fixedIndices, callback);
+	}
+
+
+	//**************************************************************************
+	public static parseChildrenOf2DMatrix(
+		name: string,
+		value: string,
+		offset: number,
+		count: number,
+		freeIndices: Array<number>,
+		fixedIndices: Array<number>,
+		callback: (vars: Array<Matrix>) => void
+	): void
+	{
+		const childFreeIndices = freeIndices.slice(0, freeIndices.length - 1);
+		const vars = new Array<Matrix>(count);
 		const vectors = Matrix.extractColumnVectors(value);
 
-		if(vectors.length !== 1) {
-			throw `vectors.length: ${vectors.length} != 1!`;
+		if(vectors.length !== count) {
+			throw `vectors.length: ${vectors.length} != ${count}!`;
 		}
 
-		const vector = vectors[0];
-
-		if(vector.length !== N) {
-			throw `vector.length: ${vector.length} != ${N}!`;
-		}
-
-		for(let i = 0; i !== N; ++i) {
-			const childFixedIndices = [i + 1].concat(fixedIndices);
-			vars[i] = new Matrix(name, ''+vector[i], childFreeIndices, childFixedIndices);
+		for(let i = 0; i !== count; ++i) {
+			const childFixedIndices = [i + offset + 1].concat(fixedIndices);
+			const childValue = vectors[i].join(Constants.COLUMN_ELEMENTS_SEPARATOR);
+			vars[i] = new Matrix(name, childValue, childFreeIndices, childFixedIndices);
 		}
 
 		callback(vars);
@@ -306,7 +387,7 @@ export class Matrix extends Variable {
 
 
 	//**************************************************************************
-	public static parseChildrenOf2DMatrix(
+	public static parseAllChildrenOf2DMatrix(
 		name: string,
 		value: string,
 		freeIndices: Array<number>,
@@ -319,21 +400,8 @@ export class Matrix extends Variable {
 		}
 
 		const N = freeIndices[freeIndices.length - 1];
-		const childFreeIndices = freeIndices.slice(0, freeIndices.length - 1);
-		const vars = new Array<Matrix>(N);
-		const vectors = Matrix.extractColumnVectors(value);
 
-		if(vectors.length !== N) {
-			throw `vectors.length: ${vectors.length} != ${N}!`;
-		}
-
-		for(let i = 0; i !== N; ++i) {
-			const childFixedIndices = [i + 1].concat(fixedIndices);
-			const childValue = vectors[i].join(Constants.COLUMN_ELEMENTS_SEPARATOR);
-			vars[i] = new Matrix(name, childValue, childFreeIndices, childFixedIndices);
-		}
-
-		callback(vars);
+		Matrix.parseChildrenOf2DMatrix(name, value, 0, N, freeIndices, fixedIndices, callback);
 	}
 
 
@@ -353,31 +421,24 @@ export class Matrix extends Variable {
 		}
 
 		const childrenFreeIndices = freeIndices.slice(0, freeIndices.length - 1);
-		const vars = new Array<Matrix>(count);
-		const loadable = Matrix.loadable(childrenFreeIndices);
-		let loaded = 0;
-
-		const buildWith = (value: string) => {
-			const childrenFixedIndices = [offset + loaded + 1].concat(fixedIndices);
-			const matrix = new Matrix(name, value, childrenFreeIndices, childrenFixedIndices, loadable);
-			vars[loaded++] = matrix;
-
-			if(loaded === count) {
-				callback(vars);
-			}
-		};
+		const loadable = Matrix.loadable(childrenFreeIndices, count);
 
 		if(loadable) {
-			for(let i = 0; i !== count; ++i) {
-				const childrenFixedIndices = [offset + i + 1].concat(fixedIndices);
-				const childName = Matrix.makeName(name, childrenFreeIndices, childrenFixedIndices);
-				Variables.getValue(childName, runtime, buildWith);
-			}
+			const rangeName = Matrix.makeRangedName(
+				name, freeIndices, fixedIndices, offset, count);
+			Variables.getValue(rangeName, runtime, (value: string) => {
+				Matrix.parseChildren(
+					name, value, offset, count, freeIndices, fixedIndices, callback)
+			});
 		} else {
 			const value = childrenFreeIndices.join(Constants.SIZE_SEPARATOR);
+			const vars = new Array<Matrix>(count);
 			for(let i = 0; i !== count; ++i) {
-				buildWith(value);
+				const childrenFixedIndices = [offset + i + 1].concat(fixedIndices);
+				vars[i] = new Matrix(
+					name, value, childrenFreeIndices, childrenFixedIndices, false);
 			}
+			callback(vars);
 		}
 	}
 
@@ -429,6 +490,32 @@ export class Matrix extends Variable {
 
 		if(freeIndices.length !== 0) {
 			freeIndicesStr = ':,'.repeat(freeIndices.length);
+		}
+
+		return `${name}(${freeIndicesStr}${fixedIndicesStr})`;
+	}
+
+
+	//**************************************************************************
+	public static makeRangedName(
+		name: string,
+		freeIndices: Array<number>,
+		fixedIndices: Array<number>,
+		offset: number,
+		count: number
+	): string
+	{
+		let freeIndicesStr = '', fixedIndicesStr = '';
+
+		if(fixedIndices.length !== 0) {
+			fixedIndicesStr = ',' + fixedIndices.join(',');
+		}
+
+		if(freeIndices.length !== 0) {
+			freeIndicesStr = ':,'.repeat(freeIndices.length - 1);
+			const a = offset + 1;		// Indices are 1-based
+			const b = offset + count;	// Last index is inclusive
+			freeIndicesStr += `${a}:${b}`;
 		}
 
 		return `${name}(${freeIndicesStr}${fixedIndicesStr})`;
