@@ -18,8 +18,7 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(vscode.commands.registerCommand(
 		'extension.' + Constants.MODULE_NAME + '.getProgramName', config => {
 		return vscode.window.showInputBox({
-			placeHolder: "Please enter the name of a matlab source file in the workspace folder",
-			value: "main"
+			placeHolder: "Enter the name of a matlab function to debug",
 		});
 	}));
 
@@ -53,12 +52,12 @@ class OctaveDebuggerConfigurationProvider implements vscode.DebugConfigurationPr
 			const editor = vscode.window.activeTextEditor;
 			if(editor && editor.document.languageId === Constants.LANGUAGE) {
 				config.type = Constants.DEBUGGER_TYPE;
-				config.name = 'Launch';
+				config.name = 'Debug ${file}';
 				config.request = 'launch';
 				config.program = '${file}';
 				config.octave = Constants.DEFAULT_EXECUTABLE;
 				config.sourceFolder = '${workspaceFolder}';
-				config.stopOnEntry = false; // Not sure if this can be supported. Must search.
+				config.stopOnEntry = false;
 				config.prefetchCount = Constants.CHUNKS_PREFETCH;
 				config.allowArbitraryExpressionEvaluation = false;
 			}

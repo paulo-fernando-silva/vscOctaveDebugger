@@ -34,7 +34,7 @@ interface LaunchRequestArguments extends DebugProtocol.LaunchRequestArguments {
 	program: string;
 	/** Automatically stop target after launch. If not specified, target does not stop. */
 	stopOnEntry?: boolean;
-	/** enable logging the Debug Adapter Protocol */
+	/** Enable logging the Debug Adapter Protocol. */
 	trace?: boolean;
 	/** Path to the octave-cli. */
 	octave: string;
@@ -42,7 +42,7 @@ interface LaunchRequestArguments extends DebugProtocol.LaunchRequestArguments {
 	sourceFolder: string;
 	/** Maximum number of chunks of elements to prefetch. */
 	prefetchCount: number;
-	/** Allow arbitrary expression evaluation, e.g. evaluate functions on mouse over */
+	/** Allow arbitrary expression evaluation, e.g. evaluate functions on mouse over. */
 	allowArbitraryExpressionEvaluation: boolean;
 }
 
@@ -86,14 +86,21 @@ class OctaveDebugSession extends LoggingDebugSession {
 	private setupRuntime(	octave: string,
 							sourceFolder: string)
 	{
-		if(this._runtime) { return; }
+		if(this._runtime) {
+			return;
+		}
 
 		this._runtime = new Runtime(octave, sourceFolder);
 
+		this._runtime.on('exit', () => {
+			this.sendEvent(new TerminatedEvent());
+		});
 		this._runtime.on('end', () => {
 			this.sendEvent(new TerminatedEvent());
 		});
-
+		this._runtime.on('error', () => {
+			this.sendEvent(new TerminatedEvent());
+		});
 		this._runtime.addEventHandler((line: string) => {
 			// TODO: don't need to know file nor line... Use string comparison instead?
 			const match = line.match(/^stopped in (.*?) at line (\d+)$/);
@@ -149,8 +156,8 @@ class OctaveDebugSession extends LoggingDebugSession {
 	{
 		this._allowArbitraryExpressionEvaluation = args.allowArbitraryExpressionEvaluation;
 		Variables.setChunkPrefetch(args.prefetchCount);
-		// make sure to 'Stop' the buffered logging if 'trace' is not set
-		logger.setup(args.trace ? Logger.LogLevel.Verbose : Logger.LogLevel.Stop, false);
+
+		logger.setup(args.trace ? Logger.LogLevel.Log : Logger.LogLevel.Warn, false);
 
 		this.setupRuntime(args.octave, args.sourceFolder);
 		this.runSetBreakpoints();

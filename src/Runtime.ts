@@ -1,8 +1,11 @@
+import { logger} from 'vscode-debugadapter';
 import { spawn, ChildProcess } from 'child_process';
 import { ReadLine, createInterface } from "readline";
 import { EventEmitter } from 'events';
 import * as Constants from './Constants';
 import { functionFromPath } from './Utils';
+import { dirname } from 'path';
+
 
 
 export class Runtime extends EventEmitter {
@@ -23,14 +26,17 @@ export class Runtime extends EventEmitter {
 	private _processStderr: ReadLine;
 	private _inputHandler: Array<(str: string) => boolean>;
 	private _eventHandler: Array<(str: string) => boolean>;
-	private _log: boolean = true;
+	private _log: boolean;
+	private _program: string;
+	private _stdoutBuffer: string;
+	private _stdoutHandled: boolean;
 
 
 	//**************************************************************************
 	public constructor(
 		processName: string,
 		sourceFolder: string,
-		log: boolean = true)
+		log: boolean = false)
 	{
 		super();
 		this._processName = processName;
@@ -39,9 +45,14 @@ export class Runtime extends EventEmitter {
 		this.clearInputHandlers();
 		this.clearEventHandlers();
 
+		this.addFolder(sourceFolder);
+	}
+
+
+	//**************************************************************************
+	public addFolder(sourceFolder: string): void {
 		// This allows us to run code from anywhere on our HD.
 		this.send(`addpath('${sourceFolder}')`);
-		this.sync();
 	}
 
 
@@ -59,12 +70,14 @@ export class Runtime extends EventEmitter {
 
 	//**************************************************************************
 	private connect() {
+		this.debug(`Runtime: connecting to '${this._processName}'.`);
 		this._process = spawn(this._processName);
 
 		this._processStdout = createInterface({ input: this._process.stdout, terminal: false });
 		this._processStderr = createInterface({ input: this._process.stderr, terminal: false });
 
 		this._process.on('close', code => { this.onExit(code); });
+		this._process.on('error', err => { this.onError(err); });
 		this._processStdout.on('line', data => { this.onStdout(data); });
 		this._processStderr.on('line', data => { this.onStderr(data); });
 	}
@@ -72,6 +85,7 @@ export class Runtime extends EventEmitter {
 
 	//**************************************************************************
 	public disconnect() {
+		this.debug("Runtime: quitting.");
 		this.send('quit');
 	}
 
@@ -105,7 +119,7 @@ export class Runtime extends EventEmitter {
 	//**************************************************************************
 	public send(cmd: string) {
 		++this._commandNumber;
-		this.log(`${this._processName}:${this._commandNumber}> ${cmd}`);
+		this.debug(`${this._processName}:${this._commandNumber}> ${cmd}`);
 		this._process.stdin.write(`${cmd}\n`);
 	}
 
@@ -186,7 +200,11 @@ export class Runtime extends EventEmitter {
 	public start(	program: string,
 					stopOnEntry: boolean) // TODO: support
 	{
-		this.send(functionFromPath(program) + ';' + this.echo(Runtime.TERMINATOR));
+		this._program = program;
+		const func = functionFromPath(program);
+
+		this.addFolder(dirname(program));
+		this.send(`${func};${this.echo(Runtime.TERMINATOR)}`);
 	}
 
 
@@ -194,13 +212,22 @@ export class Runtime extends EventEmitter {
 	// Private interface
 	//**************************************************************************
 	private onStdout(data) {
-		this.log(`stdout> ${data}`);
 
 		if(!this.terminated(data)) {
 			const callback = this._inputHandler.shift();
 
 			if(callback !== undefined && !callback(data.toString())) {
 				this._inputHandler.unshift(callback);
+				this._stdoutHandled = true;
+				this._stdoutBuffer += data;
+			} else {
+				if(this._stdoutHandled || data.startsWith(Runtime.SYNC)) {
+					this.debug(this._stdoutBuffer);
+					this._stdoutBuffer = '';
+					this._stdoutHandled = false;
+				} else {
+					this.warn(data);
+				}
 			}
 		}
 	}
@@ -211,14 +238,29 @@ export class Runtime extends EventEmitter {
 		this._eventHandler.some(callback => {
 			return callback(data);
 		});
-		this.log(`stderr> ${data}`);
+		this.warn(data);
 	}
 
 
 	//**************************************************************************
 	private onExit(code) {
-		this.log(`${this._processName} exited with code: ${code}`);
-		this.emit('end');
+		this.debug(`Runtime: ${this._processName} exited with code: ${code}`);
+		this.emit('exit');
+	}
+
+
+	//**************************************************************************
+	private onError(msg) {
+		if(!this._process.connected) {
+			msg += `\nCould not connect to '${this._processName}'.`;
+		}
+
+		if(this._process.killed) {
+			msg += `\nProcess '${this._processName}' was killed.`;
+		}
+
+		this.debug(msg);
+		this.emit('error');
 	}
 
 
@@ -231,6 +273,7 @@ export class Runtime extends EventEmitter {
 	//**************************************************************************
 	private terminated(data: string): boolean {
 		if(data.match(Runtime.TERMINATOR_REGEX) !== null) {
+			this.debug(`Runtime: program ${this._program} exited normally.`);
 			this.emit('end');
 			return true;
 		}
@@ -240,9 +283,19 @@ export class Runtime extends EventEmitter {
 
 
 	//**************************************************************************
-	private log(str: string): void {
+	private warn(str: string): void {
 		if(this._log) {
 			console.log(str);
 		}
+		logger.warn(str);
+	}
+
+
+	//**************************************************************************
+	private debug(str: string): void {
+		if(this._log) {
+			console.log(str);
+		}
+		logger.log(str);
 	}
 }

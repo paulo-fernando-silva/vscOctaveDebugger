@@ -1,7 +1,7 @@
 # VS Code Octave Debugger
 
 This extension provides debugging support for code runnable on Octave (might include Matlab code).
-This is done by interfacing with octave-cli via stdin/stdout.
+This is done by interfacing with octave-cli via stdin/stdout. Do read the changelog to know what's new in this version.
 
 
 **Octave Debugger**
@@ -28,9 +28,11 @@ More information about debugging with Octave can be found
 * Open a directory containing the project that you want to debug.
 * Switch to the debug view and press the gear dropdown.
 * Click on "debug configuration" and select "OctaveDebugger" from the configuration menu that comes up.
-* You can set "program" parameter to whatever file or function you want to debug, e.g.:
+* You can set "program" parameter to whatever filename / function you want to debug, e.g.:
     "name": "My configuration",
     "program": "myFunctionOrScript"
+    Notice your should remove the .m in Script.m
+    The default configuration will show tooltips when you hover the mouse over the parameter names.
 * Set breakpoints as needed by clicking on the empty space left of the line numbers.
 * Press the 'play' button to start debugging. If you have the default keybindings then F5 should also work.
 
@@ -43,8 +45,7 @@ Please submit bugs there too.
 
 * The variable ans is used by the debugger internally, so the code should not rely on its value. For that reason ans is also not displayed in the local stack even though it's part of it.
 * Debug session will not terminate automatically if we step beyond the last instruction. In that case the user needs to press stop. Only continue will terminate automatically.
-* When you hover over a function, that function will be evaluated. That can cause side-effects. I left this one because I like to be able to evaluate expressions that do not cause side effects. Might add an option for this in the future. To fix it I need to find out how to distinguish functions in expressions.
-* Even though vsc now automatically takes care of splitting fields chunks of 100 children, unfolding a matrix can still take a few milliseconds maybe up to a second. Have to change this to parse the matrix directly instead of asking child by child.
+* When you hover over a function, that function will be evaluated. That can cause side-effects. I left this one because I like to be able to evaluate expressions that do not cause side effects. This is disabled by default ("allowArbitraryExpressionEvaluation": false) To fix it I need to find out how to distinguish functions in expressions.
 
 
 ## History :)

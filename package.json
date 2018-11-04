@@ -1,7 +1,7 @@
 {
 	"name": "vscOctaveDebuggerAdaptor",
 	"displayName": "Octave Debugger",
-	"version": "0.2.0",
+	"version": "0.2.1",
 	"publisher": "paulosilva",
 	"description": "Octave debugger adaptor for vsc.",
 	"author": {
@@ -79,13 +79,13 @@
 						"properties": {
 							"program": {
 								"type": "string",
-								"description": "Absolute path to a text file.",
-								"default": "${workspaceFolder}/${command:AskForProgramName}"
+								"description": "Function to execute.",
+								"default": "${command:AskForProgramName}"
 							},
 							"stopOnEntry": {
 								"type": "boolean",
 								"description": "Automatically stop after launch.",
-								"default": true
+								"default": false
 							},
 							"trace": {
 								"type": "boolean",
@@ -94,13 +94,23 @@
 							},
 							"octave": {
 								"type": "string",
-								"description": "Path to the octave-cli.",
+								"description": "Path to the octave-cli executable.",
 								"default": "octave-cli"
 							},
 							"sourceFolder": {
 								"type": "string",
 								"description": "Absolute path to the project source folder.",
 								"default": "${workspaceFolder}"
+							},
+							"prefetchCount": {
+								"type": "number",
+								"description": "Maximum number of chunks of elements to prefetch.",
+								"default": 1
+							},
+							"allowArbitraryExpressionEvaluation": {
+								"type": "boolean",
+								"description": "Allow arbitrary expression evaluation, e.g. evaluate functions on mouse over",
+								"default": false
 							}
 						}
 					}
@@ -110,10 +120,12 @@
 						"type": "OctaveDebugger",
 						"request": "launch",
 						"name": "Ask for file name",
-						"program": "${workspaceFolder}/${command:AskForProgramName}",
-						"stopOnEntry": true,
+						"program": "${command:AskForProgramName}",
+						"stopOnEntry": false,
 						"octave": "octave-cli",
-						"sourceFolder": "${workspaceFolder}"
+						"sourceFolder": "${workspaceFolder}",
+						"prefetchCount": 1,
+						"allowArbitraryExpressionEvaluation": false
 					}
 				],
 				"configurationSnippets": [
@@ -124,7 +136,12 @@
 							"type": "OctaveDebugger",
 							"request": "launch",
 							"name": "${2:Launch Program}",
-							"program": "^\"\\${workspaceFolder}/${1:Program}\""
+							"program": "^\"\\${command:AskForProgramName}\"",
+							"stopOnEntry": false,
+							"octave": "octave-cli",
+							"sourceFolder": "^\"\\${workspaceFolder}\"",
+							"prefetchCount": 1,
+							"allowArbitraryExpressionEvaluation": false
 						}
 					}
 				],
