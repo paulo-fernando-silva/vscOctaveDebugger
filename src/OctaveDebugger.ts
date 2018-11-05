@@ -55,10 +55,12 @@ class OctaveDebugSession extends LoggingDebugSession {
 	private _runCallback: () => void;
 	private _breakpointsCallbacks = new Array<(r: Runtime) => void>();
 	private _allowArbitraryExpressionEvaluation: boolean;
+	private _stepping: boolean;
+
 
 	//**************************************************************************
 	public constructor() {
-		super(Constants.MODULE_NAME + ".txt");
+		super(`${Constants.MODULE_NAME}.txt`);
 
 		this._stackManager = new StackFramesManager();
 
@@ -95,9 +97,6 @@ class OctaveDebugSession extends LoggingDebugSession {
 		this._runtime.on('exit', () => {
 			this.sendEvent(new TerminatedEvent());
 		});
-		this._runtime.on('end', () => {
-			this.sendEvent(new TerminatedEvent());
-		});
 		this._runtime.on('error', () => {
 			this.sendEvent(new TerminatedEvent());
 		});
@@ -106,6 +105,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 			const match = line.match(/^stopped in (.*?) at line (\d+)$/);
 			if(match !== null && match.length > 2) {
 				this.sendEvent(new StoppedEvent('breakpoint', OctaveDebugSession.THREAD_ID));
+				this._stepping = false;
 				return true; // Event handled. Stop processing.
 			}
 
@@ -218,7 +218,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 		response.body = {
 			threads: [
 				new Thread(	OctaveDebugSession.THREAD_ID,
-							"thread " + OctaveDebugSession.THREAD_ID)
+							`thread ${OctaveDebugSession.THREAD_ID}`)
 			]
 		};
 		this.sendResponse(response);
@@ -336,12 +336,23 @@ class OctaveDebugSession extends LoggingDebugSession {
 
 
 	//**************************************************************************
+	protected stepWith(cmd: string, resposeCallback: () => void): void {
+		this._stepping = true;
+		this._runtime.waitSend(cmd, () => {
+			resposeCallback();
+			if(this._stepping) {
+				this.sendEvent(new TerminatedEvent());
+				this._stepping = false;
+			}
+		});
+	}
+
+
+	//**************************************************************************
 	protected continueRequest(	response: DebugProtocol.ContinueResponse,
 								args: DebugProtocol.ContinueArguments): void
 	{
-		this._runtime.send('dbcont');
-		this._runtime.sync();
-		this.sendResponse(response);
+		this.stepWith('dbcont', () => { this.sendResponse(response); });
 	}
 
 
@@ -349,9 +360,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 	protected nextRequest(	response: DebugProtocol.NextResponse,
 							args: DebugProtocol.NextArguments): void
 	{
-		this._runtime.send('dbstep');
-		this._runtime.sync();
-		this.sendResponse(response);
+		this.stepWith('dbstep', () => { this.sendResponse(response); });
 	}
 
 
@@ -359,9 +368,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 	protected stepInRequest(response: DebugProtocol.StepInResponse,
 							args: DebugProtocol.StepInArguments): void
 	{
-		this._runtime.send('dbstep in');
-		this._runtime.sync();
-		this.sendResponse(response);
+		this.stepWith('dbstep in', () => { this.sendResponse(response); });
 	}
 
 
@@ -369,9 +376,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 	protected stepOutRequest(	response: DebugProtocol.StepOutResponse,
 								args: DebugProtocol.StepOutArguments): void
 	{
-		this._runtime.send('dbstep out');
-		this._runtime.sync();
-		this.sendResponse(response);
+		this.stepWith('dbstep out', () => { this.sendResponse(response); });
 	}
 
 

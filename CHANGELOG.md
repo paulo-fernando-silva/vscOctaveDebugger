@@ -1,3 +1,6 @@
+## 0.2.2
+* Fixed the bug that was preventing the debug session from terminating on step.
+
 ## 0.2.1
 * Added logging for output from the program. I only noticed now that it wasn't supported. Output in orange.
 * Add logging for debug communications with octave. This is output in white. Set "trace": true in your launch.json.

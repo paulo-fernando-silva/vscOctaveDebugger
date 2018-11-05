@@ -14,8 +14,7 @@ export class Runtime extends EventEmitter {
 	//**************************************************************************
 	private static readonly PROMPT_REGEX = new RegExp(`^(?:${Runtime.PROMPT})*`);
 	private static readonly SYNC = `vsc::${Constants.MODULE_NAME}`;
-	private static readonly TERMINATOR = `end::${Runtime.SYNC}`;
-	private static readonly TERMINATOR_REGEX = new RegExp(`^(?:${Runtime.PROMPT})*${Runtime.TERMINATOR}$`);
+	private static readonly SYNC_REGEX = new RegExp(`^(?:${Runtime.PROMPT})*\s*${Runtime.SYNC}`);
 
 
 	//**************************************************************************
@@ -27,7 +26,6 @@ export class Runtime extends EventEmitter {
 	private _inputHandler: Array<(str: string) => boolean>;
 	private _eventHandler: Array<(str: string) => boolean>;
 	private _log: boolean;
-	private _program: string;
 	private _stdoutBuffer: string;
 	private _stdoutHandled: boolean;
 
@@ -200,11 +198,8 @@ export class Runtime extends EventEmitter {
 	public start(	program: string,
 					stopOnEntry: boolean) // TODO: support
 	{
-		this._program = program;
-		const func = functionFromPath(program);
-
 		this.addFolder(dirname(program));
-		this.send(`${func};${this.echo(Runtime.TERMINATOR)}`);
+		this.send(functionFromPath(program));
 	}
 
 
@@ -212,22 +207,19 @@ export class Runtime extends EventEmitter {
 	// Private interface
 	//**************************************************************************
 	private onStdout(data) {
+		const callback = this._inputHandler.shift();
 
-		if(!this.terminated(data)) {
-			const callback = this._inputHandler.shift();
-
-			if(callback !== undefined && !callback(data.toString())) {
-				this._inputHandler.unshift(callback);
-				this._stdoutHandled = true;
-				this._stdoutBuffer += data;
+		if(callback !== undefined && !callback(data.toString())) {
+			this._inputHandler.unshift(callback);
+			this._stdoutHandled = true;
+			this._stdoutBuffer += data;
+		} else {
+			if(this._stdoutHandled || data.match(Runtime.SYNC_REGEX)) {
+				this.debug(this._stdoutBuffer);
+				this._stdoutBuffer = '';
+				this._stdoutHandled = false;
 			} else {
-				if(this._stdoutHandled || data.startsWith(Runtime.SYNC)) {
-					this.debug(this._stdoutBuffer);
-					this._stdoutBuffer = '';
-					this._stdoutHandled = false;
-				} else {
-					this.warn(data);
-				}
+				this.warn(data);
 			}
 		}
 	}
@@ -267,18 +259,6 @@ export class Runtime extends EventEmitter {
 	//**************************************************************************
 	private echo(str: string): string {
 		return `printf("${str}\\n")`;
-	}
-
-
-	//**************************************************************************
-	private terminated(data: string): boolean {
-		if(data.match(Runtime.TERMINATOR_REGEX) !== null) {
-			this.debug(`Runtime: program ${this._program} exited normally.`);
-			this.emit('end');
-			return true;
-		}
-
-		return false;
 	}
 
 
