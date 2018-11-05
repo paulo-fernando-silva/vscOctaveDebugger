@@ -3,7 +3,7 @@ import { spawn, ChildProcess } from 'child_process';
 import { ReadLine, createInterface } from "readline";
 import { EventEmitter } from 'events';
 import * as Constants from './Constants';
-import { functionFromPath } from './Utils';
+import { functionFromPath } from './Utils/misc';
 import { dirname } from 'path';
 
 
