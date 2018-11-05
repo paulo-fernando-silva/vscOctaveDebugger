@@ -32,10 +32,8 @@ import { Scope as OctaveScope } from './Variables/Scope';
 interface LaunchRequestArguments extends DebugProtocol.LaunchRequestArguments {
 	/** An absolute path to the "program" to debug. */
 	program: string;
-	/** Automatically stop target after launch. If not specified, target does not stop. */
-	stopOnEntry?: boolean;
 	/** Enable logging the Debug Adapter Protocol. */
-	trace?: boolean;
+	trace: boolean;
 	/** Path to the octave-cli. */
 	octave: string;
 	/** Absolute path to the project source folder. */
@@ -164,7 +162,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 
 		// start the program in the runtime
 		this._runCallback = () => {
-			this._runtime.start(args.program, !!args.stopOnEntry);
+			this._runtime.start(args.program);
 			this.sendResponse(response);
 		};
 	}

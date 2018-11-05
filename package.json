@@ -82,11 +82,6 @@
 								"description": "Function to execute.",
 								"default": "${command:AskForProgramName}"
 							},
-							"stopOnEntry": {
-								"type": "boolean",
-								"description": "Automatically stop after launch.",
-								"default": false
-							},
 							"trace": {
 								"type": "boolean",
 								"description": "Enable logging of the Debug Adapter Protocol.",
@@ -121,11 +116,11 @@
 						"request": "launch",
 						"name": "Ask for file name",
 						"program": "${command:AskForProgramName}",
-						"stopOnEntry": false,
 						"octave": "octave-cli",
 						"sourceFolder": "${workspaceFolder}",
 						"prefetchCount": 1,
-						"allowArbitraryExpressionEvaluation": false
+						"allowArbitraryExpressionEvaluation": false,
+						"trace": false
 					}
 				],
 				"configurationSnippets": [
@@ -137,11 +132,11 @@
 							"request": "launch",
 							"name": "${2:Launch Program}",
 							"program": "^\"\\${command:AskForProgramName}\"",
-							"stopOnEntry": false,
 							"octave": "octave-cli",
 							"sourceFolder": "^\"\\${workspaceFolder}\"",
 							"prefetchCount": 1,
-							"allowArbitraryExpressionEvaluation": false
+							"allowArbitraryExpressionEvaluation": false,
+							"trace": false
 						}
 					}
 				],

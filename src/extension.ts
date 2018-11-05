@@ -47,18 +47,16 @@ class OctaveDebuggerConfigurationProvider implements vscode.DebugConfigurationPr
 								token?: CancellationToken)
 		: ProviderResult<DebugConfiguration>
 	{
-		// if launch.json is missing or empty
-		if(!config.type && !config.request && !config.name) {
-			const editor = vscode.window.activeTextEditor;
-			if(editor && editor.document.languageId === Constants.LANGUAGE) {
-				config.type = Constants.DEBUGGER_TYPE;
-				config.name = 'Debug ${file}';
-				config.request = 'launch';
-				config.program = '${file}';
-				config.octave = Constants.DEFAULT_EXECUTABLE;
-				config.sourceFolder = '${workspaceFolder}';
-				config.stopOnEntry = false;
-				config.prefetchCount = Constants.CHUNKS_PREFETCH;
+		const editor = vscode.window.activeTextEditor;
+		if(editor && editor.document.languageId === Constants.LANGUAGE) {
+			if(!config.type)			{ config.type = Constants.DEBUGGER_TYPE; }
+			if(!config.name)			{ config.name = 'Debug ${file}'; }
+			if(!config.request) 		{ config.request = 'launch'; }
+			if(!config.program) 		{ config.program = '${file}'; }
+			if(!config.octave)			{ config.octave = Constants.DEFAULT_EXECUTABLE; }
+			if(!config.sourceFolder)	{ config.sourceFolder = '${workspaceFolder}'; }
+			if(!config.prefetchCount)	{ config.prefetchCount = Constants.CHUNKS_PREFETCH; }
+			if(!config.allowArbitraryExpressionEvaluation) {
 				config.allowArbitraryExpressionEvaluation = false;
 			}
 		}

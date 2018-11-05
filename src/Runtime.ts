@@ -195,9 +195,7 @@ export class Runtime extends EventEmitter {
 	//**************************************************************************
 	// Execution control
 	//**************************************************************************
-	public start(	program: string,
-					stopOnEntry: boolean) // TODO: support
-	{
+	public start(program: string) {
 		this.addFolder(dirname(program));
 		this.send(functionFromPath(program));
 	}
