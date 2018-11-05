@@ -26,6 +26,7 @@ import { ComplexMatrix } from './Variables/ComplexMatrix';
 import { ScalarStruct } from './Variables/ScalarStruct';
 import { Struct } from './Variables/Struct';
 import { Scope as OctaveScope } from './Variables/Scope';
+import { isMatlabFile } from './Utils/misc';
 
 
 //******************************************************************************
@@ -178,11 +179,29 @@ class OctaveDebugSession extends LoggingDebugSession {
 		}
 	}
 
+	//**************************************************************************
+	private handleInvalidBreakpoints(
+		response: DebugProtocol.SetBreakpointsResponse,
+		args: DebugProtocol.SetBreakpointsArguments
+	): void
+	{
+		if(args.breakpoints !== undefined) {
+			const breakpoints = args.breakpoints.map(bp =>
+				<Breakpoint>{ verified: false, source: args.source, line: bp.line });
+			response.body = { breakpoints: breakpoints };
+			this.sendResponse(response);
+		}
+	}
+
 
 	//**************************************************************************
 	protected setBreakPointsRequest(response: DebugProtocol.SetBreakpointsResponse,
 									args: DebugProtocol.SetBreakpointsArguments): void
 	{
+		if(!isMatlabFile(args.source.name)) {
+			return this.handleInvalidBreakpoints(response, args);
+		}
+
 		const callback = (runtime: Runtime) => {
 			const vscBreakpoints = args.breakpoints;
 			if(vscBreakpoints !== undefined && args.source.path !== undefined) {
@@ -191,9 +210,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 				Breakpoints.clearAllBreakpointsIn(path, runtime, () => {
 					Breakpoints.set(vscBreakpoints, path, runtime,
 						(breakpoints: Array<Breakpoint>) => {
-							response.body = {
-								breakpoints: breakpoints
-							};
+							response.body = { breakpoints: breakpoints };
 							this.sendResponse(response);
 						}
 					);
