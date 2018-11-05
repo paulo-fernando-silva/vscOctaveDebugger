@@ -208,15 +208,19 @@ export class Runtime extends EventEmitter {
 		const callback = this._inputHandler.shift();
 
 		if(callback !== undefined && !callback(data.toString())) {
+			// Not fully handled, still gathering input.
 			this._inputHandler.unshift(callback);
 			this._stdoutHandled = true;
 			this._stdoutBuffer += data;
 		} else {
+			// Complete input gathered, so output/log it.
 			if(this._stdoutHandled || data.match(Runtime.SYNC_REGEX)) {
+				// If it's a debugger command output it via debug.
 				this.debug(this._stdoutBuffer);
 				this._stdoutBuffer = '';
 				this._stdoutHandled = false;
 			} else {
+				// Program output is routed via warn.
 				this.warn(data);
 			}
 		}
