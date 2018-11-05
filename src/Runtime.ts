@@ -263,7 +263,7 @@ export class Runtime extends EventEmitter {
 	//**************************************************************************
 	private warn(str: string): void {
 		if(this._log) {
-			console.log(str);
+			console.warn(str);
 		}
 		logger.warn(str);
 	}
