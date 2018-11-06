@@ -1,3 +1,6 @@
+## 0.2.3
+* Fixed multiroot breakpoints issue.
+
 ## 0.2.2
 * Fixed the bug that was preventing the debug session from terminating on step.
 
