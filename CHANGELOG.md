@@ -1,3 +1,9 @@
+## 0.2.4
+* Addded support for both matlab and octave languages.
+* Made arbitrary expression evaluation on by default. Everything but functions is evaluated because of side effects.
+* Added a new icon.
+* Other misc code changes.
+
 ## 0.2.3
 * Fixed multiroot breakpoints issue.
 
