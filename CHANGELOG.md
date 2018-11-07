@@ -1,6 +1,6 @@
 ## 0.2.5
 * Addded support for both matlab and octave languages.
-* Made arbitrary expression evaluation on by default. Everything but functions is evaluated because of side effects.
+* Made arbitrary expression evaluation on by default. Everything is evaluated except functions because of potential side effects.
 * Added a new icon.
 * Other misc code changes.
 
