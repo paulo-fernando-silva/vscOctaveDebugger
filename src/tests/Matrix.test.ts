@@ -1,3 +1,4 @@
+import { Logger } from '../Utils/Logger';
 import { Variable } from '../Variables/Variable';
 import { Matrix } from '../Variables/Matrix';
 import * as assert from 'assert';
@@ -200,7 +201,8 @@ const value =
 		const name = 'mND';
 		const freeIndices = [1, 2, 2, 2];
 		const fixedIndices = [];
-		const runtime = new Runtime(Constants.DEFAULT_EXECUTABLE, '.', true);
+		Logger.logToConsole = true;
+		const runtime = new Runtime(Constants.DEFAULT_EXECUTABLE, '.');
 
 		Matrix.fetchAllChildren(runtime, name, freeIndices, fixedIndices,
 			(children: Array<Matrix>) => {
@@ -256,7 +258,8 @@ const value =
 		let grandchildren: Array<Array<Variable>> = [];
 
 		before((done) => {
-			runtime = new Runtime(Constants.DEFAULT_EXECUTABLE, '.', true);
+			Logger.logToConsole = true;
+			runtime = new Runtime(Constants.DEFAULT_EXECUTABLE, '.');
 			const cmd = `${name} = [${vectors[0]},${vectors[1]}];`;
 			runtime.waitSend(cmd, () => {
 				Matrix.fetchAllChildren(runtime, name, freeIndices, fixedIndices,

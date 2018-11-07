@@ -1,4 +1,4 @@
-import { logger} from 'vscode-debugadapter';
+import { Logger } from '../Utils/Logger';
 import { Runtime } from '../Runtime';
 import { Variable } from './Variable';
 import * as Constants from '../Constants';
@@ -57,7 +57,7 @@ export class Variables {
 				return Variables._REFS[index];
 			}
 		} else {
-			Variables.log(`Error: getVariable(${reference})!`);
+			Logger.log(`Error: getVariable(${reference})!`);
 		}
 
 		return null;
@@ -85,7 +85,7 @@ export class Variables {
 		if(variable !== null) {
 			variable.listChildren(runtime, count, start, callback);
 		} else {
-			Variables.log(`Error: listByReference invalid reference ${ref}`);
+			Logger.log(`Error: listByReference invalid reference ${ref}`);
 		}
 	}
 
@@ -103,7 +103,7 @@ export class Variables {
 		names.forEach(name => {
 			Variables.loadVariable(name, runtime, (v: Variable | null) => {
 				if(v === null) {
-					Variables.log(`Error: could not load variable '${name}'!`);
+					Logger.log(`Error: could not load variable '${name}'!`);
 					++skipped;
 				} else {
 					variables.push(v);
@@ -156,7 +156,7 @@ export class Variables {
 	): void
 	{
 		runtime.evaluate(`${name} = ${value}`, (result: string) => {
-			Variables.log(`setVariable operation result: ${result}`);
+			Logger.log(`setVariable operation result: ${result}`);
 			Variables.getValue(name, runtime, callback);
 		});
 	}
@@ -208,12 +208,5 @@ export class Variables {
 	//**************************************************************************
 	private static removeName(name: string, value: string): string {
 		return value.replace(new RegExp(`^(?:ans|${name}) =(?:\n\n)?\s*`), '').trim();
-	}
-
-
-	//**************************************************************************
-	private static log(str: string): void {
-		console.log(str);
-		logger.log(str);
 	}
 }

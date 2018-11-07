@@ -1,4 +1,4 @@
-import { logger} from 'vscode-debugadapter';
+import { Logger } from '../Utils/Logger';
 import { StackFrame, Source } from 'vscode-debugadapter';
 import { Runtime } from '../Runtime';
 
@@ -44,7 +44,7 @@ export class StackFramesManager {
 		if(n > 0) {
 			runtime.evaluate(`dbup ${n}`, (output: string) => callback());
 		} else {
-			this.log(`Error: up(${n})!`);
+			Logger.log(`Error: up(${n})!`);
 		}
 	}
 
@@ -59,7 +59,7 @@ export class StackFramesManager {
 		if(n > 0) {
 			runtime.evaluate(`dbdown ${n}`, (output: string) => callback());
 		} else {
-			this.log(`Error: down(${n})!`);
+			Logger.log(`Error: down(${n})!`);
 		}
 	}
 
@@ -107,12 +107,5 @@ debug>
 
 		runtime.send('dbstack;');
 		syncRegex = Runtime.syncRegEx(runtime.sync());
-	}
-
-
-	//**************************************************************************
-	private log(str: string): void {
-		console.log(str);
-		logger.log(str);
 	}
 }

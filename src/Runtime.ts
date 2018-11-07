@@ -1,4 +1,4 @@
-import { logger} from 'vscode-debugadapter';
+import { Logger } from './Utils/Logger';
 import { spawn, ChildProcess } from 'child_process';
 import { ReadLine, createInterface } from "readline";
 import { EventEmitter } from 'events';
@@ -25,7 +25,6 @@ export class Runtime extends EventEmitter {
 	private _processStderr: ReadLine;
 	private _inputHandler: Array<(str: string) => boolean>;
 	private _eventHandler: Array<(str: string) => boolean>;
-	private _log: boolean;
 	private _stdoutBuffer: string;
 	private _stdoutHandled: boolean;
 
@@ -33,12 +32,11 @@ export class Runtime extends EventEmitter {
 	//**************************************************************************
 	public constructor(
 		processName: string,
-		sourceFolder: string,
-		log: boolean = false)
+		sourceFolder: string
+	)
 	{
 		super();
 		this._processName = processName;
-		this.setLog(log);
 		this.connect();
 		this.clearInputHandlers();
 		this.clearEventHandlers();
@@ -55,20 +53,8 @@ export class Runtime extends EventEmitter {
 
 
 	//**************************************************************************
-	public setLog(log: boolean): void {
-		this._log = log;
-	}
-
-
-	//**************************************************************************
-	public getLog(): boolean {
-		return this._log;
-	}
-
-
-	//**************************************************************************
 	private connect() {
-		this.debug(`Runtime: connecting to '${this._processName}'.`);
+		Logger.debug(`Runtime: connecting to '${this._processName}'.`);
 		this._process = spawn(this._processName);
 
 		this._processStdout = createInterface({ input: this._process.stdout, terminal: false });
@@ -83,7 +69,7 @@ export class Runtime extends EventEmitter {
 
 	//**************************************************************************
 	public disconnect() {
-		this.debug("Runtime: quitting.");
+		Logger.debug("Runtime: quitting.");
 		this.send('quit');
 	}
 
@@ -117,7 +103,7 @@ export class Runtime extends EventEmitter {
 	//**************************************************************************
 	public send(cmd: string) {
 		++this._commandNumber;
-		this.debug(`${this._processName}:${this._commandNumber}> ${cmd}`);
+		Logger.debug(`${this._processName}:${this._commandNumber}> ${cmd}`);
 		this._process.stdin.write(`${cmd}\n`);
 	}
 
@@ -216,12 +202,12 @@ export class Runtime extends EventEmitter {
 			// Complete input gathered, so output/log it.
 			if(this._stdoutHandled || data.match(Runtime.SYNC_REGEX)) {
 				// If it's a debugger command output it via debug.
-				this.debug(this._stdoutBuffer);
+				Logger.debug(this._stdoutBuffer);
 				this._stdoutBuffer = '';
 				this._stdoutHandled = false;
 			} else {
 				// Program output is routed via warn.
-				this.warn(data);
+				Logger.warn(data);
 			}
 		}
 	}
@@ -232,13 +218,13 @@ export class Runtime extends EventEmitter {
 		this._eventHandler.some(callback => {
 			return callback(data);
 		});
-		this.warn(data);
+		Logger.warn(data);
 	}
 
 
 	//**************************************************************************
 	private onExit(code) {
-		this.debug(`Runtime: ${this._processName} exited with code: ${code}`);
+		Logger.debug(`Runtime: ${this._processName} exited with code: ${code}`);
 		this.emit('exit');
 	}
 
@@ -253,7 +239,7 @@ export class Runtime extends EventEmitter {
 			msg += `\nProcess '${this._processName}' was killed.`;
 		}
 
-		this.debug(msg);
+		Logger.debug(msg);
 		this.emit('error');
 	}
 
@@ -261,23 +247,5 @@ export class Runtime extends EventEmitter {
 	//**************************************************************************
 	private echo(str: string): string {
 		return `printf("${str}\\n")`;
-	}
-
-
-	//**************************************************************************
-	private warn(str: string): void {
-		if(this._log) {
-			console.warn(str);
-		}
-		logger.warn(str);
-	}
-
-
-	//**************************************************************************
-	private debug(str: string): void {
-		if(this._log) {
-			console.log(str);
-		}
-		logger.log(str);
 	}
 }
