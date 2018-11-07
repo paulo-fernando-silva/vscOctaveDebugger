@@ -1,7 +1,7 @@
 {
 	"name": "vscOctaveDebuggerAdaptor",
 	"displayName": "Octave Debugger",
-	"version": "0.2.3",
+	"version": "0.2.4",
 	"publisher": "paulosilva",
 	"description": "Octave debugger adaptor for vsc.",
 	"author": {
@@ -61,14 +61,22 @@
 	],
 	"contributes": {
 		"breakpoints": [
-			{ "language": "matlab" },
-			{ "language": "octave" }
+			{
+				"language": "matlab"
+			},
+			{
+				"language": "octave"
+			}
 		],
 		"languages": [
 			{
 				"id": "matlab",
-				"aliases": [ "octave" ],
-				"extensions": [ ".m" ]
+				"aliases": [
+					"octave"
+				],
+				"extensions": [
+					".m"
+				]
 			}
 		],
 		"debuggers": [
