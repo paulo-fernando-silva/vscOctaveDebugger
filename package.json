@@ -61,8 +61,14 @@
 	],
 	"contributes": {
 		"breakpoints": [
+			{ "language": "matlab" },
+			{ "language": "octave" }
+		],
+		"languages": [
 			{
-				"language": "matlab"
+				"id": "matlab",
+				"aliases": [ "octave" ],
+				"extensions": [ ".m" ]
 			}
 		],
 		"debuggers": [
@@ -71,6 +77,10 @@
 				"label": "Octave Debugger",
 				"program": "./out/OctaveDebugger.js",
 				"runtime": "node",
+				"languages": [
+					"matlab",
+					"octave"
+				],
 				"configurationAttributes": {
 					"launch": {
 						"required": [
