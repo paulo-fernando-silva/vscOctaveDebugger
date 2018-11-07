@@ -9,9 +9,11 @@ export class ScalarStruct extends Variable {
 
 
 	//**************************************************************************
-	constructor(name: string = '',
-				value: string = '',
-				fields: Array<string> = [])
+	constructor(
+		name: string = '',
+		value: string = '',
+		fields: Array<string> = []
+	)
 	{
 		super();
 		this._name = name;
@@ -32,9 +34,11 @@ export class ScalarStruct extends Variable {
 
 
 	//**************************************************************************
-	public load(name: string,
-				runtime: Runtime,
-				callback: (v: Variable) => void): void
+	public load(
+		name: string,
+		runtime: Runtime,
+		callback: (v: Variable) => void
+	): void
 	{
 		ScalarStruct.getFields(name, runtime, (fields: Array<string>) => {
 			// TODO: Then parent sync issue is fixed display something interesting.
@@ -50,10 +54,12 @@ export class ScalarStruct extends Variable {
 
 
 	//**************************************************************************
-	public listChildren(runtime: Runtime,
-						count: number,
-						start: number,
-						callback: (vars: Array<Variable>) => void): void
+	public listChildren(
+		runtime: Runtime,
+		count: number,
+		start: number,
+		callback: (vars: Array<Variable>) => void
+	): void
 	{
 		// TODO: handle children range
 		Variables.listVariables(this._fields, runtime, callback);
@@ -61,9 +67,11 @@ export class ScalarStruct extends Variable {
 
 
 	//**************************************************************************
-	public static getFields(name: string,
-							runtime: Runtime,
-							callback: (f: Array<string>) => void): void
+	public static getFields(
+		name: string,
+		runtime: Runtime,
+		callback: (f: Array<string>) => void
+	): void
 	{
 		let fieldnames = new Array<string>();
 		let syncRegex;
@@ -88,9 +96,11 @@ export class ScalarStruct extends Variable {
 
 
 	//**************************************************************************
-	public static getFieldValues(	fields: Array<string>,
-									runtime: Runtime,
-									callback: (values: Array<string>) => void): void
+	public static getFieldValues(
+		fields: Array<string>,
+		runtime: Runtime,
+		callback: (values: Array<string>) => void
+	): void
 	{
 		let values = new Array<string>();
 

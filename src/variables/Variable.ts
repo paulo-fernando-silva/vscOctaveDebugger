@@ -19,16 +19,18 @@ export abstract class Variable {
 
 
 	//**************************************************************************
-	public abstract load(	name: string,
-							runtime: Runtime,
-							callback: (v: Variable) => void);
+	public abstract load(
+		name: string,
+		runtime: Runtime,
+		callback: (v: Variable) => void);
 
 
 	//**************************************************************************
-	public abstract listChildren(	runtime: Runtime,
-									count: number,
-									start: number,
-									callback: (vars: Array<Variable>) => void);
+	public abstract listChildren(
+		runtime: Runtime,
+		count: number,
+		start: number,
+		callback: (vars: Array<Variable>) => void);
 
 
 	//**************************************************************************

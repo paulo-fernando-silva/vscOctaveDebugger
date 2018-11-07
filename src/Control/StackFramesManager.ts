@@ -18,9 +18,11 @@ export class StackFramesManager {
 
 
 	//**************************************************************************
-	public selectStackFrame(i: number,
-							runtime: Runtime,
-							callback: () => void): void
+	public selectStackFrame(
+		i: number,
+		runtime: Runtime,
+		callback: () => void
+	): void
 	{
 		if(i === this._frame) {
 			callback();
@@ -33,9 +35,11 @@ export class StackFramesManager {
 
 
 	//**************************************************************************
-	private up(	n: number,
-				runtime: Runtime,
-				callback: () => void): void
+	private up(
+		n: number,
+		runtime: Runtime,
+		callback: () => void
+	): void
 	{
 		if(n > 0) {
 			runtime.evaluate(`dbup ${n}`, (output: string) => callback());
@@ -46,9 +50,11 @@ export class StackFramesManager {
 
 
 	//**************************************************************************
-	private down(	n: number,
-					runtime: Runtime,
-					callback: () => void): void
+	private down(
+		n: number,
+		runtime: Runtime,
+		callback: () => void
+	): void
 	{
 		if(n > 0) {
 			runtime.evaluate(`dbdown ${n}`, (output: string) => callback());
@@ -67,10 +73,12 @@ stopped in:
 		   TestOctaveDebugger at line 11 [/path/TestOctaveDebugger.m]
 debug>
 	*/
-	public get(	startFrame: number,
-				endFrame: number,
-				runtime: Runtime,
-				callback: (frames: Array<StackFrame>) => void): void
+	public get(
+		startFrame: number,
+		endFrame: number,
+		runtime: Runtime,
+		callback: (frames: Array<StackFrame>) => void
+	): void
 	{
 		const stackframes = new Array<StackFrame>();
 		let syncRegex;

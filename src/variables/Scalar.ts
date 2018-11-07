@@ -5,8 +5,10 @@ import { Runtime } from '../Runtime';
 
 export class Scalar extends Variable  {
 	//**************************************************************************
-	constructor(name: string = '',
-				value: string = '')
+	constructor(
+		name: string = '',
+		value: string = ''
+	)
 	{
 		super();
 		this._name = name;
@@ -26,9 +28,11 @@ export class Scalar extends Variable  {
 
 
 	//**************************************************************************
-	public load(name: string,
-				runtime: Runtime,
-				callback: (v: Variable) => void)
+	public load(
+		name: string,
+		runtime: Runtime,
+		callback: (v: Variable) => void
+	): void
 	{
 		Variables.getValue(name, runtime, (value: string) => {
 			callback(new Scalar(name, value));
@@ -37,9 +41,11 @@ export class Scalar extends Variable  {
 
 
 	//**************************************************************************
-	public listChildren(runtime: Runtime,
-						count: number,
-						start: number,
-						callback: (vars: Array<Variable>) => void)
+	public listChildren(
+		runtime: Runtime,
+		count: number,
+		start: number,
+		callback: (vars: Array<Variable>) => void
+	): void
 	{} // Scalars have no children.
 }

@@ -42,10 +42,11 @@ class OctaveDebuggerConfigurationProvider implements vscode.DebugConfigurationPr
 	 * Massage a debug configuration just before a debug session is being launched,
 	 * e.g. add all missing attributes to the debug configuration.
 	 */
-	resolveDebugConfiguration(	folder: WorkspaceFolder | undefined,
-								config: DebugConfiguration,
-								token?: CancellationToken)
-		: ProviderResult<DebugConfiguration>
+	resolveDebugConfiguration(
+		folder: WorkspaceFolder | undefined,
+		config: DebugConfiguration,
+		token?: CancellationToken
+	) : ProviderResult<DebugConfiguration>
 	{
 		const editor = vscode.window.activeTextEditor;
 		if(editor && editor.document.languageId === Constants.LANGUAGE) {

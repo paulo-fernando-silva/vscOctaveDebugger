@@ -84,8 +84,10 @@ class OctaveDebugSession extends LoggingDebugSession {
 
 
 	//**************************************************************************
-	private setupRuntime(	octave: string,
-							sourceFolder: string)
+	private setupRuntime(
+		octave: string,
+		sourceFolder: string
+	)
 	{
 		if(this._runtime) {
 			return;
@@ -114,8 +116,10 @@ class OctaveDebugSession extends LoggingDebugSession {
 
 
 	//**************************************************************************
-	protected initializeRequest(response: DebugProtocol.InitializeResponse,
-								args: DebugProtocol.InitializeRequestArguments): void
+	protected initializeRequest(
+		response: DebugProtocol.InitializeResponse,
+		args: DebugProtocol.InitializeRequestArguments
+	): void
 	{
 		this.sendEvent(new InitializedEvent());
 
@@ -133,8 +137,10 @@ class OctaveDebugSession extends LoggingDebugSession {
 
 
 	//**************************************************************************
-	protected disconnectRequest(response: DebugProtocol.DisconnectResponse,
-								args: DebugProtocol.DisconnectArguments): void
+	protected disconnectRequest(
+		response: DebugProtocol.DisconnectResponse,
+		args: DebugProtocol.DisconnectArguments
+	): void
 	{
 		this._runtime.disconnect();
 		this.sendResponse(response);
@@ -150,8 +156,10 @@ class OctaveDebugSession extends LoggingDebugSession {
 
 
 	//**************************************************************************
-	protected launchRequest(response: DebugProtocol.LaunchResponse,
-							args: LaunchRequestArguments): void
+	protected launchRequest(
+		response: DebugProtocol.LaunchResponse,
+		args: LaunchRequestArguments
+	): void
 	{
 		this._allowArbitraryExpressionEvaluation = args.allowArbitraryExpressionEvaluation;
 		Variables.setChunkPrefetch(args.prefetchCount);
@@ -195,8 +203,10 @@ class OctaveDebugSession extends LoggingDebugSession {
 
 
 	//**************************************************************************
-	protected setBreakPointsRequest(response: DebugProtocol.SetBreakpointsResponse,
-									args: DebugProtocol.SetBreakpointsArguments): void
+	protected setBreakPointsRequest(
+		response: DebugProtocol.SetBreakpointsResponse,
+		args: DebugProtocol.SetBreakpointsArguments
+	): void
 	{
 		if(!isMatlabFile(args.source.name)) {
 			return this.handleInvalidBreakpoints(response, args);
@@ -241,8 +251,10 @@ class OctaveDebugSession extends LoggingDebugSession {
 
 
 	//**************************************************************************
-	protected stackTraceRequest(response: DebugProtocol.StackTraceResponse,
-								args: DebugProtocol.StackTraceArguments): void
+	protected stackTraceRequest(
+		response: DebugProtocol.StackTraceResponse,
+		args: DebugProtocol.StackTraceArguments
+	): void
 	{
 		const startFrame = typeof args.startFrame === 'number' ? args.startFrame : 0;
 		const maxLevels = typeof args.levels === 'number' ? args.levels : 1000;
@@ -266,8 +278,10 @@ class OctaveDebugSession extends LoggingDebugSession {
 
 
 	//**************************************************************************
-	protected scopesRequest(response: DebugProtocol.ScopesResponse,
-							args: DebugProtocol.ScopesArguments): void
+	protected scopesRequest(
+		response: DebugProtocol.ScopesResponse,
+		args: DebugProtocol.ScopesArguments
+	): void
 	{
 		const callback = () => {
 			// All stack frames have local and global scopes.
@@ -287,8 +301,10 @@ class OctaveDebugSession extends LoggingDebugSession {
 
 
 	//**************************************************************************
-	protected variablesRequest(	response: DebugProtocol.VariablesResponse,
-								args: DebugProtocol.VariablesArguments): void
+	protected variablesRequest(
+		response: DebugProtocol.VariablesResponse,
+		args: DebugProtocol.VariablesArguments
+	): void
 	{
 		const callback = (variables: Array<OctaveVariable>) => {
 			response.body = {
@@ -315,8 +331,10 @@ class OctaveDebugSession extends LoggingDebugSession {
 
 
 	//**************************************************************************
-	protected setVariableRequest(	response: DebugProtocol.SetVariableResponse,
-									variable: DebugProtocol.SetVariableArguments): void
+	protected setVariableRequest(
+		response: DebugProtocol.SetVariableResponse,
+		variable: DebugProtocol.SetVariableArguments
+	): void
 	{
 		Variables.setVariable(	variable.name,
 								variable.value,
@@ -364,32 +382,40 @@ class OctaveDebugSession extends LoggingDebugSession {
 
 
 	//**************************************************************************
-	protected continueRequest(	response: DebugProtocol.ContinueResponse,
-								args: DebugProtocol.ContinueArguments): void
+	protected continueRequest(
+		response: DebugProtocol.ContinueResponse,
+		args: DebugProtocol.ContinueArguments
+	): void
 	{
 		this.stepWith('dbcont', () => { this.sendResponse(response); });
 	}
 
 
 	//**************************************************************************
-	protected nextRequest(	response: DebugProtocol.NextResponse,
-							args: DebugProtocol.NextArguments): void
+	protected nextRequest(
+		response: DebugProtocol.NextResponse,
+		args: DebugProtocol.NextArguments
+	): void
 	{
 		this.stepWith('dbstep', () => { this.sendResponse(response); });
 	}
 
 
 	//**************************************************************************
-	protected stepInRequest(response: DebugProtocol.StepInResponse,
-							args: DebugProtocol.StepInArguments): void
+	protected stepInRequest(
+		response: DebugProtocol.StepInResponse,
+		args: DebugProtocol.StepInArguments
+	): void
 	{
 		this.stepWith('dbstep in', () => { this.sendResponse(response); });
 	}
 
 
 	//**************************************************************************
-	protected stepOutRequest(	response: DebugProtocol.StepOutResponse,
-								args: DebugProtocol.StepOutArguments): void
+	protected stepOutRequest(
+		response: DebugProtocol.StepOutResponse,
+		args: DebugProtocol.StepOutArguments
+	): void
 	{
 		this.stepWith('dbstep out', () => { this.sendResponse(response); });
 	}

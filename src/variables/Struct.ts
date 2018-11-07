@@ -11,9 +11,11 @@ export class Struct extends Variable {
 
 
 	//**************************************************************************
-	constructor(name: string = '',
-				value: string = '',
-				size: Array<number> = [])
+	constructor(
+		name: string = '',
+		value: string = '',
+		size: Array<number> = []
+	)
 	{
 		super();
 		this._name = name;
@@ -25,9 +27,11 @@ export class Struct extends Variable {
 
 
 	//**************************************************************************
-	public load(name: string,
+	public load(
+		name: string,
 		runtime: Runtime,
-		callback: (v: Variable) => void)
+		callback: (v: Variable) => void
+	): void
 	{
 		Variables.getSize(name, runtime, (size: Array<number>) => {
 			// TODO: VSC doesn't seem to support updating parents when children change.
@@ -83,10 +87,12 @@ export class Struct extends Variable {
 
 
 	//**************************************************************************
-	public listChildren(runtime: Runtime,
+	public listChildren(
+		runtime: Runtime,
 		count: number,
 		start: number,
-		callback: (vars: Array<Variable>) => void)
+		callback: (vars: Array<Variable>) => void
+	): void
 	{
 		const variables = new Array<Variable>();
 		const Nmax = this._size[this._firstNonOne];

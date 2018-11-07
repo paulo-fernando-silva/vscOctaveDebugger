@@ -73,11 +73,13 @@ export class Variables {
 	//**************************************************************************
 	// List variables under a parent variable.
 	//**************************************************************************
-	public static listByReference(	ref: number,
-									runtime: Runtime,
-									count: number,
-									start: number,
-									callback: (variables: Array<Variable>) => void)
+	public static listByReference(
+		ref: number,
+		runtime: Runtime,
+		count: number,
+		start: number,
+		callback: (variables: Array<Variable>) => void
+	): void
 	{
 		const variable = Variables.getByReference(ref);
 		if(variable !== null) {
@@ -89,9 +91,11 @@ export class Variables {
 
 
 	//**************************************************************************
-	public static listVariables(names: Array<string>,
-								runtime: Runtime,
-								callback: (variables: Array<Variable>) => void)
+	public static listVariables(
+		names: Array<string>,
+		runtime: Runtime,
+		callback: (variables: Array<Variable>) => void
+	): void
 	{
 		const variables = new Array<Variable>();
 		let skipped = 0;
@@ -114,9 +118,11 @@ export class Variables {
 
 
 	//**************************************************************************
-	public static loadVariable(	name: string,
-								runtime: Runtime,
-								callback: (v: Variable | null) => void)
+	public static loadVariable(
+		name: string,
+		runtime: Runtime,
+		callback: (v: Variable | null) => void
+	): void
 	{
 		if(name !== 'ans') {
 			Variables.getType(name, runtime, (type: string) => {
@@ -142,10 +148,12 @@ export class Variables {
 
 
 	//**************************************************************************
-	public static setVariable(	name: string,
-								value: string,
-								runtime: Runtime,
-								callback: (newValue: string) => void): void
+	public static setVariable(
+		name: string,
+		value: string,
+		runtime: Runtime,
+		callback: (newValue: string) => void
+	): void
 	{
 		runtime.evaluate(`${name} = ${value}`, (result: string) => {
 			Variables.log(`setVariable operation result: ${result}`);
@@ -155,9 +163,11 @@ export class Variables {
 
 
 	//**************************************************************************
-	public static getType(	variable: string,
-							runtime: Runtime,
-							callback: (type: string) => void)
+	public static getType(
+		variable: string,
+		runtime: Runtime,
+		callback: (type: string) => void
+	): void
 	{
 		runtime.evaluate(`typeinfo(${variable})`, (value: string) => {
 			value = value.replace(/^ans =\s*/, '');
@@ -167,9 +177,11 @@ export class Variables {
 
 
 	//**************************************************************************
-	public static getValue(	variable: string,
-							runtime: Runtime,
-							callback: (value: string) => void)
+	public static getValue(
+		variable: string,
+		runtime: Runtime,
+		callback: (value: string) => void
+	): void
 	{
 		runtime.evaluate(variable, (value: string) => {
 			callback(Variables.removeName(variable, value));
@@ -178,9 +190,11 @@ export class Variables {
 
 
 	//**************************************************************************
-	public static getSize(	variable: string,
-							runtime: Runtime,
-							callback: (s: Array<number>) => void)
+	public static getSize(
+		variable: string,
+		runtime: Runtime,
+		callback: (s: Array<number>) => void
+	): void
 	{
 		runtime.evaluate(`size(${variable})`, (value: string) => {
 			value = value.replace(/^ans =\s*/, '');

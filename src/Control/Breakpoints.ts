@@ -13,10 +13,12 @@ export class Breakpoints {
 
 
 	//**************************************************************************
-	public static set(	breakpoints: Array<ConditionalBreakpoint>,
-						path: string,
-						runtime: Runtime,
-						callback: (breakpoints: Array<Breakpoint>) => void): void
+	public static set(
+		breakpoints: Array<ConditionalBreakpoint>,
+		path: string,
+		runtime: Runtime,
+		callback: (breakpoints: Array<Breakpoint>) => void
+	): void
 	{
 		const confirmedBreakpoints = new Array<Breakpoint>();
 		let syncRegex;
@@ -51,9 +53,11 @@ export class Breakpoints {
 
 
 	//**************************************************************************
-	public static clearAllBreakpointsIn(path: string,
-										runtime: Runtime,
-										callback: () => void): void
+	public static clearAllBreakpointsIn(
+		path: string,
+		runtime: Runtime,
+		callback: () => void
+	): void
 	{
 		Breakpoints.listBreakpointsIn(path, runtime, (lines: string) => {
 			Breakpoints.clearBreakpoints(path, lines, runtime);
@@ -63,9 +67,11 @@ export class Breakpoints {
 
 
 	//**************************************************************************
-	public static clearBreakpoints(	path: string,
-									lines: string,
-									runtime: Runtime): void
+	public static clearBreakpoints(
+		path: string,
+		lines: string,
+		runtime: Runtime
+	): void
 	{
 		const func = functionFromPath(path);
 		runtime.send(`dbclear ${func} ${lines}`);
@@ -88,9 +94,11 @@ export class Breakpoints {
 	// debug> dbstatus TestOctaveDebugger
 	// breakpoints in TestOctaveDebugger at lines 23 27
 	// breakpoint in TestOctaveDebugger>testNestedFunctionLevel2 at line 37
-	public static listBreakpointsIn(path: string,
-									runtime: Runtime,
-									callback: (lines: string) => void): void
+	public static listBreakpointsIn(
+		path: string,
+		runtime: Runtime,
+		callback: (lines: string) => void
+	): void
 	{
 		const fname = functionFromPath(path);
 		const breakpointRegEx =

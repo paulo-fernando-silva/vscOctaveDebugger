@@ -28,17 +28,21 @@ export class Scope extends Variable  {
 
 
 	//**************************************************************************
-	public load(name: string,
-				runtime: Runtime,
-				callback: (v: Variable) => void)
+	public load(
+		name: string,
+		runtime: Runtime,
+		callback: (v: Variable) => void
+	): void
 	{}
 
 
 	//**************************************************************************
-	public listChildren(runtime: Runtime,
-						count: number,
-						start: number,
-						callback: (vars: Array<Variable>) => void)
+	public listChildren(
+		runtime: Runtime,
+		count: number,
+		start: number,
+		callback: (vars: Array<Variable>) => void
+	): void
 	{
 		let matchesHeader = false;
 		let vars = '';
