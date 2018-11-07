@@ -45,7 +45,6 @@ Please submit bugs there too.
 ## Notes and Known Issues
 
 * The variable ans is used by the debugger internally, so the code should not rely on its value. For that reason ans is also not displayed in the local stack even though it's part of it.
-* When you hover over a function, that function will be evaluated. That can cause side-effects. I left this one because I like to be able to evaluate expressions that do not cause side effects. This is disabled by default ("allowArbitraryExpressionEvaluation": false) To fix it I need to find out how to distinguish functions in expressions.
 
 
 ## History :)

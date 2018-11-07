@@ -11,8 +11,8 @@ import { dirname } from 'path';
 export class Runtime extends EventEmitter {
 	//**************************************************************************
 	public static readonly PROMPT = 'debug> ';
+	public static readonly PROMPT_REGEX = new RegExp(`^(?:${Runtime.PROMPT})*`);
 	//**************************************************************************
-	private static readonly PROMPT_REGEX = new RegExp(`^(?:${Runtime.PROMPT})*`);
 	private static readonly SYNC = `vsc::${Constants.MODULE_NAME}`;
 	private static readonly SYNC_REGEX = new RegExp(`^(?:${Runtime.PROMPT})*\s*${Runtime.SYNC}`);
 

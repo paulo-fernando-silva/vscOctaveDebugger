@@ -17,6 +17,7 @@ import { DebugProtocol } from 'vscode-debugprotocol';
 import * as Constants from './Constants';
 import { Runtime } from './Runtime';
 import { Breakpoints } from './Control/Breakpoints';
+import { Expression } from './Control/Expression';
 import { StackFramesManager } from './Control/StackFramesManager';
 import { Variables } from './Variables/Variables';
 import { Variable as OctaveVariable } from './Variables/Variable';
@@ -347,32 +348,40 @@ class OctaveDebugSession extends LoggingDebugSession {
 
 
 	//**************************************************************************
-	protected evaluateRequest(	response: DebugProtocol.EvaluateResponse,
-								args: DebugProtocol.EvaluateArguments): void
+	protected evaluateRequest(
+		response: DebugProtocol.EvaluateResponse,
+		args: DebugProtocol.EvaluateArguments
+	): void
 	{
-		if(this._allowArbitraryExpressionEvaluation) {
-			this._runtime.evaluate(args.expression, (result: string) => {
+		const sendResponse = (val: string) => {
 				response.body = {
-					result: result,
-					variablesReference: 0
-				};
-				this.sendResponse(response);
-			});
-		} else {
-			response.body = {
-				result: '',
+				result: val,
 				variablesReference: 0
 			};
 			this.sendResponse(response);
+		};
+
+		if(this._allowArbitraryExpressionEvaluation) {
+			Expression.isFunction(args.expression, this._runtime,
+				(info: string | undefined) => {
+					if(info === undefined) {
+						this._runtime.evaluate(args.expression, sendResponse);
+					} else {
+						sendResponse(info);
+					}
+				}
+			);
+		} else {
+			sendResponse('');
 		}
 	}
 
 
 	//**************************************************************************
-	protected stepWith(cmd: string, resposeCallback: () => void): void {
+	protected stepWith(cmd: string, responseCallback: () => void): void {
 		this._stepping = true;
 		this._runtime.waitSend(cmd, () => {
-			resposeCallback();
+			responseCallback();
 			if(this._stepping) {
 				this.sendEvent(new TerminatedEvent());
 				this._stepping = false;

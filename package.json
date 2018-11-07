@@ -115,7 +115,7 @@
 							"allowArbitraryExpressionEvaluation": {
 								"type": "boolean",
 								"description": "Allow arbitrary expression evaluation, e.g. evaluate functions on mouse over",
-								"default": false
+								"default": true
 							}
 						}
 					}
@@ -129,7 +129,7 @@
 						"octave": "octave-cli",
 						"sourceFolder": "${workspaceFolder}",
 						"prefetchCount": 1,
-						"allowArbitraryExpressionEvaluation": false,
+						"allowArbitraryExpressionEvaluation": true,
 						"trace": false
 					}
 				],
@@ -145,7 +145,7 @@
 							"octave": "octave-cli",
 							"sourceFolder": "^\"\\${workspaceFolder}\"",
 							"prefetchCount": 1,
-							"allowArbitraryExpressionEvaluation": false,
+							"allowArbitraryExpressionEvaluation": true,
 							"trace": false
 						}
 					}
