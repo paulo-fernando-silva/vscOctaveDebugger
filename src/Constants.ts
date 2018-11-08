@@ -8,5 +8,6 @@ export const LANGUAGE = 'matlab';
 export const CHUNKS_SIZE = 100;
 export const CHUNKS_PREFETCH = 1;
 export const ROW_ELEMENTS_SEPARATOR = '   ';
+export const ROW_ELEMENTS_SEPARATOR_REGEX = /   ?/;
 export const COLUMN_ELEMENTS_SEPARATOR = '\n';
 export const SIZE_SEPARATOR = 'x';

@@ -573,7 +573,7 @@ export class Matrix extends Variable {
 		}
 
 		let row = 0;
-		let rowValues = lines[row].trim().split(Constants.ROW_ELEMENTS_SEPARATOR);
+		let rowValues = lines[row].trim().split(Constants.ROW_ELEMENTS_SEPARATOR_REGEX);
 		const Ncols = rowValues.length;
 		const vectors = new Array<Array<string>>(Ncols);
 
@@ -583,7 +583,7 @@ export class Matrix extends Variable {
 		}
 
 		for(row = 1; row !== Nrows; ++row) {
-			rowValues = lines[row].trim().split(Constants.ROW_ELEMENTS_SEPARATOR);
+			rowValues = lines[row].trim().split(Constants.ROW_ELEMENTS_SEPARATOR_REGEX);
 
 			if(rowValues.length !== Ncols) {
 				throw `rowValues.length !== Ncols: ${rowValues.length} !== ${Ncols}`;

@@ -1,3 +1,6 @@
+## 0.2.6
+* Fixed bug that was preventing parsing or matrices with negative values.
+
 ## 0.2.5
 * Addded support for both matlab and octave languages.
 * Made arbitrary expression evaluation on by default. Everything is evaluated except functions because of potential side effects.
