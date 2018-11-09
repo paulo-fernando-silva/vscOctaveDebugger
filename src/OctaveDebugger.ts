@@ -8,11 +8,11 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  ******************************************************************************/
 import {
-	Logger, logger,
 	DebugSession, LoggingDebugSession,
 	InitializedEvent, TerminatedEvent, StoppedEvent,
 	Thread, StackFrame, Scope, Breakpoint, Variable
 } from 'vscode-debugadapter';
+import { OctaveLogger } from './Utils/OctaveLogger';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import * as Constants from './Constants';
 import { Runtime } from './Runtime';
@@ -104,6 +104,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 		});
 		this._runtime.addEventHandler((line: string) => {
 			// TODO: don't need to know file nor line... Use string comparison instead?
+			OctaveLogger.debug(`Breakpoint event handler: '${line}'`);
 			const match = line.match(/^stopped in (.*?) at line (\d+)$/);
 			if(match !== null && match.length > 2) {
 				this.sendEvent(new StoppedEvent('breakpoint', OctaveDebugSession.THREAD_ID));
@@ -165,7 +166,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 		this._allowArbitraryExpressionEvaluation = args.allowArbitraryExpressionEvaluation;
 		Variables.setChunkPrefetch(args.prefetchCount);
 
-		logger.setup(args.trace ? Logger.LogLevel.Log : Logger.LogLevel.Warn, false);
+		OctaveLogger.setup(args.trace);
 
 		this.setupRuntime(args.octave, args.sourceFolder);
 		this.runSetBreakpoints();
@@ -187,6 +188,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 			this._breakpointsCallbacks.length = 0;
 		}
 	}
+
 
 	//**************************************************************************
 	private handleInvalidBreakpoints(
@@ -380,12 +382,14 @@ class OctaveDebugSession extends LoggingDebugSession {
 	//**************************************************************************
 	protected stepWith(cmd: string, responseCallback: () => void): void {
 		this._stepping = true;
+		OctaveLogger.debug('Stepping...');
 		this._runtime.waitSend(cmd, () => {
-			responseCallback();
+			OctaveLogger.debug('Stepped.');
 			if(this._stepping) {
 				this.sendEvent(new TerminatedEvent());
 				this._stepping = false;
 			}
+			responseCallback();
 		});
 	}
 

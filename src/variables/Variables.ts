@@ -1,4 +1,4 @@
-import { Logger } from '../Utils/Logger';
+import { OctaveLogger } from '../Utils/OctaveLogger';
 import { Runtime } from '../Runtime';
 import { Variable } from './Variable';
 import * as Constants from '../Constants';
@@ -57,7 +57,7 @@ export class Variables {
 				return Variables._REFS[index];
 			}
 		} else {
-			Logger.log(`Error: getVariable(${reference})!`);
+			OctaveLogger.log(`Error: getVariable(${reference})!`);
 		}
 
 		return null;
@@ -85,8 +85,14 @@ export class Variables {
 		if(variable !== null) {
 			variable.listChildren(runtime, count, start, callback);
 		} else {
-			Logger.log(`Error: listByReference invalid reference ${ref}`);
+			OctaveLogger.log(`Error: listByReference invalid reference ${ref}`);
 		}
+	}
+
+
+	//**************************************************************************
+	private static skipVariable(name: string): boolean {
+		return name === 'ans';
 	}
 
 
@@ -103,7 +109,9 @@ export class Variables {
 		names.forEach(name => {
 			Variables.loadVariable(name, runtime, (v: Variable | null) => {
 				if(v === null) {
-					Logger.log(`Error: could not load variable '${name}'!`);
+					if(!Variables.skipVariable(name)) {
+						OctaveLogger.log(`Error: could not load variable '${name}'!`);
+					}
 					++skipped;
 				} else {
 					variables.push(v);
@@ -124,7 +132,7 @@ export class Variables {
 		callback: (v: Variable | null) => void
 	): void
 	{
-		if(name !== 'ans') {
+		if(!Variables.skipVariable(name)) {
 			Variables.getType(name, runtime, (type: string) => {
 				for(let i = 0; i !== Variables._FACTORIES.length; ++i) {
 					const factory = Variables._FACTORIES[i];
@@ -156,7 +164,7 @@ export class Variables {
 	): void
 	{
 		runtime.evaluate(`${name} = ${value}`, (result: string) => {
-			Logger.log(`setVariable operation result: ${result}`);
+			OctaveLogger.log(`setVariable operation result: ${result}`);
 			Variables.getValue(name, runtime, callback);
 		});
 	}

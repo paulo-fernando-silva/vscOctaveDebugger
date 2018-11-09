@@ -1,4 +1,4 @@
-import { Logger } from '../Utils/Logger';
+import { OctaveLogger } from '../Utils/OctaveLogger';
 import { Variable } from '../Variables/Variable';
 import { Matrix } from '../Variables/Matrix';
 import * as assert from 'assert';
@@ -201,7 +201,7 @@ const value =
 		const name = 'mND';
 		const freeIndices = [1, 2, 2, 2];
 		const fixedIndices = [];
-		Logger.logToConsole = true;
+		OctaveLogger.logToConsole = true;
 		const runtime = new Runtime(Constants.DEFAULT_EXECUTABLE, '.');
 
 		Matrix.fetchAllChildren(runtime, name, freeIndices, fixedIndices,
@@ -258,7 +258,7 @@ const value =
 		let grandchildren: Array<Array<Variable>> = [];
 
 		before((done) => {
-			Logger.logToConsole = true;
+			OctaveLogger.logToConsole = true;
 			runtime = new Runtime(Constants.DEFAULT_EXECUTABLE, '.');
 			const cmd = `${name} = [${vectors[0]},${vectors[1]}];`;
 			runtime.waitSend(cmd, () => {

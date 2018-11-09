@@ -1,4 +1,4 @@
-import { Logger } from '../Utils/Logger';
+import { OctaveLogger } from '../Utils/OctaveLogger';
 import { StackFrame, Source } from 'vscode-debugadapter';
 import { Runtime } from '../Runtime';
 
@@ -44,7 +44,7 @@ export class StackFramesManager {
 		if(n > 0) {
 			runtime.evaluate(`dbup ${n}`, (output: string) => callback());
 		} else {
-			Logger.log(`Error: up(${n})!`);
+			OctaveLogger.log(`Error: up(${n})!`);
 		}
 	}
 
@@ -59,7 +59,7 @@ export class StackFramesManager {
 		if(n > 0) {
 			runtime.evaluate(`dbdown ${n}`, (output: string) => callback());
 		} else {
-			Logger.log(`Error: down(${n})!`);
+			OctaveLogger.log(`Error: down(${n})!`);
 		}
 	}
 
