@@ -1,3 +1,8 @@
+## 0.2.7
+* Added / to evaluate functions given via debug console.
+* Added extra logging, and a new verbose level for extension debug.
+* Ohter minor bug fixes.
+
 ## 0.2.6
 * Fixed bug that was preventing parsing or matrices with negative values.
 

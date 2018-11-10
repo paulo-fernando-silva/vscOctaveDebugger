@@ -1,7 +1,7 @@
 {
 	"name": "vscOctaveDebuggerAdaptor",
 	"displayName": "Octave Debugger",
-	"version": "0.2.6",
+	"version": "0.2.7",
 	"publisher": "paulosilva",
 	"description": "Octave debugger adaptor for vsc.",
 	"author": {
@@ -104,6 +104,11 @@
 								"type": "boolean",
 								"description": "Enable logging of the Debug Adapter Protocol.",
 								"default": true
+							},
+							"verbose": {
+								"type": "boolean",
+								"description": "Set debug logging to verbose. (Optional)",
+								"default": false
 							},
 							"octave": {
 								"type": "string",

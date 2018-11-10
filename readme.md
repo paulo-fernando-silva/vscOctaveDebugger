@@ -37,21 +37,25 @@ More information about debugging with Octave can be found
 * Set breakpoints as needed by clicking on the empty space left of the line numbers.
 * Press the 'play' button to start debugging. If you have the default keybindings then F5 should also work.
 
+You can use the buttons, hotkeys, and the debug console to send commands to the debugger.
+Since functions are filtered out from evaluation, if you really want to evaluate a function, you have to add a forward slash before it, e.g. `/dbstep`.
+
 Project homepage and source available
 [here](https://github.com/paulo-fernando-silva/vscOctaveDebugger.git).
 Please submit bugs there too.
 
 
 ## Notes and Known Issues
-
+* There's a bug that makes vscode UI get stuck in a breakpint and only pause is clickable. :(
 * The variable ans is used by the debugger internally, so the code should not rely on its value. For that reason ans is also not displayed in the local stack even though it's part of it.
 
 
 ## History :)
 
 I started this project back in December 2017 or January 2018, not quite sure anymore, when I was going through the exercises from the [Andrew Ng's machine learning class](http://openclassroom.stanford.edu/MainFolder/CoursePage.php?course=MachineLearning).
-I was really into vscode, but unfortunately there was no debugger at the time.
-Since I have a long commute to work, I decided to use that time to develop this interface.
+Also check these playlists [Stanford Machine Learning](https://www.youtube.com/watch?v=UzxYlbK2c7E&list=PLA89DCFA6ADACE599), and [Caltech Learning from Data](https://www.youtube.com/watch?v=VeKeFIepJBU&list=PLCA2C1469EA777F9A), and there's plenty more from MIT and others.
+
+Since I was really into vscode but unfortunately there was no octave debugger at the time, and since I have a long commute to work, I decided to use that time to develop this adaptor.
 It kind of was an on and off development, but I would say that about 80% of it was done on the train while commuting to work. I really would like to thank Andrew and all the openclassroom and other similar projects (e.g. OpenCourseWare), and of course the people behind vscode. The best editor of its genre out there.
 
 
