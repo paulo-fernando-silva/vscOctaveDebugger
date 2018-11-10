@@ -46,7 +46,6 @@ Please submit bugs there too.
 
 
 ## Notes and Known Issues
-* There's a bug that makes vscode UI get stuck in a breakpint and only pause is clickable. :(
 * The variable ans is used by the debugger internally, so the code should not rely on its value. For that reason ans is also not displayed in the local stack even though it's part of it.
 
 
