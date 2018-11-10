@@ -202,7 +202,7 @@ export class Runtime extends EventEmitter {
 			// Complete input gathered, so output/log it.
 			if(this._stdoutHandled || data.match(Runtime.SYNC_REGEX)) {
 				// If it's a debugger command output it via debug.
-				OctaveLogger.info(this._stdoutBuffer);
+				OctaveLogger.info(this._stdoutBuffer + data);
 				this._stdoutBuffer = '';
 				this._stdoutHandled = false;
 			} else {
