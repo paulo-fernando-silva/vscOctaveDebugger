@@ -37,16 +37,11 @@ More information about debugging with Octave can be found
 * Set breakpoints as needed by clicking on the empty space left of the line numbers.
 * Press the 'play' button to start debugging. If you have the default keybindings then F5 should also work.
 
-You can use the buttons, hotkeys, and the debug console to send commands to the debugger.
-Since functions are filtered out from evaluation, if you really want to evaluate a function, you have to add a forward slash before it, e.g. `/dbstep`.
+You can use the buttons, hotkeys, and the debug console to send commands to octave.
 
 Project homepage and source available
 [here](https://github.com/paulo-fernando-silva/vscOctaveDebugger.git).
 Please submit bugs there too.
-
-
-## Notes and Known Issues
-* The variable ans is used by the debugger internally, so the code should not rely on its value. For that reason ans is also not displayed in the local stack even though it's part of it.
 
 
 ## History :)

@@ -1,3 +1,7 @@
+## 0.2.9
+* Removed the need for the / in console function evaluation.
+* Added a flag to allow visualization of ans.
+
 ## 0.2.8
 * Fixed a bug that made the vsc UI get stuck if a step response was sent in the middle of a stack request.
 
