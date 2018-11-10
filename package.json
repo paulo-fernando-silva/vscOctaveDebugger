@@ -110,6 +110,11 @@
 								"description": "Set debug logging to verbose. (Optional)",
 								"default": false
 							},
+							"evaluateAns": {
+								"type": "boolean",
+								"description": "Show ans contents in variables view. (Optional)",
+								"default": false
+							},
 							"octave": {
 								"type": "string",
 								"description": "Path to the octave-cli executable.",

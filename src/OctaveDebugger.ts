@@ -38,6 +38,8 @@ interface LaunchRequestArguments extends DebugProtocol.LaunchRequestArguments {
 	trace: boolean;
 	/** Enable verbose logging the Debug Adapter Protocol. */
 	verbose?: boolean;
+	/** Enable ans evaluation. */
+	evaluateAns?: boolean;
 	/** Path to the octave-cli. */
 	octave: string;
 	/** Absolute path to the project source folder. */
@@ -172,6 +174,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 		Variables.setChunkPrefetch(args.prefetchCount);
 
 		OctaveLogger.setup(args.trace, args.verbose);
+		Variables.evaluateAns = (args.evaluateAns !== undefined && args.evaluateAns);
 
 		this.setupRuntime(args.octave, args.sourceFolder);
 		this.runSetBreakpoints();

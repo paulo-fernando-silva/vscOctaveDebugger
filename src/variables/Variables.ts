@@ -11,6 +11,8 @@ export class Variables {
 	private static _REFS = new Array<Variable>();
 	private static _CHUNKS_PREFETCH = Constants.CHUNKS_PREFETCH;
 
+	public static evaluateAns = false;
+
 
 	//**************************************************************************
 	public static setChunkPrefetch(n: number) {
@@ -92,7 +94,7 @@ export class Variables {
 
 	//**************************************************************************
 	private static skipVariable(name: string): boolean {
-		return name === 'ans';
+		return !Variables.evaluateAns && name === 'ans';
 	}
 
 
