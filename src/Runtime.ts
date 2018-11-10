@@ -246,6 +246,6 @@ export class Runtime extends EventEmitter {
 
 	//**************************************************************************
 	private echo(str: string): string {
-		return `printf("${str}\\n")`;
+		return `printf("${str}\\n");`;
 	}
 }

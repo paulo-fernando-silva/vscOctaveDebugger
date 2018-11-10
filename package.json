@@ -1,7 +1,7 @@
 {
 	"name": "vscOctaveDebuggerAdaptor",
 	"displayName": "Octave Debugger",
-	"version": "0.2.7",
+	"version": "0.2.8",
 	"publisher": "paulosilva",
 	"description": "Octave debugger adaptor for vsc.",
 	"author": {

@@ -1,7 +1,10 @@
+## 0.2.8
+* Fixed a bug that made the vsc UI get stuck if a step response was sent in the middle of a stack request.
+
 ## 0.2.7
 * Added / to evaluate functions given via debug console.
 * Added extra logging, and a new verbose level for extension debug.
-* Ohter minor bug fixes.
+* Other minor bug fixes.
 
 ## 0.2.6
 * Fixed bug that was preventing parsing or matrices with negative values.

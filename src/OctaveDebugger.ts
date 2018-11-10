@@ -393,14 +393,16 @@ class OctaveDebugSession extends LoggingDebugSession {
 	protected stepWith(cmd: string, responseCallback: () => void): void {
 		this._stepping = true;
 		OctaveLogger.debug(`stepRequest: request '${++this._stepCount}'`);
+
 		this._runtime.waitSend(cmd, () => {
 			if(this._stepping) {
 				this.sendEvent(new TerminatedEvent());
 				this._stepping = false;
 			}
-			responseCallback();
-			OctaveLogger.debug(`stepRequest: response '${this._stepCount}'`);
 		});
+
+		responseCallback(); // It seems we need to respond immediately.
+		OctaveLogger.debug(`stepRequest: response '${this._stepCount}'`);
 	}
 
 
