@@ -36,6 +36,8 @@ interface LaunchRequestArguments extends DebugProtocol.LaunchRequestArguments {
 	program: string;
 	/** Enable logging the Debug Adapter Protocol. */
 	trace: boolean;
+	/** Enable verbose logging the Debug Adapter Protocol. */
+	verbose?: boolean;
 	/** Path to the octave-cli. */
 	octave: string;
 	/** Absolute path to the project source folder. */
@@ -50,6 +52,7 @@ interface LaunchRequestArguments extends DebugProtocol.LaunchRequestArguments {
 //******************************************************************************
 class OctaveDebugSession extends LoggingDebugSession {
 	private static THREAD_ID = 1;
+	private _stepCount = 0;
 	private _runtime: Runtime;
 	private _stackManager: StackFramesManager;
 	private _runCallback: () => void;
@@ -104,9 +107,9 @@ class OctaveDebugSession extends LoggingDebugSession {
 		});
 		this._runtime.addEventHandler((line: string) => {
 			// TODO: don't need to know file nor line... Use string comparison instead?
-			OctaveLogger.debug(`Breakpoint event handler: '${line}'`);
 			const match = line.match(/^stopped in (.*?) at line (\d+)$/);
 			if(match !== null && match.length > 2) {
+				OctaveLogger.debug(`Sending breakpoint: '${this._stepCount}'`);
 				this.sendEvent(new StoppedEvent('breakpoint', OctaveDebugSession.THREAD_ID));
 				this._stepping = false;
 				return true; // Event handled. Stop processing.
@@ -150,8 +153,10 @@ class OctaveDebugSession extends LoggingDebugSession {
 
 
 	//**************************************************************************
-	protected configurationDoneRequest(	response: DebugProtocol.ConfigurationDoneResponse,
-										args: DebugProtocol.ConfigurationDoneArguments): void
+	protected configurationDoneRequest(
+		response: DebugProtocol.ConfigurationDoneResponse,
+		args: DebugProtocol.ConfigurationDoneArguments
+	): void
 	{
 		this._runCallback();
 	}
@@ -211,7 +216,8 @@ class OctaveDebugSession extends LoggingDebugSession {
 		args: DebugProtocol.SetBreakpointsArguments
 	): void
 	{
-		if(!isMatlabFile(args.source.name)) {
+		OctaveLogger.debug(`setBreakpoints: request '${this._stepCount}'`);
+		if(!isMatlabFile(args.source)) {
 			return this.handleInvalidBreakpoints(response, args);
 		}
 
@@ -225,11 +231,13 @@ class OctaveDebugSession extends LoggingDebugSession {
 						(breakpoints: Array<Breakpoint>) => {
 							response.body = { breakpoints: breakpoints };
 							this.sendResponse(response);
+							OctaveLogger.debug(`setBreakpoints: response '${this._stepCount}'`);
 						}
 					);
 				});
 			} else {
 				this.sendResponse(response);
+				OctaveLogger.debug(`setBreakpoints: response '${this._stepCount}'`);
 			}
 		};
 
@@ -265,7 +273,10 @@ class OctaveDebugSession extends LoggingDebugSession {
 
 		// Each time the program reaches any new instruction it requests the stack.
 		// Since it'll recreate the scopes and variables, we clear them here.
+		OctaveLogger.debug(`stackTrace: clear '${this._stepCount}'`);
 		this.clear();
+
+		OctaveLogger.debug(`stackTrace: request '${this._stepCount}'`);
 
 		const callback = (stackFrames: Array<StackFrame>) => {
 			response.body = {
@@ -274,6 +285,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 			};
 
 			this.sendResponse(response);
+			OctaveLogger.debug(`stackTrace: response '${this._stepCount}'`);
 		};
 
 		this._stackManager.get(startFrame, endFrame, this._runtime, callback);
@@ -286,6 +298,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 		args: DebugProtocol.ScopesArguments
 	): void
 	{
+		OctaveLogger.debug(`scopeRequest: request '${this._stepCount}'`);
 		const callback = () => {
 			// All stack frames have local and global scopes.
 			const localScope = new OctaveScope(''); // local scope has no name.
@@ -297,6 +310,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 			]};
 
 			this.sendResponse(response);
+			OctaveLogger.debug(`scopeRequest: response '${this._stepCount}'`);
 		};
 
 		this._stackManager.selectStackFrame(args.frameId, this._runtime, callback);
@@ -309,6 +323,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 		args: DebugProtocol.VariablesArguments
 	): void
 	{
+		OctaveLogger.debug(`variablesRequest: request '${this._stepCount}'`);
 		const callback = (variables: Array<OctaveVariable>) => {
 			response.body = {
 				variables: variables.map(v => <Variable>{
@@ -321,6 +336,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 				})
 			};
 			this.sendResponse(response);
+			OctaveLogger.debug(`variablesRequest: response '${this._stepCount}'`);
 		};
 
 		const count = args.count || 0;
@@ -382,14 +398,14 @@ class OctaveDebugSession extends LoggingDebugSession {
 	//**************************************************************************
 	protected stepWith(cmd: string, responseCallback: () => void): void {
 		this._stepping = true;
-		OctaveLogger.debug('Stepping...');
+		OctaveLogger.debug(`stepRequest: request '${++this._stepCount}'`);
 		this._runtime.waitSend(cmd, () => {
-			OctaveLogger.debug('Stepped.');
 			if(this._stepping) {
 				this.sendEvent(new TerminatedEvent());
 				this._stepping = false;
 			}
 			responseCallback();
+			OctaveLogger.debug(`stepRequest: response '${this._stepCount}'`);
 		});
 	}
 

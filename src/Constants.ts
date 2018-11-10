@@ -11,3 +11,4 @@ export const ROW_ELEMENTS_SEPARATOR = '   ';
 export const ROW_ELEMENTS_SEPARATOR_REGEX = /   ?/;
 export const COLUMN_ELEMENTS_SEPARATOR = '\n';
 export const SIZE_SEPARATOR = 'x';
+export const COMMAND_ESCAPE = '/';
