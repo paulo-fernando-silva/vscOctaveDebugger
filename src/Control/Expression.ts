@@ -1,5 +1,4 @@
 import { Runtime } from '../Runtime';
-import * as Constants from '../Constants'
 
 
 //******************************************************************************
@@ -8,10 +7,11 @@ export class Expression {
 	public static evaluate(
 		expression: string,
 		runtime: Runtime,
+		isConsole: boolean,
 		callback: (info: string | undefined) => void
 	): void
 	{
-		if(expression.startsWith(Constants.COMMAND_ESCAPE)) {
+		if(isConsole) {
 			const command = expression.substr(1);
 			runtime.evaluate(command, callback);
 		} else {

@@ -382,7 +382,8 @@ class OctaveDebugSession extends LoggingDebugSession {
 		};
 
 		if(this._allowArbitraryExpressionEvaluation) {
-			Expression.evaluate(args.expression, this._runtime, sendResponse);
+			const isConsole = args.context === 'repl';
+			Expression.evaluate(args.expression, this._runtime, isConsole, sendResponse);
 		} else {
 			sendResponse('');
 		}
