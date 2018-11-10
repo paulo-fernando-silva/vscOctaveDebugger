@@ -371,24 +371,18 @@ class OctaveDebugSession extends LoggingDebugSession {
 		args: DebugProtocol.EvaluateArguments
 	): void
 	{
+		OctaveLogger.debug(`evaluateRequest: request '${this._stepCount}'`);
 		const sendResponse = (val: string) => {
 				response.body = {
 				result: val,
 				variablesReference: 0
 			};
 			this.sendResponse(response);
+			OctaveLogger.debug(`evaluateRequest: request '${this._stepCount}'`);
 		};
 
 		if(this._allowArbitraryExpressionEvaluation) {
-			Expression.isFunction(args.expression, this._runtime,
-				(info: string | undefined) => {
-					if(info === undefined) {
-						this._runtime.evaluate(args.expression, sendResponse);
-					} else {
-						sendResponse(info);
-					}
-				}
-			);
+			Expression.evaluate(args.expression, this._runtime, sendResponse);
 		} else {
 			sendResponse('');
 		}
