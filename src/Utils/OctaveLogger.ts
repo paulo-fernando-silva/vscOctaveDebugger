@@ -7,8 +7,10 @@ export class OctaveLogger {
 
 
 	//**************************************************************************
-	public static setup(trace: boolean): void {
-		logger.setup(trace ? Logger.LogLevel.Log : Logger.LogLevel.Warn, false);
+	public static setup(trace: boolean, verbose: boolean | undefined): void {
+		const debugLevel = (verbose? Logger.LogLevel.Verbose : Logger.LogLevel.Log);
+		const logLevel = (trace ? debugLevel : Logger.LogLevel.Warn);
+		logger.setup(logLevel, false);
 	}
 
 

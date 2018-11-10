@@ -171,7 +171,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 		this._allowArbitraryExpressionEvaluation = args.allowArbitraryExpressionEvaluation;
 		Variables.setChunkPrefetch(args.prefetchCount);
 
-		OctaveLogger.setup(args.trace);
+		OctaveLogger.setup(args.trace, args.verbose);
 
 		this.setupRuntime(args.octave, args.sourceFolder);
 		this.runSetBreakpoints();
