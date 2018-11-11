@@ -1,3 +1,8 @@
+## 0.2.10
+* Made mouse hover expression evaluation always on.
+* Fixed the console function evaluation. It was still ignoring the first character.
+* Replaced sending quit message by actually killing the process as it sometimes stays spinning behind.
+
 ## 0.2.9
 * Removed the need for the / in console function evaluation.
 * Added a flag to allow visualization of ans.

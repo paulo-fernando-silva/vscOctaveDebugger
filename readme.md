@@ -18,7 +18,7 @@ This extension supports:
 
 If you want to edit the value of a variable be it scalar, array, or structure, you can double click on it in the VARIABLES view, and type in the new value.
 That expression will be evaluated and if successful the variable will be updated with the new value.
-Not that you should do it, but you can pass other octave commands through like that, e.g. if you have x = 5, and you type '10; y=5', you will set the value of x and create the variable y.
+You can also submit any command you like through the debug console as if it you were typing directly into Octave.
 
 More information about debugging with Octave can be found
 [here](https://www.gnu.org/software/octave/doc/v4.0.0/Debugging.html).
@@ -32,12 +32,10 @@ More information about debugging with Octave can be found
 * You can set "program" parameter to whatever filename / function you want to debug, e.g.:
     "name": "My configuration",
     "program": "myFunctionOrScript"
-    Notice your should remove the .m in Script.m
-    The default configuration will show tooltips when you hover the mouse over the parameter names.
+    Program can be anything that can be evaluated. Can be a "path/to/file.m", or "functionName(value)".
 * Set breakpoints as needed by clicking on the empty space left of the line numbers.
 * Press the 'play' button to start debugging. If you have the default keybindings then F5 should also work.
-
-You can use the buttons, hotkeys, and the debug console to send commands to octave.
+If you don't set any breakpoints it'll just run Octave in the DEBUG CONSOLE as if you were running from the terminal.
 
 Project homepage and source available
 [here](https://github.com/paulo-fernando-silva/vscOctaveDebugger.git).
