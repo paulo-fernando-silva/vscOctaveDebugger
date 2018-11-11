@@ -2,7 +2,7 @@
 
 This extension provides debugging support for code runnable on Octave (might include Matlab code).
 This is done by interfacing with octave-cli via stdin/stdout. Do read the changelog to know what's new in this version.
-Though this is not necessary to use the extension, I still recommend the following language extensions for [matlab](https://marketplace.visualstudio.com/items?itemName=Gimly81.matlab) and if you really want here's one for [octave](https://marketplace.visualstudio.com/items?itemName=toasty-technologies.octave).
+Though this is not necessary to use the extension, I still recommend the following language extensions for [matlab](https://marketplace.visualstudio.com/items?itemName=Gimly81.matlab) and [octave](https://marketplace.visualstudio.com/items?itemName=toasty-technologies.octave).
 
 
 **Octave Debugger**
