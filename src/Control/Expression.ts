@@ -12,8 +12,7 @@ export class Expression {
 	): void
 	{
 		if(isConsole) {
-			const command = expression.substr(1);
-			runtime.evaluate(command, callback);
+			runtime.evaluate(expression, callback);
 		} else {
 			Expression.isFunction(expression, runtime,
 				(info: string | undefined) => {
