@@ -46,8 +46,6 @@ interface LaunchRequestArguments extends DebugProtocol.LaunchRequestArguments {
 	sourceFolder: string;
 	/** Maximum number of chunks of elements to prefetch. */
 	prefetchCount: number;
-	/** Allow arbitrary expression evaluation, e.g. evaluate functions on mouse over. */
-	allowArbitraryExpressionEvaluation: boolean;
 }
 
 
@@ -59,7 +57,6 @@ class OctaveDebugSession extends LoggingDebugSession {
 	private _stackManager: StackFramesManager;
 	private _runCallback: () => void;
 	private _breakpointsCallbacks = new Array<(r: Runtime) => void>();
-	private _allowArbitraryExpressionEvaluation: boolean;
 	private _stepping: boolean;
 
 
@@ -170,7 +167,6 @@ class OctaveDebugSession extends LoggingDebugSession {
 		args: LaunchRequestArguments
 	): void
 	{
-		this._allowArbitraryExpressionEvaluation = args.allowArbitraryExpressionEvaluation;
 		Variables.setChunkPrefetch(args.prefetchCount);
 
 		OctaveLogger.setup(args.trace, args.verbose);
@@ -384,12 +380,9 @@ class OctaveDebugSession extends LoggingDebugSession {
 			OctaveLogger.debug(`evaluateRequest: request '${this._stepCount}'`);
 		};
 
-		if(this._allowArbitraryExpressionEvaluation) {
-			const isConsole = args.context === 'repl';
-			Expression.evaluate(args.expression, this._runtime, isConsole, sendResponse);
-		} else {
-			sendResponse('');
-		}
+
+		const isConsole = args.context === 'repl';
+		Expression.evaluate(args.expression, this._runtime, isConsole, sendResponse);
 	}
 
 

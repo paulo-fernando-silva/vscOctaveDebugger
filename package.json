@@ -129,11 +129,6 @@
 								"type": "number",
 								"description": "Maximum number of chunks of elements to prefetch.",
 								"default": 1
-							},
-							"allowArbitraryExpressionEvaluation": {
-								"type": "boolean",
-								"description": "Allow arbitrary expression evaluation, e.g. evaluate functions on mouse over",
-								"default": true
 							}
 						}
 					}
@@ -147,7 +142,6 @@
 						"octave": "octave-cli",
 						"sourceFolder": "${workspaceFolder}",
 						"prefetchCount": 1,
-						"allowArbitraryExpressionEvaluation": true,
 						"trace": false
 					}
 				],
@@ -163,7 +157,6 @@
 							"octave": "octave-cli",
 							"sourceFolder": "^\"\\${workspaceFolder}\"",
 							"prefetchCount": 1,
-							"allowArbitraryExpressionEvaluation": true,
 							"trace": false
 						}
 					}
