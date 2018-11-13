@@ -37,11 +37,16 @@ export class Runtime extends EventEmitter {
 	{
 		super();
 		this._processName = processName;
-		this.connect();
+
 		this.clearInputHandlers();
 		this.clearEventHandlers();
 
-		this.addFolder(sourceFolder);
+		this.connect();
+
+		if(this.connected()) {
+			this.send('debug_on_error;debug_on_warning;debug_on_interrupt;');
+			this.addFolder(sourceFolder);
+		}
 	}
 
 
@@ -57,13 +62,20 @@ export class Runtime extends EventEmitter {
 		OctaveLogger.debug(`Runtime: connecting to '${this._processName}'.`);
 		this._process = spawn(this._processName);
 
-		this._processStdout = createInterface({ input: this._process.stdout, terminal: false });
-		this._processStderr = createInterface({ input: this._process.stderr, terminal: false });
+		if(this.connected()) {
+			this._processStdout = createInterface({ input: this._process.stdout, terminal: false });
+			this._processStderr = createInterface({ input: this._process.stderr, terminal: false });
+			this._process.on('close', code => { this.onExit(code); });
+			this._process.on('error', err => { this.onError(err); });
+			this._processStdout.on('line', data => { this.onStdout(data); });
+			this._processStderr.on('line', data => { this.onStderr(data); });
+		}
+	}
 
-		this._process.on('close', code => { this.onExit(code); });
-		this._process.on('error', err => { this.onError(err); });
-		this._processStdout.on('line', data => { this.onStdout(data); });
-		this._processStderr.on('line', data => { this.onStderr(data); });
+
+	//**************************************************************************
+	public connected(): boolean {
+		return this._process.pid !== undefined;
 	}
 
 
@@ -193,7 +205,7 @@ export class Runtime extends EventEmitter {
 	private onStdout(data) {
 		const callback = this._inputHandler.shift();
 
-		if(callback !== undefined && !callback(data.toString())) {
+		if(callback !== undefined && !callback(data)) {
 			// Not fully handled, still gathering input.
 			this._inputHandler.unshift(callback);
 			this._stdoutHandled = true;
@@ -202,7 +214,7 @@ export class Runtime extends EventEmitter {
 			// Complete input gathered, so output/log it.
 			if(this._stdoutHandled || data.match(Runtime.SYNC_REGEX)) {
 				// If it's a debugger command output it via debug.
-				OctaveLogger.info(this._stdoutBuffer + data);
+				OctaveLogger.info(this._stdoutBuffer? this._stdoutBuffer + data : data);
 				this._stdoutBuffer = '';
 				this._stdoutHandled = false;
 			} else {

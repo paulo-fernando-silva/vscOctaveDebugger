@@ -53,4 +53,13 @@ export class OctaveLogger {
 	public static debug(str: string): void {
 		OctaveLogger.log(str);
 	}
+
+
+	//**************************************************************************
+	public static error(str: string): void {
+		if(OctaveLogger.logToConsole) {
+			console.error(str);
+		}
+		logger.error(str);
+	}
 }

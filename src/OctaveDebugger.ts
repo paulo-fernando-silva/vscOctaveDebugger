@@ -98,11 +98,20 @@ class OctaveDebugSession extends LoggingDebugSession {
 
 		this._runtime = new Runtime(octave, sourceFolder);
 
-		this._runtime.on('exit', () => {
-			this.sendEvent(new TerminatedEvent());
-		});
-		this._runtime.on('error', () => {
-			this.sendEvent(new TerminatedEvent());
+		if(!this.runtimeConnected()) {
+			OctaveLogger.warn(`Could not connect to ${octave}! Check path.`);
+			return;
+		}
+
+		this._runtime.on('exit', () => { this.sendEvent(new TerminatedEvent()); });
+		this._runtime.on('error', () => { this.sendEvent(new TerminatedEvent()); });
+		this._runtime.addEventHandler((line: string) => {
+			const match = line.match(/^parse error near line (\d+) of file (.*)$/);
+			if(match !== null && match.length > 2) {
+				this.sendEvent(<DebugProtocol.OutputEvent>{ body: { output: line }});
+				return true;
+			}
+			return false;
 		});
 		this._runtime.addEventHandler((line: string) => {
 			// TODO: don't need to know file nor line... Use string comparison instead?
@@ -116,6 +125,12 @@ class OctaveDebugSession extends LoggingDebugSession {
 
 			return false; // Event not handled. Pass the event to the next handler.
 		});
+	}
+
+
+	//**************************************************************************
+	public runtimeConnected(): boolean {
+		return this._runtime.connected();
 	}
 
 
@@ -173,13 +188,16 @@ class OctaveDebugSession extends LoggingDebugSession {
 		Variables.evaluateAns = (args.evaluateAns !== undefined && args.evaluateAns);
 
 		this.setupRuntime(args.octave, args.sourceFolder);
-		this.runSetBreakpoints();
 
-		// start the program in the runtime
-		this._runCallback = () => {
-			this._runtime.start(args.program);
-			this.sendResponse(response);
-		};
+		if(this.runtimeConnected()) {
+			this.runSetBreakpoints();
+
+			// start the program in the runtime
+			this._runCallback = () => {
+				this._runtime.start(args.program);
+				this.sendResponse(response);
+			};
+		}
 	}
 
 
