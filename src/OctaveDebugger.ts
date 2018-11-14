@@ -28,6 +28,7 @@ import { ScalarStruct } from './Variables/ScalarStruct';
 import { Struct } from './Variables/Struct';
 import { Scope as OctaveScope } from './Variables/Scope';
 import { isMatlabFile } from './Utils/misc';
+import { Subject } from 'await-notify';
 
 
 //******************************************************************************
@@ -55,9 +56,9 @@ class OctaveDebugSession extends LoggingDebugSession {
 	private _stepCount = 0;
 	private _runtime: Runtime;
 	private _stackManager: StackFramesManager;
-	private _runCallback: () => void;
 	private _breakpointsCallbacks = new Array<(r: Runtime) => void>();
 	private _stepping: boolean;
+	private _configurationDone = new Subject();
 
 
 	//**************************************************************************
@@ -99,19 +100,15 @@ class OctaveDebugSession extends LoggingDebugSession {
 		this._runtime = new Runtime(octave, sourceFolder);
 
 		if(!this.runtimeConnected()) {
-			OctaveLogger.warn(`Could not connect to ${octave}! Check path.`);
+			OctaveLogger.warn(`Could not connect to '${octave}'! Check path.`);
 			return;
 		}
 
-		this._runtime.on('exit', () => { this.sendEvent(new TerminatedEvent()); });
-		this._runtime.on('error', () => { this.sendEvent(new TerminatedEvent()); });
-		this._runtime.addEventHandler((line: string) => {
-			const match = line.match(/^parse error near line (\d+) of file (.*)$/);
-			if(match !== null && match.length > 2) {
-				this.sendEvent(<DebugProtocol.OutputEvent>{ body: { output: line }});
-				return true;
-			}
-			return false;
+		this._runtime.on('exit', () => {
+			this.sendEvent(new TerminatedEvent());
+		});
+		this._runtime.on('error', () => {
+			this.sendEvent(new TerminatedEvent());
 		});
 		this._runtime.addEventHandler((line: string) => {
 			// TODO: don't need to know file nor line... Use string comparison instead?
@@ -172,32 +169,31 @@ class OctaveDebugSession extends LoggingDebugSession {
 		args: DebugProtocol.ConfigurationDoneArguments
 	): void
 	{
-		this._runCallback();
+		this._configurationDone.notify();
 	}
 
 
 	//**************************************************************************
-	protected launchRequest(
+	protected async launchRequest(
 		response: DebugProtocol.LaunchResponse,
 		args: LaunchRequestArguments
-	): void
+	)
 	{
 		Variables.setChunkPrefetch(args.prefetchCount);
 
 		OctaveLogger.setup(args.trace, args.verbose);
 		Variables.evaluateAns = (args.evaluateAns !== undefined && args.evaluateAns);
 
+		await this._configurationDone.wait();
+
 		this.setupRuntime(args.octave, args.sourceFolder);
 
 		if(this.runtimeConnected()) {
 			this.runSetBreakpoints();
-
-			// start the program in the runtime
-			this._runCallback = () => {
-				this._runtime.start(args.program);
-				this.sendResponse(response);
-			};
+			this._runtime.start(args.program);
 		}
+
+		this.sendResponse(response);
 	}
 
 

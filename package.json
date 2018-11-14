@@ -28,6 +28,7 @@
 		"url": "https://github.com/paulo-fernando-silva/vscOctaveDebugger/issues"
 	},
 	"dependencies": {
+		"await-notify": "1.0.1",
 		"vscode-debugadapter": "^1.25.0-pre.0",
 		"vscode-debugprotocol": "^1.25.0-pre.0"
 	},
