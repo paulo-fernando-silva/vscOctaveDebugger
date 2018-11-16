@@ -1,3 +1,6 @@
+## 0.2.12
+* Reverted a change that blocks the extension on the new vsc update.
+
 ## 0.2.11
 * Improved feeback on error. Now a message will be displayed in the console if the extension fails to connect to the octave executable. Syntax errors are also shown in the console.
 

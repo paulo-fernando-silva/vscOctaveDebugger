@@ -28,7 +28,6 @@ import { ScalarStruct } from './Variables/ScalarStruct';
 import { Struct } from './Variables/Struct';
 import { Scope as OctaveScope } from './Variables/Scope';
 import { isMatlabFile } from './Utils/misc';
-import { Subject } from 'await-notify';
 
 
 //******************************************************************************
@@ -58,7 +57,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 	private _stackManager: StackFramesManager;
 	private _breakpointsCallbacks = new Array<(r: Runtime) => void>();
 	private _stepping: boolean;
-	private _configurationDone = new Subject();
+	private _runCallback: () => void;
 
 
 	//**************************************************************************
@@ -169,7 +168,8 @@ class OctaveDebugSession extends LoggingDebugSession {
 		args: DebugProtocol.ConfigurationDoneArguments
 	): void
 	{
-		this._configurationDone.notify();
+		this._runCallback();
+		this.sendResponse(response);
 	}
 
 
@@ -179,18 +179,18 @@ class OctaveDebugSession extends LoggingDebugSession {
 		args: LaunchRequestArguments
 	)
 	{
-		Variables.setChunkPrefetch(args.prefetchCount);
-
 		OctaveLogger.setup(args.trace, args.verbose);
+		Variables.setChunkPrefetch(args.prefetchCount);
 		Variables.evaluateAns = (args.evaluateAns !== undefined && args.evaluateAns);
-
-		await this._configurationDone.wait();
 
 		this.setupRuntime(args.octave, args.sourceFolder);
 
 		if(this.runtimeConnected()) {
 			this.runSetBreakpoints();
-			this._runtime.start(args.program);
+
+			this._runCallback = () => {
+				this._runtime.start(args.program);
+			};
 		}
 
 		this.sendResponse(response);
