@@ -15,11 +15,13 @@ export class Expression {
 			runtime.evaluate(expression, callback);
 		} else {
 			Expression.isFunction(expression, runtime,
-				(info: string | undefined) => {
-					if(info === undefined) {
-						runtime.evaluate(expression, callback);
-					} else {
-						callback(info);
+				(info: string | undefined, exists: boolean) => {
+					if(exists) {
+						if(info === undefined) {
+							runtime.evaluate(expression, callback);
+						} else {
+							callback(info);
+						}
 					}
 				}
 			);
@@ -31,19 +33,21 @@ export class Expression {
 	public static isFunction(
 		expression: string,
 		runtime: Runtime,
-		callback: (info: string | undefined) => void
+		callback: (info: string | undefined, exists: boolean) => void
 	): void
 	{
 		const isFuncRegex = new RegExp(`^.*'${expression}' is a (?:\\S+ )?function from the file .*$`);
 		let syncRegEx;
 		let val: string | undefined = undefined;
+		let exists = false;
 
 		runtime.addInputHandler((str: string) => {
 			if(str.match(syncRegEx) !== null) {
-				callback(val);
+				callback(val, exists);
 				return true;
 			}
 
+			exists = true;
 			const match = str.match(isFuncRegex);
 			if(match !== null) {
 				val = str.replace(Runtime.PROMPT_REGEX, '').trim();
