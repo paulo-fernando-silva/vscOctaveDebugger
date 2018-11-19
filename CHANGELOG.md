@@ -1,3 +1,6 @@
+## 0.2.14
+* Fixed a bug in the parsing of multi-column vectors/matrices.
+
 ## 0.2.13
 * Truly fixed the parsing of matrix/vector rows.
 * Partially fixed the evaluation of comments. For the time being I'm skipping expressions that don't exist.

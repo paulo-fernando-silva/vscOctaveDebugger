@@ -524,26 +524,28 @@ export class Matrix extends Variable {
 
 
 	//**************************************************************************
+	// Skips lines like "Columns \d+ through \d+" or "Columns \d+ and \d+"
+	// All the other lines are pushed into the outLines array.
+	//
 	public static extractValuesLines(value: string): Array<string> {
+		const isColumnTagRegEx = /Columns? \d+(?: ((?:through)|(?:and)?) \d+)?:/;
 		const inLines = value.trim().split('\n').filter(line => line.length !== 0);
 		const N = inLines.length;
-		const regex = /Columns \d+ through \d+:/;
 		let outLines = new Array<string>();
 		let multiColumnGroup = false;
 
 		for(let i = 0; i !== N;) {
-			if(inLines[i].match(regex) !== null) {
+			if(inLines[i].match(isColumnTagRegEx)) {
 				if(!multiColumnGroup) {
 					multiColumnGroup = true;
 					++i; // skip line
-
-					while(i !== N && inLines[i].match(regex) === null) {
+					while(i !== N && !inLines[i].match(isColumnTagRegEx)) {
 						outLines.push(inLines[i++].trim());
 					}
 				} else {
 					++i; // skip line
 					let j = 0;
-					while(i !== N && inLines[i].match(regex) === null) {
+					while(i !== N && !inLines[i].match(isColumnTagRegEx)) {
 						outLines[j++] += Constants.ROW_ELEMENTS_SEPARATOR + inLines[i++].trim();
 					}
 				}
