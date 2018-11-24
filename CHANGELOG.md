@@ -1,3 +1,6 @@
+## 0.2.15
+* Renamed the extension. New commits will be done here.
+
 ## 0.2.14
 * Fixed a bug in the parsing of multi-column vectors/matrices.
 
