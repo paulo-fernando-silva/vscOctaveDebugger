@@ -1,3 +1,7 @@
+## 0.2.16
+* Added matrix and struct size to typename. Displayed when hovering over the name on the variables column.
+* Removed the name from the value of the watch variables content.
+
 ## 0.2.15
 * Renamed the extension. New commits will be done here.
 
