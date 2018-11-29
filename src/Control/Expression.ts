@@ -1,4 +1,6 @@
 import { Runtime } from '../Runtime';
+import { Variables } from '../Variables/Variables';
+import * as Constants from '../Constants';
 
 
 //******************************************************************************
@@ -7,24 +9,28 @@ export class Expression {
 	public static evaluate(
 		expression: string,
 		runtime: Runtime,
-		isConsole: boolean,
+		ctx: string | undefined,
 		callback: (info: string | undefined) => void
 	): void
 	{
-		if(isConsole) {
-			runtime.evaluate(expression, callback);
-		} else {
+		if(ctx === undefined || ctx === Constants.CTX_HOVER) {
 			Expression.isFunction(expression, runtime,
 				(info: string | undefined, exists: boolean) => {
 					if(exists) {
 						if(info === undefined) {
-							runtime.evaluate(expression, callback);
+							runtime.evaluate(expression, (value: string) => {
+								callback(Variables.removeName(expression, value));
+							});
 						} else {
 							callback(info);
 						}
 					}
 				}
 			);
+		} else {
+			runtime.evaluate(expression, (value: string) => {
+				callback(Variables.removeName(expression, value));
+			});
 		}
 	}
 

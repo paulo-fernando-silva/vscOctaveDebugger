@@ -394,9 +394,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 			OctaveLogger.debug(`evaluateRequest: request '${this._stepCount}'`);
 		};
 
-
-		const isConsole = args.context === 'repl';
-		Expression.evaluate(args.expression, this._runtime, isConsole, sendResponse);
+		Expression.evaluate(args.expression, this._runtime, args.context, sendResponse);
 	}
 
 

@@ -216,7 +216,7 @@ export class Variables {
 
 
 	//**************************************************************************
-	private static removeName(name: string, value: string): string {
+	public static removeName(name: string, value: string): string {
 		return value.replace(new RegExp(`^(?:ans|${name}) =(?:\n\n)?\s*`), '').trim();
 	}
 }

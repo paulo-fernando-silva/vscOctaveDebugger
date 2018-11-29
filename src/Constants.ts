@@ -11,3 +11,6 @@ export const ROW_ELEMENTS_SEPARATOR = '  ';
 export const ROW_ELEMENTS_SEPARATOR_REGEX = /  +/;
 export const COLUMN_ELEMENTS_SEPARATOR = '\n';
 export const SIZE_SEPARATOR = 'x';
+export const CTX_CONSOLE = 'console';
+export const CTX_WATCH = 'watch';
+export const CTX_HOVER = 'hover';
