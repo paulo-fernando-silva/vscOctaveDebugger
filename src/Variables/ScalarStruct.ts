@@ -28,6 +28,10 @@ export class ScalarStruct extends Variable {
 
 
 	//**************************************************************************
+	public extendedTypename(): string { return this.typename(); }
+
+
+	//**************************************************************************
 	public loads(type: string): boolean {
 		return type === this.typename();
 	}

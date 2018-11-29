@@ -22,6 +22,10 @@ export class Scope extends Variable  {
 
 
 	//**************************************************************************
+	public extendedTypename(): string { return this.typename(); }
+
+
+	//**************************************************************************
 	public loads(type: string): boolean {
 		return false;
 	}

@@ -21,6 +21,10 @@ export class Scalar extends Variable  {
 
 
 	//**************************************************************************
+	public extendedTypename(): string { return this.typename(); }
+
+
+	//**************************************************************************
 	public loads(type: string): boolean {
 		// TODO: for now everything can be loaded as a scalar as a fallback.
 		return true;

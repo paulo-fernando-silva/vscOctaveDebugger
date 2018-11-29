@@ -42,6 +42,10 @@ export abstract class Variable {
 
 
 	//**************************************************************************
+	public abstract extendedTypename(): string;
+
+
+	//**************************************************************************
 	public name(): string { return this._name; }
 
 

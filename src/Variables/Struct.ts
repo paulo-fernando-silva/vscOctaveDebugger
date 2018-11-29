@@ -1,3 +1,4 @@
+import * as Constants from '../Constants';
 import { Variables } from './Variables';
 import { Variable } from './Variable';
 import { Runtime } from '../Runtime';
@@ -6,8 +7,9 @@ import { Runtime } from '../Runtime';
 // This is actually an array much like a matrix.
 export class Struct extends Variable {
 	//**************************************************************************
-	protected _size: Array<number>;
-	protected _firstNonOne: number;
+	private _size: Array<number>;
+	private _firstNonOne: number;
+	private _extendedTypename: string;
 
 
 	//**************************************************************************
@@ -23,6 +25,8 @@ export class Struct extends Variable {
 		this._size = size;
 		this._firstNonOne = Struct.firstNonOne(size);
 		this._numberOfChildren = this._size[this._firstNonOne];
+		const dim = size.join(Constants.SIZE_SEPARATOR)
+		this._extendedTypename = `${this.typename()} ${dim}`;
 	}
 
 
@@ -116,6 +120,10 @@ export class Struct extends Variable {
 
 	//**************************************************************************
 	public typename(): string { return 'struct'; }
+
+
+	//**************************************************************************
+	public extendedTypename(): string { return this._extendedTypename; }
 
 
 	//**************************************************************************

@@ -341,7 +341,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 			response.body = {
 				variables: variables.map(v => <Variable>{
 					name: v.name(),
-					type: v.typename(),
+					type: v.extendedTypename(),
 					value: v.value(),
 					variablesReference: v.reference(),
 					namedVariables: v.namedVariables(),

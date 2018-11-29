@@ -19,6 +19,7 @@ export class Matrix extends Variable {
 	private _availableChildrenRange: Array<boolean>;
 	private _validValue: boolean;
 	private _parsedValue: boolean;
+	private _extendedTypename: string;
 
 
 	/***************************************************************************
@@ -51,12 +52,19 @@ export class Matrix extends Variable {
 			if(this._numberOfChildren !== 0) {
 				Variables.addReferenceTo(this);
 			}
+
+			const size = freeIndices.join(Constants.SIZE_SEPARATOR)
+			this._extendedTypename = `${this.typename()} ${size}`;
 		}
 	}
 
 
 	//**************************************************************************
 	public typename(): string { return 'matrix'; }
+
+
+	//**************************************************************************
+	public extendedTypename(): string { return this._extendedTypename; }
 
 
 	//**************************************************************************
