@@ -14,3 +14,5 @@ export const SIZE_SEPARATOR = 'x';
 export const CTX_CONSOLE = 'console';
 export const CTX_WATCH = 'watch';
 export const CTX_HOVER = 'hover';
+export const EVAL_UNDEF = 'undefined';
+
