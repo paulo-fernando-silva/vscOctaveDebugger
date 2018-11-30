@@ -1,3 +1,7 @@
+## 0.2.17
+* Fixed bug when clearing breakpoints in file. It would set a single breakpoint.
+* Return "undefined" if the watched expression doesn't exist in the current context.
+
 ## 0.2.16
 * Added matrix and struct size to typename. Displayed when hovering over the name on the variables column.
 * Removed the name from the value of the watch variables content.
