@@ -21,34 +21,38 @@ export class Breakpoints {
 	): void
 	{
 		const confirmedBreakpoints = new Array<Breakpoint>();
-		let syncRegex;
-		runtime.addInputHandler((str: string) => {
-			if(str.match(syncRegex) !== null) {
-				callback(confirmedBreakpoints);
-				return true;
-			}
+		if(breakpoints.length !== 0) {
+			let syncRegex;
+			runtime.addInputHandler((str: string) => {
+				if(str.match(syncRegex) !== null) {
+					callback(confirmedBreakpoints);
+					return true;
+				}
 
-			const match = str.match(/^(?:ans =)?\s*((?:\d+\s*)+)$/);
-			if(match !== null && match.length === 2) {
-				const lines = match[1].split(' ').filter((val) => val);
-				const octaveBreakpoints = lines.map(l => this.toBreakpoint(l));
-				octaveBreakpoints.forEach(b => confirmedBreakpoints.push(b));
-			}
+				const match = str.match(/^(?:ans =)?\s*((?:\d+\s*)+)$/);
+				if(match !== null && match.length === 2) {
+					const lines = match[1].split(' ').filter((val) => val);
+					const octaveBreakpoints = lines.map(l => this.toBreakpoint(l));
+					octaveBreakpoints.forEach(b => confirmedBreakpoints.push(b));
+				}
 
-			return false;
-		});
+				return false;
+			});
 
-		const fname = functionFromPath(path);
-		let lines = '';
-		breakpoints.forEach(b => {
-			if(b.condition !== undefined && b.condition.length !== 0) {
-				runtime.send(`dbstop in ${fname} at ${b.line} if ${b.condition}`);
-			} else {
-				lines += `${b.line} `;
-			}
-		});
-		runtime.send(`dbstop ${fname} ${lines}`);
-		syncRegex = Runtime.syncRegEx(runtime.sync());
+			const fname = functionFromPath(path);
+			let lines = '';
+			breakpoints.forEach(b => {
+				if(b.condition !== undefined && b.condition.length !== 0) {
+					runtime.send(`dbstop in ${fname} at ${b.line} if ${b.condition}`);
+				} else {
+					lines += `${b.line} `;
+				}
+			});
+			runtime.send(`dbstop ${fname} ${lines}`);
+			syncRegex = Runtime.syncRegEx(runtime.sync());
+		} else {
+			callback(confirmedBreakpoints);
+		}
 	}
 
 
