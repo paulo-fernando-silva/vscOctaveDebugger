@@ -113,9 +113,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 			this.sendEvent(new TerminatedEvent());
 		});
 		this._runtime.addEventHandler((line: string) => {
-			// TODO: don't need to know file nor line... Use string comparison instead?
-			const match = line.match(/^stopped in (.*?) at line (\d+)$/);
-			if(match !== null && match.length > 2) {
+			if(line.match(/^stopped in .*? at line \d+$/) !== null) {
 				OctaveLogger.debug(`Sending breakpoint: '${this._stepCount}'`);
 				this.sendEvent(new StoppedEvent('breakpoint', OctaveDebugSession.THREAD_ID));
 				this._stepping = false;
