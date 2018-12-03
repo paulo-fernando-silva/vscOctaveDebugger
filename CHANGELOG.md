@@ -1,3 +1,11 @@
+## 0.2.18
+* Fixed stopping when no breakpoint is set. The runtime wouldn't catch the termination event.
+* Made console commands pass through directly to octave.
+* Updated extension name in several locations.
+* Other minor aesthetic code changes.
+* Minor readme changes.
+* Set kill to SIGKILL to really kill octave. Just in case...
+
 ## 0.2.17
 * Fixed bug when clearing breakpoints in file. It would set a single breakpoint.
 * Return "undefined" if the watched expression doesn't exist in the current context.
