@@ -7,11 +7,11 @@ Though this is not necessary to use the extension, I still recommend the followi
 
 **Octave Debugger**
 This extension supports:
- * *continue*, *step*, *step in*, *step out*
- * *breakpoints*, *conditional breakpoints*,
- * *variable inspection*, *variable editing*
- * *expression evaluation*, *hover expression evaluation*
- * *stack navigation and visualization*
+ * continue, step, step in, step out,
+ * breakpoints, conditional breakpoints,
+ * variable inspection, variable editing
+ * stack navigation and visualization
+ * expression evaluation, via console input, watch UI, or mouse hover
 
 ![Demo](images/OctaveDebugger.gif)
 
