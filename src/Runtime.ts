@@ -88,7 +88,7 @@ export class Runtime extends EventEmitter {
 	//**************************************************************************
 	public disconnect() {
 		OctaveLogger.debug("Killing Runtime.");
-		this._process.kill();
+		this._process.kill('SIGKILL');
 	}
 
 
