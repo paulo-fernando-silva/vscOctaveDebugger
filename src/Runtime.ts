@@ -15,6 +15,10 @@ export class Runtime extends EventEmitter {
 	//**************************************************************************
 	private static readonly SYNC = `vsc::${Constants.MODULE_NAME}`;
 	private static readonly SYNC_REGEX = new RegExp(`^(?:${Runtime.PROMPT})*\s*${Runtime.SYNC}`);
+	//**************************************************************************
+	private static readonly TERMINATOR = `end::${Runtime.SYNC}`;
+	private static readonly TERMINATOR_REGEX = new RegExp(`^(?:${Runtime.PROMPT})*${Runtime.TERMINATOR}$`);
+
 
 
 	//**************************************************************************
@@ -27,6 +31,8 @@ export class Runtime extends EventEmitter {
 	private _eventHandler: Array<(str: string) => boolean>;
 	private _stdoutBuffer: string;
 	private _stdoutHandled: boolean;
+	private _program: string;
+
 
 
 	//**************************************************************************
@@ -194,8 +200,9 @@ export class Runtime extends EventEmitter {
 	// Execution control
 	//**************************************************************************
 	public start(program: string) {
+		this._program = program;
 		this.addFolder(dirname(program));
-		this.send(functionFromPath(program));
+		this.send(`${functionFromPath(program)};${this.echo(Runtime.TERMINATOR)};`);
 	}
 
 
@@ -203,23 +210,25 @@ export class Runtime extends EventEmitter {
 	// Private interface
 	//**************************************************************************
 	private onStdout(data) {
-		const callback = this._inputHandler.shift();
+		if(!this.terminated(data)) {
+			const callback = this._inputHandler.shift();
 
-		if(callback !== undefined && !callback(data)) {
-			// Not fully handled, still gathering input.
-			this._inputHandler.unshift(callback);
-			this._stdoutHandled = true;
-			this._stdoutBuffer += data;
-		} else {
-			// Complete input gathered, so output/log it.
-			if(this._stdoutHandled || data.match(Runtime.SYNC_REGEX)) {
-				// If it's a debugger command output it via debug.
-				OctaveLogger.info(this._stdoutBuffer? this._stdoutBuffer + data : data);
-				this._stdoutBuffer = '';
-				this._stdoutHandled = false;
+			if(callback !== undefined && !callback(data)) {
+				// Not fully handled, still gathering input.
+				this._inputHandler.unshift(callback);
+				this._stdoutHandled = true;
+				this._stdoutBuffer += data;
 			} else {
-				// Program output is routed via warn.
-				OctaveLogger.warn(data);
+				// Complete input gathered, so output/log it.
+				if(this._stdoutHandled || data.match(Runtime.SYNC_REGEX)) {
+					// If it's a debugger command output it via debug.
+					OctaveLogger.info(this._stdoutBuffer? this._stdoutBuffer + data : data);
+					this._stdoutBuffer = '';
+					this._stdoutHandled = false;
+				} else {
+					// Program output is routed via warn.
+					OctaveLogger.warn(data);
+				}
 			}
 		}
 	}
@@ -259,5 +268,17 @@ export class Runtime extends EventEmitter {
 	//**************************************************************************
 	private echo(str: string): string {
 		return `printf("${str}\\n");`;
+	}
+
+
+	//**************************************************************************
+	private terminated(data: string): boolean {
+		if(data.match(Runtime.TERMINATOR_REGEX) !== null) {
+			OctaveLogger.debug(`Runtime: program ${this._program} exited normally.`);
+			this.emit('end');
+			return true;
+		}
+
+		return false;
 	}
 }
