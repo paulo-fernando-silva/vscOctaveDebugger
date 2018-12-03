@@ -13,21 +13,26 @@ export class Expression {
 		callback: (info: string | undefined) => void
 	): void
 	{
-		Expression.type(expression, runtime,
-			(value: string | undefined, type: string | undefined) => {
-				if(value === undefined && type === undefined) {
-					callback(Constants.EVAL_UNDEF);
-				} else if(ctx === Constants.CTX_HOVER) {
-					Expression.handleHover(expression, runtime, value, type, callback);
-				} else if(ctx === Constants.CTX_WATCH) {
-					// TODO: if variable, then it would be nice to return a variable
-					// Note that the user can actually eval a function in watch.
-					Expression.forceEvaluate(expression, runtime, callback);
-				} else { // console and all the rest
-					Expression.forceEvaluate(expression, runtime, callback);
+		if(ctx === Constants.CTX_CONSOLE) {
+			// Console just passes through.
+			runtime.evaluate(expression, callback);
+		} else {
+			Expression.type(expression, runtime,
+				(value: string | undefined, type: string | undefined) => {
+					if(value === undefined && type === undefined) {
+						callback(Constants.EVAL_UNDEF);
+					} else if(ctx === Constants.CTX_HOVER) {
+						Expression.handleHover(expression, runtime, value, type, callback);
+					} else if(ctx === Constants.CTX_WATCH) {
+						// TODO: if variable, then it would be nice to return a variable
+						// Note that the user can actually eval a function in watch.
+						Expression.forceEvaluate(expression, runtime, callback);
+					} else { // and all the rest
+						Expression.forceEvaluate(expression, runtime, callback);
+					}
 				}
-			}
-		);
+			);
+		}
 	}
 
 
@@ -41,7 +46,7 @@ export class Expression {
 	): void
 	{
 		// TODO: also skip comments
-		if(type !== undefined && type.match(/function/)) {
+		if(type !== undefined && type.includes("function")) {
 			callback(val); // Don't evaluate further to avoid side effects
 		} else {
 			Expression.forceEvaluate(expression, runtime, callback);
