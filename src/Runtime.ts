@@ -202,7 +202,10 @@ export class Runtime extends EventEmitter {
 	public start(program: string) {
 		this._program = program;
 		this.addFolder(dirname(program));
-		this.send(`${functionFromPath(program)};${this.echo(Runtime.TERMINATOR)};`);
+		// The \\n separates the terminator from any earlier command.
+		// This is just like a deferred sync command.
+		const terminator = this.echo(`\\n${Runtime.TERMINATOR}`);
+		this.send(`${functionFromPath(program)};${terminator}`);
 	}
 
 
