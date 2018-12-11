@@ -1,3 +1,9 @@
+## 0.2.19
+* Extra fix for the terminator string when the last command is a print with no new line.
+* Added a separator between the sync command and previous matlab commands.
+* Added filtering for 'debug> ' prompt.
+
+
 ## 0.2.18
 * Fixed stopping when no breakpoint is set. The runtime wouldn't catch the termination event.
 * Made console commands pass through directly to octave.
