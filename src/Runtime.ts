@@ -122,7 +122,7 @@ export class Runtime extends EventEmitter {
 	public send(cmd: string) {
 		++this._commandNumber;
 		OctaveLogger.info(`${this._processName}:${this._commandNumber}> ${cmd}`);
-		this._process.stdin.write(`${cmd}\n`);
+		this._process.stdin.write(`${cmd}\n`); // \n here is like pressing enter
 	}
 
 
