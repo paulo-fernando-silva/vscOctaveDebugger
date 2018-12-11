@@ -64,7 +64,7 @@ export class Scope extends Variable  {
 				return true;
 			}
 
-			if(matchesHeader) {
+			if(matchesHeader && str !== Runtime.PROMPT) {
 				vars += ' ' + str;
 			} else if(str.match(Scope.HEADER_REGEX) !== null) {
 				matchesHeader = true;

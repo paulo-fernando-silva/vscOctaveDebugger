@@ -141,7 +141,8 @@ export class Runtime extends EventEmitter {
 	//**************************************************************************
 	public sync(): number {
 		const id = this._commandNumber;
-		this.send(this.echo(Runtime.syncString(id)));
+		// The \\n here separates the sync from other matlab commands.
+		this.send(this.echo(`\\n${Runtime.syncString(id)}`));
 		return id;
 	}
 
