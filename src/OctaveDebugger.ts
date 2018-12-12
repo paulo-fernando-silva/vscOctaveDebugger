@@ -58,6 +58,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 	private _breakpointsCallbacks = new Array<(r: Runtime) => void>();
 	private _stepping: boolean;
 	private _runCallback: () => void;
+	private _configurationDone = false;
 
 
 	//**************************************************************************
@@ -169,8 +170,12 @@ class OctaveDebugSession extends LoggingDebugSession {
 		args: DebugProtocol.ConfigurationDoneArguments
 	): void
 	{
-		this._runCallback();
-		this.sendResponse(response);
+		super.configurationDoneRequest(response, args);
+
+		this._configurationDone = true;
+		if(this._runCallback) {
+			this._runCallback();
+		}
 	}
 
 
@@ -189,9 +194,13 @@ class OctaveDebugSession extends LoggingDebugSession {
 		if(this.runtimeConnected()) {
 			this.runSetBreakpoints();
 
-			this._runCallback = () => {
+			if(!this._configurationDone) {
+				this._runCallback = () => {
+					this._runtime.start(args.program);
+				};
+			} else {
 				this._runtime.start(args.program);
-			};
+			}
 		}
 
 		this.sendResponse(response);
