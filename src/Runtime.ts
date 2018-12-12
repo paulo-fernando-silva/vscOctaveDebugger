@@ -178,7 +178,7 @@ export class Runtime extends EventEmitter {
 				callback(value);
 				return true;
 			} else {
-				str = str.replace(Runtime.PROMPT_REGEX, '').trim();
+				str = Runtime.clean(str);
 
 				if(str.length !== 0) {
 					if(value.length !== 0) {
@@ -284,5 +284,11 @@ export class Runtime extends EventEmitter {
 		}
 
 		return false;
+	}
+
+
+	//**************************************************************************
+	public static clean(str: string): string {
+		return str.replace(Runtime.PROMPT_REGEX, '').trim();
 	}
 }

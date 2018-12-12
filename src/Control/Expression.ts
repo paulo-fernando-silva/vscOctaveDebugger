@@ -46,7 +46,7 @@ export class Expression {
 	): void
 	{
 		// TODO: also skip comments
-		if(type !== undefined && type.includes("function")) {
+		if(type !== undefined && (type === 'file' || type === 'function')) {
 			callback(val); // Don't evaluate further to avoid side effects
 		} else {
 			Expression.forceEvaluate(expression, runtime, callback);
@@ -75,7 +75,11 @@ export class Expression {
 		callback: (val: string | undefined, type: string | undefined) => void
 	): void
 	{
-		const typeRegex = new RegExp(`^.*'${expression}' is a ((?:\\S+ )?\\S+).*$`);
+		if(expression.match(/^'[^']*$/) !== null) {
+			expression = expression.replace('\'', '');
+		}
+
+		const typeRegex = new RegExp(`^.*'${expression}' is (?:a|the) (?:built-in )?(\\S+).*$`);
 		let syncRegEx;
 		let val: string | undefined = undefined;
 		let type: string | undefined = undefined;
@@ -86,12 +90,12 @@ export class Expression {
 				return true;
 			}
 
-			if(val === undefined) { val = ''; }
-
 			const match = str.match(typeRegex);
 			if(match !== null) {
-				val = str.replace(Runtime.PROMPT_REGEX, '').trim();
+				val = Runtime.clean(str);
 				type = match[1];
+			} else if(val === undefined && Runtime.clean(str).length !== 0) {
+				val = '';
 			}
 
 			return false;
