@@ -1,7 +1,7 @@
 {
 	"name": "vsc-octave-debugger",
 	"displayName": "Octave Debugger",
-	"version": "0.2.19",
+	"version": "0.2.20",
 	"publisher": "paulosilva",
 	"description": "Octave debugger adapter for vsc.",
 	"author": {
@@ -28,7 +28,6 @@
 		"url": "https://github.com/paulo-fernando-silva/vscOctaveDebugger/issues"
 	},
 	"dependencies": {
-		"await-notify": "1.0.1",
 		"vscode-debugadapter": "^1.25.0-pre.0",
 		"vscode-debugprotocol": "^1.25.0-pre.0"
 	},
