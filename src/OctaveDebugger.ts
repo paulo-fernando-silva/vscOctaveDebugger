@@ -22,6 +22,7 @@ import { StackFramesManager } from './Control/StackFramesManager';
 import { Variables } from './Variables/Variables';
 import { Variable as OctaveVariable } from './Variables/Variable';
 import { Scalar } from './Variables/Scalar';
+import { SqString } from './Variables/SqString';
 import { Matrix } from './Variables/Matrix';
 import { LazyIndex } from './Variables/LazyIndex';
 import { ComplexMatrix } from './Variables/ComplexMatrix';
@@ -84,6 +85,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 		Variables.register(new Matrix());
 		Variables.register(new LazyIndex());
 		Variables.register(new ComplexMatrix());
+		Variables.register(new SqString());
 		// Everything not listed above is treated as a Scalar (string).
 		Variables.registerFallback(new Scalar());
 	}
