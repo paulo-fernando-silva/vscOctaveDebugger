@@ -1,5 +1,6 @@
 import { Runtime } from '../Runtime';
 import { Variables } from '../Variables/Variables';
+import { Variable } from '../Variables/Variable';
 import * as Constants from '../Constants';
 
 
@@ -49,7 +50,14 @@ export class Expression {
 		if(type !== undefined && (type === 'file' || type === 'function')) {
 			callback(val); // Don't evaluate further to avoid side effects
 		} else {
-			Expression.forceEvaluate(expression, runtime, callback);
+			// Try to load as variable.
+			Variables.loadVariable(expression, runtime, (v: Variable | null) => {
+				if(v === null) {
+					Expression.forceEvaluate(expression, runtime, callback);
+				} else {
+					callback(v.value());
+				}
+			});
 		}
 	}
 
