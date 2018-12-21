@@ -1,6 +1,7 @@
 import { Runtime } from '../Runtime';
 import { Variables } from '../Variables/Variables';
 import { Variable } from '../Variables/Variable';
+import { Matrix } from '../Variables/Matrix';
 import * as Constants from '../Constants';
 
 
@@ -17,6 +18,8 @@ export class Expression {
 		if(ctx === Constants.CTX_CONSOLE) {
 			// Console just passes through.
 			runtime.evaluate(expression, callback);
+		} else if(ctx === Constants.CTX_WATCH) {
+			Expression.loadAsVariable(expression, runtime, callback);
 		} else {
 			Expression.type(expression, runtime,
 				(value: string | undefined, type: string | undefined) => {
@@ -24,10 +27,6 @@ export class Expression {
 						callback(Constants.EVAL_UNDEF);
 					} else if(ctx === Constants.CTX_HOVER) {
 						Expression.handleHover(expression, runtime, value, type, callback);
-					} else if(ctx === Constants.CTX_WATCH) {
-						// TODO: if variable, then it would be nice to return a variable
-						// Note that the user can actually eval a function in watch.
-						Expression.forceEvaluate(expression, runtime, callback);
 					} else { // and all the rest
 						Expression.forceEvaluate(expression, runtime, callback);
 					}
@@ -50,15 +49,31 @@ export class Expression {
 		if(type !== undefined && (type === 'file' || type === 'function')) {
 			callback(val); // Don't evaluate further to avoid side effects
 		} else {
-			// Try to load as variable.
-			Variables.loadVariable(expression, runtime, (v: Variable | null) => {
-				if(v === null) {
-					Expression.forceEvaluate(expression, runtime, callback);
-				} else {
-					callback(v.value());
-				}
-			});
+			Expression.loadAsVariable(expression, runtime, callback);
 		}
+	}
+
+
+	//**************************************************************************
+	public static loadAsVariable(
+		expression: string,
+		runtime: Runtime,
+		callback: (info: string | undefined) => void
+	): void
+	{
+		Variables.loadVariable(expression, runtime, (v: Variable | null) => {
+			if(v === null) {
+				Variables.getSize(expression, runtime, (size: Array<number>) => {
+					if(Matrix.loadable(size)) {
+						Expression.forceEvaluate(expression, runtime, callback);
+					} else {
+						callback(size.join(Constants.SIZE_SEPARATOR));
+					}
+				});
+			} else {
+				callback(v.value());
+			}
+		});
 	}
 
 
@@ -69,7 +84,6 @@ export class Expression {
 		callback: (info: string | undefined) => void
 	): void
 	{
-		// This really evaluates everything the user wants.
 		runtime.evaluate(expression, (value: string) => {
 			callback(Variables.removeName(expression, value));
 		});
