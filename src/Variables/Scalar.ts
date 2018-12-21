@@ -3,7 +3,7 @@ import { Variable } from './Variable';
 import { Runtime } from '../Runtime';
 
 
-export class Scalar extends Variable  {
+export class Scalar extends Variable {
 	//**************************************************************************
 	constructor(
 		name: string = '',

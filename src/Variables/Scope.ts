@@ -4,7 +4,7 @@ import { Runtime } from '../Runtime';
 
 //**************************************************************************
 // The idea here is that a Scope is a variable that contains other variables.
-export class Scope extends Variable  {
+export class Scope extends Variable {
 	//**************************************************************************
 	private static readonly HEADER_REGEX = new RegExp(`^(?:${Runtime.PROMPT})*Variables in the current scope:$`);
 

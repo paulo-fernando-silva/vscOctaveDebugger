@@ -1,6 +1,6 @@
 import { Scalar } from './Scalar';
 
-export class SqString extends Scalar  {
+export class SqString extends Scalar {
 	//**************************************************************************
 	constructor(
 		name: string = '',
