@@ -128,6 +128,6 @@ export class Struct extends Variable {
 
 	//**************************************************************************
 	public loads(type: string): boolean {
-		return type === this.typename()
+		return type === this.typename();
 	}
 }

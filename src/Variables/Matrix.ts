@@ -92,7 +92,7 @@ export class Matrix extends Variable {
 	//**************************************************************************
 	public createConcreteType(
 		name: string,
-		value: string ,
+		value: string,
 		freeIndices: Array<number>,
 		fixedIndices: Array<number>,
 		validValue: boolean

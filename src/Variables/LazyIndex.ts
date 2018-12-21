@@ -31,7 +31,7 @@ export class LazyIndex extends Matrix {
 	//**************************************************************************
 	public createConcreteType(
 		name: string,
-		value: string ,
+		value: string,
 		freeIndices: Array<number>,
 		fixedIndices: Array<number>,
 		validValue: boolean
