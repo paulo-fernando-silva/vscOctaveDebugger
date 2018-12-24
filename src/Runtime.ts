@@ -29,7 +29,7 @@ export class Runtime extends EventEmitter {
 	private _processStderr: ReadLine;
 	private _inputHandler: Array<(str: string) => boolean>;
 	private _eventHandler: Array<(str: string) => boolean>;
-	private _stdoutBuffer: string;
+	private _stdoutBuffer: string = '';
 	private _stdoutHandled: boolean;
 	private _program: string;
 
@@ -153,7 +153,7 @@ export class Runtime extends EventEmitter {
 		this.addInputHandler((str: string) => {
 			if(str.match(syncRegex) !== null) {
 				// return everything we caught so far, except the sync tag.
-				callback(this._stdoutBuffer? this._stdoutBuffer : '');
+				callback(this._stdoutBuffer.length !== 0? this._stdoutBuffer : '');
 				return true;
 			}
 			return false;
@@ -219,23 +219,31 @@ export class Runtime extends EventEmitter {
 			const callback = this._inputHandler.shift();
 
 			if(callback !== undefined && !callback(data)) {
+				this.flushStdout();
 				// Not fully handled, still gathering input.
 				this._inputHandler.unshift(callback);
 				this._stdoutHandled = true;
 				this._stdoutBuffer += Runtime.clean(data);
-			} else {
+			} else if(this._stdoutHandled || data.match(Runtime.SYNC_REGEX)) {
+				data = Runtime.clean(data);
 				// Complete input gathered, so output/log it.
-				if(this._stdoutHandled || data.match(Runtime.SYNC_REGEX)) {
-					// If it's a debugger command output it via debug.
-					data = Runtime.clean(data);
-					OctaveLogger.info(this._stdoutBuffer? this._stdoutBuffer + data : data);
-					this._stdoutBuffer = '';
-					this._stdoutHandled = false;
-				} else {
-					// Program output is routed via warn.
-					OctaveLogger.warn(data);
-				}
+				// It's a debugger command output it via debug.
+				OctaveLogger.info(this._stdoutBuffer + data);
+				this._stdoutHandled = false;
+				this._stdoutBuffer = '';
+			} else {
+				this._stdoutBuffer += data;
 			}
+		}
+	}
+
+
+	//**************************************************************************
+	private flushStdout() {
+		if(!this._stdoutHandled && this._stdoutBuffer.length !== 0) {
+			OctaveLogger.warn(this._stdoutBuffer); // Program output is routed via warn.
+			this._stdoutHandled = false;
+			this._stdoutBuffer = '';
 		}
 	}
 
@@ -280,6 +288,7 @@ export class Runtime extends EventEmitter {
 	//**************************************************************************
 	private terminated(data: string): boolean {
 		if(data.match(Runtime.TERMINATOR_REGEX) !== null) {
+			this.flushStdout();
 			OctaveLogger.debug(`Runtime: program ${this._program} exited normally.`);
 			this.emit('end');
 			return true;
