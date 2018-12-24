@@ -148,11 +148,12 @@ export class Runtime extends EventEmitter {
 
 
 	//**************************************************************************
-	public waitSync(callback: () => void): void {
+	public waitSync(callback: (str: string) => void): void {
 		let syncRegex;
 		this.addInputHandler((str: string) => {
 			if(str.match(syncRegex) !== null) {
-				callback();
+				// return everything we caught so far, except the sync tag.
+				callback(this._stdoutBuffer? this._stdoutBuffer : '');
 				return true;
 			}
 			return false;
@@ -162,7 +163,7 @@ export class Runtime extends EventEmitter {
 
 
 	//**************************************************************************
-	public waitSend(cmd: string, callback: () => void): void {
+	public waitSend(cmd: string, callback: (str: string) => void): void {
 		this.send(cmd);
 		this.waitSync(callback);
 	}
@@ -221,11 +222,12 @@ export class Runtime extends EventEmitter {
 				// Not fully handled, still gathering input.
 				this._inputHandler.unshift(callback);
 				this._stdoutHandled = true;
-				this._stdoutBuffer += data;
+				this._stdoutBuffer += Runtime.clean(data);
 			} else {
 				// Complete input gathered, so output/log it.
 				if(this._stdoutHandled || data.match(Runtime.SYNC_REGEX)) {
 					// If it's a debugger command output it via debug.
+					data = Runtime.clean(data);
 					OctaveLogger.info(this._stdoutBuffer? this._stdoutBuffer + data : data);
 					this._stdoutBuffer = '';
 					this._stdoutHandled = false;
