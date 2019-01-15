@@ -173,6 +173,12 @@ export class Variables {
 
 
 	//**************************************************************************
+	public static clean(value: string): string {
+		return value.replace(/^ans =\s*/, '');
+	}
+
+
+	//**************************************************************************
 	public static getType(
 		variable: string,
 		runtime: Runtime,
@@ -180,8 +186,7 @@ export class Variables {
 	): void
 	{
 		runtime.evaluate(`typeinfo(${variable})`, (value: string) => {
-			value = value.replace(/^ans =\s*/, '');
-			callback(value);
+			callback(Variables.clean(value));
 		});
 	}
 
@@ -207,10 +212,22 @@ export class Variables {
 	): void
 	{
 		runtime.evaluate(`size(${variable})`, (value: string) => {
-			value = value.replace(/^ans =\s*/, '');
-			const values = value.split(' ').filter((val) => val);
+			const values = Variables.clean(value).split(' ').filter((val) => val);
 			const size = values.map(i => parseInt(i));
 			callback(size);
+		});
+	}
+
+
+	//**************************************************************************
+	public static getNonZero(
+		variable: string,
+		runtime: Runtime,
+		callback: (n: number) => void
+	): void
+	{
+		runtime.evaluate(`nnz(${variable})`, (value: string) => {
+			callback(parseInt(Variables.clean(value)));
 		});
 	}
 
