@@ -107,10 +107,10 @@ export class Matrix extends Variable {
 
 
 	//**************************************************************************
-	public load(
+	public loadNew(
 		name: string,
 		runtime: Runtime,
-		callback: (v: Variable) => void)
+		callback: (m: Matrix) => void)
 	{
 		Variables.getSize(name, runtime, (size: Array<number>) => {
 			const loadable = Matrix.loadable(size);

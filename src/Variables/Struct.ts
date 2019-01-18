@@ -31,10 +31,10 @@ export class Struct extends Variable {
 
 
 	//**************************************************************************
-	public load(
+	public loadNew(
 		name: string,
 		runtime: Runtime,
-		callback: (v: Variable) => void
+		callback: (s: Struct) => void
 	): void
 	{
 		Variables.getSize(name, runtime, (size: Array<number>) => {

@@ -42,10 +42,10 @@ export class Scalar extends Variable {
 
 
 	//**************************************************************************
-	public load(
+	public loadNew(
 		name: string,
 		runtime: Runtime,
-		callback: (v: Variable) => void
+		callback: (s: Scalar) => void
 	): void
 	{
 		Variables.getValue(name, runtime, (value: string) => {

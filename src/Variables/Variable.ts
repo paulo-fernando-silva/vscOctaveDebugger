@@ -19,10 +19,10 @@ export abstract class Variable {
 
 
 	//**************************************************************************
-	public abstract load(
+	public abstract loadNew(
 		name: string,
 		runtime: Runtime,
-		callback: (v: Variable) => void);
+		callback: (v: Variable) => void): void;
 
 
 	//**************************************************************************
@@ -30,7 +30,7 @@ export abstract class Variable {
 		runtime: Runtime,
 		count: number,
 		start: number,
-		callback: (vars: Array<Variable>) => void);
+		callback: (vars: Array<Variable>) => void): void;
 
 
 	//**************************************************************************

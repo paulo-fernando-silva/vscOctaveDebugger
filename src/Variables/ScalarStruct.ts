@@ -38,10 +38,10 @@ export class ScalarStruct extends Variable {
 
 
 	//**************************************************************************
-	public load(
+	public loadNew(
 		name: string,
 		runtime: Runtime,
-		callback: (v: Variable) => void
+		callback: (ss: ScalarStruct) => void
 	): void
 	{
 		ScalarStruct.getFields(name, runtime, (fields: Array<string>) => {
