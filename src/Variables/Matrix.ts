@@ -40,7 +40,7 @@ export class Matrix extends Variable {
 	{
 		super();
 		this._basename = name;
-		this._name = Matrix.makeName(name, freeIndices, fixedIndices);
+		this._name = this.makeName(name, freeIndices, fixedIndices);
 		this._value = value;
 		this._freeIndices = freeIndices;
 		this._fixedIndices = fixedIndices;
@@ -57,6 +57,10 @@ export class Matrix extends Variable {
 			this._extendedTypename = `${this.typename()} ${size}`;
 		}
 	}
+
+
+	//**************************************************************************
+	public basename(): string { return this._basename; }
 
 
 	//**************************************************************************
@@ -198,18 +202,15 @@ export class Matrix extends Variable {
 		const self = this;
 
 		ranges.forEach(range => {
-			Matrix.fetchChildrenRange(
-				range, runtime, this._basename, this._freeIndices, this._fixedIndices,
-				(children: Array<Matrix>) => {
-					self.addChildrenFrom(range, children);
-					++fetchedRanges;
+			this.fetchChildrenRange(range, runtime, (children: Array<Matrix>) => {
+				self.addChildrenFrom(range, children);
+				++fetchedRanges;
 
-					if(fetchedRanges === ranges.length) {
-						callback();
-					}
-				})
-			}
-		);
+				if(fetchedRanges === ranges.length) {
+					callback();
+				}
+			})
+		});
 	}
 
 
@@ -271,58 +272,59 @@ export class Matrix extends Variable {
 
 
 	//**************************************************************************
-	public static parseChildren(
-		name: string,
-		value: string,
-		offset: number,
-		count: number,
-		freeIndices: Array<number>,
-		fixedIndices: Array<number>,
+	public fetchChildrenRange(
+		range: Range,
+		runtime: Runtime,
 		callback: (vars: Array<Matrix>) => void
 	): void
 	{
-		const N = freeIndices.length;
+		const offset = range.min();
+		const count = range.size();
+		this.fetchChildren(runtime, offset, count, callback);
+	}
+
+
+	//**************************************************************************
+	public parseChildren(
+		value: string,
+		offset: number,
+		count: number,
+		callback: (vars: Array<Matrix>) => void
+	): void
+	{
+		const N = this._freeIndices.length;
 
 		switch(N) {
-			case 1: Matrix.parseChildrenOf1DMatrix(
-				name, value, offset, count, fixedIndices, callback); break;
-			case 2: Matrix.parseChildrenOf2DMatrix(
-				name, value, offset, count, freeIndices, fixedIndices, callback); break;
-			default:
-				throw "Parsing of n > 2 dimensional matrices is not supported!";
+			case 1: this.parseChildrenOf1DMatrix(value, offset, count, callback); break;
+			case 2: this.parseChildrenOf2DMatrix(value, offset, count, callback); break;
+			default: throw "Parsing of n > 2 dimensional matrices is not supported!";
 		}
 	}
 
 
 	//**************************************************************************
 	public parseAllChildren(callback: (vars: Array<Matrix>) => void): void {
-		const name = this._basename;
 		const value = this._value;
-		const freeIndices = this._freeIndices;
-		const fixedIndices = this._fixedIndices;
 
-		if(freeIndices.length > 2) {
-			throw `freeIndices.length: ${freeIndices.length}, expected <= 2!`;
+		if(this._freeIndices.length > 2) {
+			throw `freeIndices.length: ${this._freeIndices.length}, expected <= 2!`;
 		}
 
-		const count = freeIndices[freeIndices.length - 1];
+		const count = this._freeIndices[this._freeIndices.length - 1];
 		const self = this;
 
-		Matrix.parseChildren(name, value, 0, count, freeIndices, fixedIndices,
-			(vars: Array<Matrix>) => {
-				self._parsedValue = true;
-				callback(vars);
-			});
+		this.parseChildren(value, 0, count, (vars: Array<Matrix>) => {
+			self._parsedValue = true;
+			callback(vars);
+		});
 	}
 
 
 	//**************************************************************************
-	public static parseChildrenOf1DMatrix(
-		name: string,
+	public parseChildrenOf1DMatrix(
 		value: string,
 		offset: number,
 		count: number,
-		fixedIndices: Array<number>,
 		callback: (vars: Array<Matrix>) => void
 	): void
 	{
@@ -341,8 +343,8 @@ export class Matrix extends Variable {
 		}
 
 		for(let i = 0; i !== count; ++i) {
-			const childFixedIndices = [i + offset + 1].concat(fixedIndices);
-			vars[i] = new Matrix(name, ''+vector[i], childFreeIndices, childFixedIndices);
+			const childFixedIndices = [i + offset + 1].concat(this._fixedIndices);
+			vars[i] = new Matrix(this.basename(), ''+vector[i], childFreeIndices, childFixedIndices);
 		}
 
 		callback(vars);
@@ -350,34 +352,28 @@ export class Matrix extends Variable {
 
 
 	//**************************************************************************
-	public static parseAllChildrenOf1DMatrix(
-		name: string,
+	public parseAllChildrenOf1DMatrix(
 		value: string,
-		freeIndices: Array<number>,
-		fixedIndices: Array<number>,
 		callback: (vars: Array<Matrix>) => void
 	): void
 	{
-		if(freeIndices.length !== 1) {
-			throw `freeIndices.length: ${freeIndices.length}, expected 1!`;
+		if(this._freeIndices.length !== 1) {
+			throw `freeIndices.length: ${this._freeIndices.length}, expected 1!`;
 		}
 
-		Matrix.parseChildrenOf1DMatrix(name, value, 0, freeIndices[0], fixedIndices, callback);
+		this.parseChildrenOf1DMatrix(value, 0, this._freeIndices[0], callback);
 	}
 
 
 	//**************************************************************************
-	public static parseChildrenOf2DMatrix(
-		name: string,
+	public parseChildrenOf2DMatrix(
 		value: string,
 		offset: number,
 		count: number,
-		freeIndices: Array<number>,
-		fixedIndices: Array<number>,
 		callback: (vars: Array<Matrix>) => void
 	): void
 	{
-		const childFreeIndices = freeIndices.slice(0, freeIndices.length - 1);
+		const childFreeIndices = this._freeIndices.slice(0, this._freeIndices.length - 1);
 		const vars = new Array<Matrix>(count);
 		const vectors = Matrix.extractColumnVectors(value);
 
@@ -386,9 +382,9 @@ export class Matrix extends Variable {
 		}
 
 		for(let i = 0; i !== count; ++i) {
-			const childFixedIndices = [i + offset + 1].concat(fixedIndices);
+			const childFixedIndices = [i + offset + 1].concat(this._fixedIndices);
 			const childValue = vectors[i].join(Constants.COLUMN_ELEMENTS_SEPARATOR);
-			vars[i] = new Matrix(name, childValue, childFreeIndices, childFixedIndices);
+			vars[i] = new Matrix(this.basename(), childValue, childFreeIndices, childFixedIndices);
 		}
 
 		callback(vars);
@@ -396,56 +392,47 @@ export class Matrix extends Variable {
 
 
 	//**************************************************************************
-	public static parseAllChildrenOf2DMatrix(
-		name: string,
+	public parseAllChildrenOf2DMatrix(
 		value: string,
-		freeIndices: Array<number>,
-		fixedIndices: Array<number>,
 		callback: (vars: Array<Matrix>) => void
 	): void
 	{
-		if(freeIndices.length !== 2) {
-			throw `freeIndices.length: ${freeIndices.length}, expected 2!`;
+		if(this._freeIndices.length !== 2) {
+			throw `freeIndices.length: ${this._freeIndices.length}, expected 2!`;
 		}
 
-		const N = freeIndices[freeIndices.length - 1];
+		const N = this._freeIndices[this._freeIndices.length - 1];
 
-		Matrix.parseChildrenOf2DMatrix(name, value, 0, N, freeIndices, fixedIndices, callback);
+		this.parseChildrenOf2DMatrix(value, 0, N, callback);
 	}
 
 
 	//**************************************************************************
-	public static fetchChildren(
+	public fetchChildren(
 		runtime: Runtime,
-		name: string,
 		offset: number,
 		count: number,
-		freeIndices: Array<number>,
-		fixedIndices: Array<number>,
 		callback: (vars: Array<Matrix>) => void
 	): void
 	{
-		if(freeIndices.length === 0) {
-			throw `fetchChildren::freeIndices.length: ${freeIndices.length} === 0`;
+		if(this._freeIndices.length === 0) {
+			throw `fetchChildren::freeIndices.length: ${this._freeIndices.length} === 0`;
 		}
 
-		const childrenFreeIndices = freeIndices.slice(0, freeIndices.length - 1);
+		const childrenFreeIndices = this._freeIndices.slice(0, this._freeIndices.length - 1);
 		const loadable = Matrix.loadable(childrenFreeIndices, count);
 
 		if(loadable) {
-			const rangeName = Matrix.makeRangedName(
-				name, freeIndices, fixedIndices, offset, count);
+			const rangeName = this.makeRangeName(offset, count);
 			Variables.getValue(rangeName, runtime, (value: string) => {
-				Matrix.parseChildren(
-					name, value, offset, count, freeIndices, fixedIndices, callback)
+				this.parseChildren(value, offset, count, callback);
 			});
 		} else {
 			const value = childrenFreeIndices.join(Constants.SIZE_SEPARATOR);
 			const vars = new Array<Matrix>(count);
 			for(let i = 0; i !== count; ++i) {
-				const childrenFixedIndices = [offset + i + 1].concat(fixedIndices);
-				vars[i] = new Matrix(
-					name, value, childrenFreeIndices, childrenFixedIndices, false);
+				const childrenFixedIndices = [offset + i + 1].concat(this._fixedIndices);
+				vars[i] = new Matrix(this.basename(), value, childrenFreeIndices, childrenFixedIndices, false);
 			}
 			callback(vars);
 		}
@@ -453,37 +440,18 @@ export class Matrix extends Variable {
 
 
 	//**************************************************************************
-	public static fetchAllChildren(
+	public fetchAllChildren(
 		runtime: Runtime,
-		name: string,
-		freeIndices: Array<number>,
-		fixedIndices: Array<number>,
 		callback: (vars: Array<Matrix>) => void
 	): void
 	{
-		const Nchildren = freeIndices[freeIndices.length - 1]; // #children
-		Matrix.fetchChildren(runtime, name, 0, Nchildren, freeIndices, fixedIndices, callback);
+		const Nchildren = this._freeIndices[this._freeIndices.length - 1]; // #children
+		this.fetchChildren(runtime, 0, Nchildren, callback);
 	}
 
 
 	//**************************************************************************
-	public static fetchChildrenRange(
-		range: Range,
-		runtime: Runtime,
-		name: string,
-		freeIndices: Array<number>,
-		fixedIndices: Array<number>,
-		callback: (vars: Array<Matrix>) => void
-	): void
-	{
-		const offset = range.min();
-		const count = range.size();
-		Matrix.fetchChildren(runtime, name, offset, count, freeIndices, fixedIndices, callback);
-	}
-
-
-	//**************************************************************************
-	public static makeName(
+	public makeName(
 		name: string,
 		freeIndices: Array<number>,
 		fixedIndices: Array<number>
@@ -506,14 +474,15 @@ export class Matrix extends Variable {
 
 
 	//**************************************************************************
-	public static makeRangedName(
-		name: string,
-		freeIndices: Array<number>,
-		fixedIndices: Array<number>,
+	public makeRangeName(
 		offset: number,
 		count: number
 	): string
 	{
+		const name: string = this._basename;
+		const freeIndices: Array<number> = this._freeIndices;
+		const fixedIndices: Array<number> = this._fixedIndices;
+
 		let freeIndicesStr = '', fixedIndicesStr = '';
 
 		if(fixedIndices.length !== 0) {
