@@ -1,6 +1,7 @@
 import { OctaveLogger } from '../Utils/OctaveLogger';
 import { Variable } from '../Variables/Variable';
 import { Matrix } from '../Variables/Matrix';
+import { SparseMatrix } from '../Variables/SparseMatrix';
 import * as assert from 'assert';
 import * as Constants from '../Constants';
 import { Runtime } from '../Runtime';
@@ -309,6 +310,68 @@ const value =
 						assert.equal(grandchild.value(), val);
 					});
 				}
+			}
+		});
+
+		after(() => {
+			runtime.disconnect();
+		});
+	});
+
+	describe('SparseMatrix tests', async function() {
+		const name = "sm";
+		const rows = [1, 2, 3];
+		const columns = [4, 5, 6];
+		const values = ['7', '8', '9'];
+		const expectedIndices = [10, 14, 18]; // find(s)
+
+		let runtime: Runtime;
+		let matrix: SparseMatrix;
+		let indices: Array<number>;
+		let children: Array<SparseMatrix>;
+
+		before((done) => {
+			OctaveLogger.logToConsole = true;
+			runtime = new Runtime(Constants.DEFAULT_EXECUTABLE, '.');
+			const cmd = `${name} = sparse([${rows.join(' ')}], [${columns.join(' ')}], [${values.join(' ')}]);`;
+			runtime.waitSend(cmd, () => {
+				const factory = new SparseMatrix();
+				factory.loadNew(name, runtime, (sm: SparseMatrix) => {
+					matrix = sm;
+					matrix.listChildren(runtime, values.length, 0, (vars: Array<SparseMatrix>) => {
+						indices = matrix.indices();
+						children = vars;
+						done();
+					});
+				});
+			});
+		});
+
+		describe('Matrix Instance Tests', function() {
+			it(`Should match name ${name}`, function() {
+				assert.equal(matrix.name(), name);
+			});
+			it(`Should match indices`, function() {
+				for(let index = 0; index !== indices.length; ++index) {
+					assert.equal(indices[index], expectedIndices[index]);
+				}
+			});
+		});
+
+		describe('Matrix Children Tests', function() {
+			for(let i = 0; i !== values.length; ++i) {
+				const val = values[i];
+				const expectedName = `${name}(${expectedIndices[i]})`;
+				it(`Should match name ${expectedName}`, function() {
+					const child = children[i];
+					const childName = child.name();
+					assert.equal(childName, expectedName);
+				});
+				it(`Should match ${expectedName} value ${values[i]}`, function() {
+					const child = children[i];
+					const childValue = child.value();
+					assert.equal(childValue, val);
+				});
 			}
 		});
 

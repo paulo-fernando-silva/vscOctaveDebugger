@@ -141,7 +141,7 @@ export class Matrix extends Variable {
 			throw "Error: matrix has no children!";
 		}
 
-		if(count === 0) {
+		if(count === 0 && start === 0) {
 			count = this._numberOfChildren;
 		}
 
@@ -222,6 +222,10 @@ export class Matrix extends Variable {
 	{
 		if(this._children === undefined) {
 			this._children = new Array<Matrix>(this._numberOfChildren);
+		}
+
+		if(this._children.length < range.min() + children.length) {
+			throw `Matrix::addChildrenFrom dst ${this._children.length} < src ${range.min()} + ${children.length}`;
 		}
 
 		for(let i = 0; i !== children.length; ++i) {
