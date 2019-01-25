@@ -17,7 +17,9 @@ function TestOctaveDebugger()
 	x = 10;
 	y = [1*x 2*x; 3*x 4*x];
 	yy = [y y];
-	sm = sparse(1:400, 201:600, magic(20)(:)); 
+	sm = sparse([1 2 3], [4 5 6], [-10.2, 5.0, 101])
+	csm = sparse([1 2 3], [4 5 6], [-10.2 + i, 5.0, 101])
+	lsm = sparse(1:400, 201:600, magic(20)(:)); 
 	manyRowsMatrix = rand(1000, 1);
 	manyColumnsMatrix = rand(3,9,1) * (1 + i);
 	complexMatrix = rand(2,2) + rand(2,2)*i;

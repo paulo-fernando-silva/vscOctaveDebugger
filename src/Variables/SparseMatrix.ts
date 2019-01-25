@@ -1,10 +1,7 @@
 import { Matrix } from './Matrix';
-// import { Variable } from './Variable';
-// import { Range } from '../Utils/Range';
 import { Variables } from './Variables';
 import { Runtime } from '../Runtime';
 import * as Constants from '../Constants';
-// import { OctaveLogger } from '../Utils/OctaveLogger';
 
 /*
  * Class that adds support for sparse matrix type.
@@ -172,7 +169,7 @@ export class SparseMatrix extends Matrix {
 		const values = new Array<string>();
 
 		lines.forEach(line => {
-			const match = line.match(/^\s*\(\d+,\s+\d+\)\s+->\s+(\S+)$/);
+			const match = line.match(/^\s*\(\d+,\s+\d+\)\s+->\s+(.+)$/);
 			if(match !== null && match.length === 2) {
 				const value = match[1];
 				values.push(value);
