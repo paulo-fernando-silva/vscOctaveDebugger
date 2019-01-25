@@ -13,10 +13,11 @@ function TestOctaveDebugger()
 % Todo:
 %
 	printf('hello ');
-	printf('World\n');
+	printf('World\n');	
 	x = 10;
 	y = [1*x 2*x; 3*x 4*x];
 	yy = [y y];
+	sm = sparse(1:400, 201:600, magic(20)(:)); 
 	manyRowsMatrix = rand(1000, 1);
 	manyColumnsMatrix = rand(3,9,1) * (1 + i);
 	complexMatrix = rand(2,2) + rand(2,2)*i;
