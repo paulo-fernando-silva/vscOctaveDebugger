@@ -20,6 +20,8 @@ function TestOctaveDebugger()
 	sm = sparse([1 2 3], [4 5 6], [-10.2, 5.0, 101])
 	csm = sparse([1 2 3], [4 5 6], [-10.2 + i, 5.0, 101])
 	lsm = sparse(1:400, 201:600, magic(20)(:)); 
+	dg_mt = diag([1:10]);
+	cplx_dg_mt = diag([1:10]+i);
 	manyRowsMatrix = rand(1000, 1);
 	manyColumnsMatrix = rand(3,9,1) * (1 + i);
 	complexMatrix = rand(2,2) + rand(2,2)*i;
