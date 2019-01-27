@@ -1,3 +1,14 @@
+## 0.3.0
+* Added support for lazy_index (e.g. find(x))
+* Added support for sq_string (e.g. argn)
+* Added support for sparse and sparse complex matrices.
+* Added support for diagonal and complex diagonal matrices.
+* Added support for bool matrix.
+* Added logging for output when stepping (e.g. printf).
+* Added buffering to very long program output.
+* Loading hover expressions as variables when possible.
+* Watch expressions now also load as variables if possible.
+
 ## 0.2.20
 * Fix for launchRequest before configurationDoneRequest.
 * Made expression handling more robust.
