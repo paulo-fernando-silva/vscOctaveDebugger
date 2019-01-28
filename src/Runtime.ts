@@ -223,16 +223,16 @@ export class Runtime extends EventEmitter {
 				// Not fully handled, still gathering input.
 				this._inputHandler.unshift(callback);
 				this._stdoutHandled = true;
-				this._stdoutBuffer += Runtime.clean(data);
+				this._stdoutBuffer += Runtime.clean(data) + '\n';
 			} else if(this._stdoutHandled || data.match(Runtime.SYNC_REGEX)) {
-				data = Runtime.clean(data);
+				data = Runtime.clean(data) + '\n';
 				// Complete input gathered, so output/log it.
 				// It's a debugger command output it via debug.
 				OctaveLogger.info(this._stdoutBuffer + data);
 				this._stdoutHandled = false;
 				this._stdoutBuffer = '';
 			} else {
-				this._stdoutBuffer += data;
+				this._stdoutBuffer += data + '\n';
 			}
 		}
 	}
