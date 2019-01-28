@@ -1,3 +1,6 @@
+## 0.3.1
+* Added a new line to lines output to the console.
+
 ## 0.3.0
 * Added support for lazy_index (e.g. find(x))
 * Added support for sq_string (e.g. argn)
