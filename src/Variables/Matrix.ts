@@ -1,7 +1,7 @@
 import { Variable } from './Variable';
 import { Variables } from './Variables';
 import { Runtime } from '../Runtime';
-import { Range } from '../Utils/Range';
+import { Interval } from '../Utils/Interval';
 import * as Constants from '../Constants';
 
 
@@ -145,10 +145,10 @@ export class Matrix extends Variable {
 			count = this._numberOfChildren;
 		}
 
-		const range = new Range(start, start+count);
+		const interval = new Interval(start, start+count);
 		const self = this;
 
-		this.makeChildrenAvailable(runtime, range, () => {
+		this.makeChildrenAvailable(runtime, interval, () => {
 			if(self._numberOfChildren !== self._children.length) {
 				throw `Error: listChildren ${self._numberOfChildren} !== ${self._children.length}!`;
 			}
@@ -165,7 +165,7 @@ export class Matrix extends Variable {
 	//**************************************************************************
 	public makeChildrenAvailable(
 		runtime: Runtime,
-		range: Range,
+		interval: Interval,
 		callback: () => void
 	): void
 	{
@@ -180,7 +180,7 @@ export class Matrix extends Variable {
 				callback();
 			}
 		} else {
-			const rangesToFetch = this.unavailableOverlappingRanges(range);
+			const rangesToFetch = this.unavailableOverlappingRanges(interval);
 
 			if(rangesToFetch.length !== 0) {
 				this.fetchRanges(rangesToFetch, runtime, callback);
@@ -193,7 +193,7 @@ export class Matrix extends Variable {
 
 	//**************************************************************************
 	public fetchRanges(
-		ranges: Array<Range>,
+		ranges: Array<Interval>,
 		runtime: Runtime,
 		callback: () => void
 	): void
@@ -201,9 +201,9 @@ export class Matrix extends Variable {
 		let fetchedRanges = 0;
 		const self = this;
 
-		ranges.forEach(range => {
-			this.fetchChildrenRange(range, runtime, (children: Array<Matrix>) => {
-				self.addChildrenFrom(range, children);
+		ranges.forEach(interval => {
+			this.fetchChildrenRange(interval, runtime, (children: Array<Matrix>) => {
+				self.addChildrenFrom(interval, children);
 				++fetchedRanges;
 
 				if(fetchedRanges === ranges.length) {
@@ -216,7 +216,7 @@ export class Matrix extends Variable {
 
 	//**************************************************************************
 	public addChildrenFrom(
-		range: Range,
+		interval: Interval,
 		children: Array<Matrix>
 	): void
 	{
@@ -224,16 +224,16 @@ export class Matrix extends Variable {
 			this._children = new Array<Matrix>(this._numberOfChildren);
 		}
 
-		if(this._children.length < range.min() + children.length) {
-			throw `Matrix::addChildrenFrom dst ${this._children.length} < src ${range.min()} + ${children.length}`;
+		if(this._children.length < interval.min() + children.length) {
+			throw `Matrix::addChildrenFrom dst ${this._children.length} < src ${interval.min()} + ${children.length}`;
 		}
 
 		for(let i = 0; i !== children.length; ++i) {
-			this._children[i + range.min()] = children[i];
+			this._children[i + interval.min()] = children[i];
 		}
 
-		const a = Math.trunc(range.min() / Constants.CHUNKS_SIZE);
-		const b = Math.ceil(range.max() / Constants.CHUNKS_SIZE);
+		const a = Math.trunc(interval.min() / Constants.CHUNKS_SIZE);
+		const b = Math.ceil(interval.max() / Constants.CHUNKS_SIZE);
 
 		for(let i = a; i !== b; ++i) {
 			this._availableChildrenRange[i] = true;
@@ -242,31 +242,31 @@ export class Matrix extends Variable {
 
 
 	//**************************************************************************
-	public unavailableOverlappingRanges(range: Range): Array<Range> {
+	public unavailableOverlappingRanges(interval: Interval): Array<Interval> {
 		if(this._availableChildrenRange === undefined) {
 			const rangeCount = Math.ceil(this._numberOfChildren / Constants.CHUNKS_SIZE);
 			this._availableChildrenRange = new Array<boolean>(rangeCount);
 		}
 
-		const a = Math.trunc(range.min() / Constants.CHUNKS_SIZE);
-		const b = Math.ceil(range.max() / Constants.CHUNKS_SIZE);
-		let unavailable = new Array<Range>();
+		const a = Math.trunc(interval.min() / Constants.CHUNKS_SIZE);
+		const b = Math.ceil(interval.max() / Constants.CHUNKS_SIZE);
+		let unavailable = new Array<Interval>();
 
 		for(let i = a; i !== b; ++i) {
 			if(!this._availableChildrenRange[i]) {
 				const min = i * Constants.CHUNKS_SIZE;
 				const max = Math.min(min + Constants.CHUNKS_SIZE, this._numberOfChildren);
-				const range = new Range(min, max);
+				const interval = new Interval(min, max);
 
 				if(unavailable.length !== 0) {
 					const last = unavailable[unavailable.length - 1];
-					if(last.contigous(range)) {
-						last.expandWith(range);
+					if(last.contigous(interval)) {
+						last.expandWith(interval);
 					} else {
-						unavailable.push(range);
+						unavailable.push(interval);
 					}
 				} else {
-					unavailable.push(range);
+					unavailable.push(interval);
 				}
 			}
 		}
@@ -277,13 +277,13 @@ export class Matrix extends Variable {
 
 	//**************************************************************************
 	public fetchChildrenRange(
-		range: Range,
+		interval: Interval,
 		runtime: Runtime,
 		callback: (vars: Array<Matrix>) => void
 	): void
 	{
-		const offset = range.min();
-		const count = range.size();
+		const offset = interval.min();
+		const count = interval.size();
 		this.fetchChildren(runtime, offset, count, callback);
 	}
 

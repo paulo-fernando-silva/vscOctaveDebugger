@@ -1,5 +1,5 @@
 //**************************************************************************
-export class Range {
+export class Interval {
 	private _min = 0;
 	private _max = 0;
 
@@ -15,10 +15,10 @@ export class Range {
 
 
 	//**************************************************************************
-	public intersect(range: Range): Range {
-		return new Range(
-			Math.max(range.min(), this.min()),
-			Math.min(range.max(), this.max())
+	public intersect(interval: Interval): Interval {
+		return new Interval(
+			Math.max(interval.min(), this.min()),
+			Math.min(interval.max(), this.max())
 		);
 	}
 
@@ -30,16 +30,16 @@ export class Range {
 
 
 	//**************************************************************************
-	public contigous(range: Range): boolean {
-		return this.contains(range.min())
-			|| this.contains(range.max());
+	public contigous(interval: Interval): boolean {
+		return this.contains(interval.min())
+			|| this.contains(interval.max());
 	}
 
 
 	//**************************************************************************
-	public expandWith(range: Range): void {
-		this._min = Math.min(this._min, range._min);
-		this._max = Math.max(this._max, range._max);
+	public expandWith(interval: Interval): void {
+		this._min = Math.min(this._min, interval._min);
+		this._max = Math.max(this._max, interval._max);
 	}
 
 
