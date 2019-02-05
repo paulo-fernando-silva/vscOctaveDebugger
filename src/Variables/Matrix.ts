@@ -348,7 +348,7 @@ export class Matrix extends Variable {
 
 		for(let i = 0; i !== count; ++i) {
 			const childFixedIndices = [i + offset + 1].concat(this._fixedIndices);
-			vars[i] = new Matrix(this.basename(), ''+vector[i], childFreeIndices, childFixedIndices);
+			vars[i] = this.createConcreteType(this.basename(), ''+vector[i], childFreeIndices, childFixedIndices, true);
 		}
 
 		callback(vars);
@@ -388,7 +388,7 @@ export class Matrix extends Variable {
 		for(let i = 0; i !== count; ++i) {
 			const childFixedIndices = [i + offset + 1].concat(this._fixedIndices);
 			const childValue = vectors[i].join(Constants.COLUMN_ELEMENTS_SEPARATOR);
-			vars[i] = new Matrix(this.basename(), childValue, childFreeIndices, childFixedIndices);
+			vars[i] = this.createConcreteType(this.basename(), childValue, childFreeIndices, childFixedIndices, true);
 		}
 
 		callback(vars);
@@ -436,7 +436,7 @@ export class Matrix extends Variable {
 			const vars = new Array<Matrix>(count);
 			for(let i = 0; i !== count; ++i) {
 				const childrenFixedIndices = [offset + i + 1].concat(this._fixedIndices);
-				vars[i] = new Matrix(this.basename(), value, childrenFreeIndices, childrenFixedIndices, false);
+				vars[i] = this.createConcreteType(this.basename(), value, childrenFreeIndices, childrenFixedIndices, false);
 			}
 			callback(vars);
 		}
