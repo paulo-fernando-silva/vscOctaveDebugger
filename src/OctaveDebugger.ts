@@ -25,6 +25,7 @@ import { Scalar } from './Variables/Scalar';
 import { SqString } from './Variables/SqString';
 import { Matrix } from './Variables/Matrix';
 import { LazyIndex } from './Variables/LazyIndex';
+import { Range } from './Variables/Range';
 import { ComplexMatrix } from './Variables/ComplexMatrix';
 import { BoolMatrix } from './Variables/BoolMatrix';
 import { DiagonalMatrix } from './Variables/DiagonalMatrix';
@@ -89,6 +90,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 		Variables.register(new Struct());
 		Variables.register(new Matrix());
 		Variables.register(new LazyIndex());
+		Variables.register(new Range());
 		Variables.register(new ComplexMatrix());
 		Variables.register(new DiagonalMatrix());
 		Variables.register(new ComplexDiagonalMatrix());
