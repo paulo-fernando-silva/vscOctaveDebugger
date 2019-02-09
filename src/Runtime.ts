@@ -253,7 +253,12 @@ export class Runtime extends EventEmitter {
 		this._eventHandler.some(callback => {
 			return callback(data);
 		});
-		OctaveLogger.warn(data);
+
+		if(data.startsWith(Constants.ERROR_EXP)) {
+			OctaveLogger.error(data);
+		} else {
+			OctaveLogger.warn(data);
+		}
 	}
 
 
