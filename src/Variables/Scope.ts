@@ -26,9 +26,7 @@ export class Scope extends Variable {
 
 
 	//**************************************************************************
-	public loads(type: string): boolean {
-		return false;
-	}
+	public loads(type: string): boolean { return false; }
 
 
 	//**************************************************************************

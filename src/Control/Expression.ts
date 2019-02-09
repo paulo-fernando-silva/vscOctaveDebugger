@@ -1,7 +1,6 @@
 import { Runtime } from '../Runtime';
 import { Variables } from '../Variables/Variables';
 import { Variable } from '../Variables/Variable';
-import { Matrix } from '../Variables/Matrix';
 import * as Constants from '../Constants';
 
 
@@ -64,7 +63,7 @@ export class Expression {
 		Variables.loadVariable(expression, runtime, (v: Variable | null) => {
 			if(v === null) {
 				Variables.getSize(expression, runtime, (size: Array<number>) => {
-					if(Matrix.loadable(size)) {
+					if(Variables.loadable(size)) {
 						Expression.forceEvaluate(expression, runtime, callback);
 					} else {
 						callback(size.join(Constants.SIZE_SEPARATOR));

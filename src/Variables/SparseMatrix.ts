@@ -59,7 +59,7 @@ export class SparseMatrix extends Matrix {
 	{
 		Variables.getNonZero(name, runtime, (n: number) => {
 			const size = [n];
-			const loadable = Matrix.loadable(size);
+			const loadable = Variables.loadable(size);
 
 			const buildWith = (value: string) => {
 				const matrix = this.createConcreteType(name, value, size, [], loadable);

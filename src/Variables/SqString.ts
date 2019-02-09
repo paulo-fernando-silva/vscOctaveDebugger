@@ -16,9 +16,7 @@ export class SqString extends Scalar {
 
 
 	//**************************************************************************
-	public loads(type: string): boolean {
-		return type === this.typename();
-	}
+	public loads(type: string): boolean { return type === this.typename(); }
 
 
 	//**************************************************************************

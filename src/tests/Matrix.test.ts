@@ -1,5 +1,6 @@
 import { OctaveLogger } from '../Utils/OctaveLogger';
 import { Variable } from '../Variables/Variable';
+import { Variables } from '../Variables/Variables';
 import { Matrix } from '../Variables/Matrix';
 import { SparseMatrix } from '../Variables/SparseMatrix';
 import * as assert from 'assert';
@@ -9,10 +10,10 @@ import { Runtime } from '../Runtime';
 
 describe('Test Matrix', function() {
 	// ********************************************************************************
-	describe('Matrix.loadable empty', function() {
+	describe('Variables.loadable empty', function() {
 		it(`Should return true`, function() {
 			const emptySize = [];
-			assert.ok(Matrix.loadable(emptySize));
+			assert.ok(Variables.loadable(emptySize));
 		});
 	});
 

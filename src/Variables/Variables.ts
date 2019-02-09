@@ -236,4 +236,20 @@ export class Variables {
 	public static removeName(name: string, value: string): string {
 		return value.replace(new RegExp(`^(?:ans|${name}) =(?:\n\n)?\s*`), '').trim();
 	}
+
+
+	//**************************************************************************
+	public static loadable(
+		sizes: Array<number>,
+		count: number = 0
+	): boolean
+	{
+		const N = sizes.reduce((acc, val) => acc *= val, 1);
+
+		if(count !== 0) {
+			return sizes.length <= 1 && N * count <= Variables.getMaximumElementsPrefetch();
+		}
+
+		return sizes.length <= 2 && N <= Variables.getMaximumElementsPrefetch();
+	}
 }

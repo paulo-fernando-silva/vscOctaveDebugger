@@ -25,10 +25,7 @@ export class Scalar extends Variable {
 
 
 	//**************************************************************************
-	public loads(type: string): boolean {
-		// TODO: for now everything can be loaded as a scalar as a fallback.
-		return type.length !== 0;
-	}
+	public loads(type: string): boolean { return type === this.typename(); }
 
 
 	//**************************************************************************
@@ -48,6 +45,7 @@ export class Scalar extends Variable {
 		callback: (s: Scalar) => void
 	): void
 	{
+		// TODO: get size...
 		Variables.getValue(name, runtime, (value: string) => {
 			callback(this.createConcreteType(name, value));
 		});

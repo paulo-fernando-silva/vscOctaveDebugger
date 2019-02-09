@@ -21,6 +21,7 @@ import { Expression } from './Control/Expression';
 import { StackFramesManager } from './Control/StackFramesManager';
 import { Variables } from './Variables/Variables';
 import { Variable as OctaveVariable } from './Variables/Variable';
+import { UnknownType } from './Variables/UnknownType'
 import { Scalar } from './Variables/Scalar';
 import { SqString } from './Variables/SqString';
 import { Matrix } from './Variables/Matrix';
@@ -86,20 +87,21 @@ class OctaveDebugSession extends LoggingDebugSession {
 	//**************************************************************************
 	private setupVariables(): void {
 		// These are the supported variables factories.
-		Variables.register(new ScalarStruct());
-		Variables.register(new Struct());
+		Variables.register(new Range());
+		Variables.register(new Scalar());
 		Variables.register(new Matrix());
 		Variables.register(new LazyIndex());
-		Variables.register(new Range());
+		Variables.register(new SparseMatrix());
 		Variables.register(new ComplexMatrix());
 		Variables.register(new DiagonalMatrix());
-		Variables.register(new ComplexDiagonalMatrix());
-		Variables.register(new BoolMatrix());
-		Variables.register(new SparseMatrix());
 		Variables.register(new SparseComplexMatrix());
+		Variables.register(new ComplexDiagonalMatrix());
+		Variables.register(new Struct());
+		Variables.register(new ScalarStruct());
+		Variables.register(new BoolMatrix());
 		Variables.register(new SqString());
-		// Everything not listed above is treated as a Scalar (string).
-		Variables.registerFallback(new Scalar());
+		// Everything not listed above is treated as a UnknownType.
+		Variables.registerFallback(new UnknownType());
 	}
 
 

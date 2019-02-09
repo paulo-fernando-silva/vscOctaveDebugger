@@ -72,25 +72,7 @@ export class Matrix extends Variable {
 
 
 	//**************************************************************************
-	public loads(type: string): boolean {
-		return type === this.typename();
-	}
-
-
-	//**************************************************************************
-	public static loadable(
-		sizes: Array<number>,
-		count: number = 0
-	): boolean
-	{
-		const N = sizes.reduce((acc, val) => acc *= val, 1);
-
-		if(count !== 0) {
-			return sizes.length <= 1 && N * count <= Variables.getMaximumElementsPrefetch();
-		}
-
-		return sizes.length <= 2 && N <= Variables.getMaximumElementsPrefetch();
-	}
+	public loads(type: string): boolean { return type === this.typename(); }
 
 
 	//**************************************************************************
@@ -113,7 +95,7 @@ export class Matrix extends Variable {
 		callback: (m: Matrix) => void)
 	{
 		Variables.getSize(name, runtime, (size: Array<number>) => {
-			const loadable = Matrix.loadable(size);
+			const loadable = Variables.loadable(size);
 
 			const buildWith = (value: string) => {
 				const matrix = this.createConcreteType(name, value, size, [], loadable);
@@ -424,7 +406,7 @@ export class Matrix extends Variable {
 		}
 
 		const childrenFreeIndices = this._freeIndices.slice(0, this._freeIndices.length - 1);
-		const loadable = Matrix.loadable(childrenFreeIndices, count);
+		const loadable = Variables.loadable(childrenFreeIndices, count);
 
 		if(loadable) {
 			const rangeName = this.makeRangeName(offset, count);
