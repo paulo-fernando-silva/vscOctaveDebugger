@@ -27,7 +27,7 @@ export class Runtime extends EventEmitter {
 	private _processStdout: ReadLine;
 	private _processStderr: ReadLine;
 	private _inputHandler: Array<(str: string) => boolean>;
-	private _eventHandler: Array<(str: string) => boolean>;
+	private _stderrHandler: Array<(str: string) => boolean>;
 	private _stdoutBuffer: string = '';
 	private _stdoutHandled: boolean;
 	private _program: string;
@@ -101,8 +101,8 @@ export class Runtime extends EventEmitter {
 
 
 	//**************************************************************************
-	public addEventHandler(callback: (str: string) => boolean) {
-		this._eventHandler.push(callback);
+	public addStderrHandler(callback: (str: string) => boolean) {
+		this._stderrHandler.push(callback);
 	}
 
 
@@ -114,7 +114,7 @@ export class Runtime extends EventEmitter {
 
 	//**************************************************************************
 	public clearEventHandlers() {
-		this._eventHandler = new Array<(str: string) => boolean>();
+		this._stderrHandler = new Array<(str: string) => boolean>();
 	}
 
 
@@ -250,7 +250,7 @@ export class Runtime extends EventEmitter {
 
 	//**************************************************************************
 	private onStderr(data) {
-		this._eventHandler.some(callback => {
+		this._stderrHandler.some(callback => {
 			return callback(data);
 		});
 
