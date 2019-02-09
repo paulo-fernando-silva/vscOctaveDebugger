@@ -20,7 +20,6 @@ export class Runtime extends EventEmitter {
 	private static readonly TERMINATOR_REGEX = new RegExp(`^(?:${Runtime.PROMPT})*${Runtime.TERMINATOR}$`);
 
 
-
 	//**************************************************************************
 	private _commandNumber = 0;
 	private _processName: string;
@@ -32,7 +31,6 @@ export class Runtime extends EventEmitter {
 	private _stdoutBuffer: string = '';
 	private _stdoutHandled: boolean;
 	private _program: string;
-
 
 
 	//**************************************************************************
@@ -59,7 +57,9 @@ export class Runtime extends EventEmitter {
 	//**************************************************************************
 	public addFolder(sourceFolder: string): void {
 		// This allows us to run code from anywhere on our HD.
-		this.send(`addpath('${sourceFolder}')`);
+		if(sourceFolder.length !== 0) {
+			this.send(`addpath('${sourceFolder}')`);
+		}
 	}
 
 
