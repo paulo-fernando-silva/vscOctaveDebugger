@@ -174,7 +174,7 @@ export class Variables {
 
 	//**************************************************************************
 	public static clean(value: string): string {
-		return value.replace(/^ans =\s*/, '');
+		return value.replace(/^ans =\s*/, '').trim();
 	}
 
 

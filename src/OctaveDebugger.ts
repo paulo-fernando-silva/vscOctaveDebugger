@@ -25,16 +25,17 @@ import { UnknownType } from './Variables/UnknownType'
 import { Scalar } from './Variables/Scalar';
 import { SqString } from './Variables/SqString';
 import { Matrix } from './Variables/Matrix';
+import { Uint8Matrix } from './Variables/Uint8Matrix';
+import { BoolMatrix } from './Variables/BoolMatrix';
+import { SparseMatrix } from './Variables/SparseMatrix';
+import { ComplexMatrix } from './Variables/ComplexMatrix';
+import { DiagonalMatrix } from './Variables/DiagonalMatrix';
+import { SparseComplexMatrix } from './Variables/SparseComplexMatrix';
+import { ComplexDiagonalMatrix } from './Variables/ComplexDiagonalMatrix';
 import { LazyIndex } from './Variables/LazyIndex';
 import { Range } from './Variables/Range';
-import { ComplexMatrix } from './Variables/ComplexMatrix';
-import { BoolMatrix } from './Variables/BoolMatrix';
-import { DiagonalMatrix } from './Variables/DiagonalMatrix';
-import { ComplexDiagonalMatrix } from './Variables/ComplexDiagonalMatrix';
-import { SparseMatrix } from './Variables/SparseMatrix';
-import { SparseComplexMatrix } from './Variables/SparseComplexMatrix';
-import { ScalarStruct } from './Variables/ScalarStruct';
 import { Struct } from './Variables/Struct';
+import { ScalarStruct } from './Variables/ScalarStruct';
 import { Scope as OctaveScope } from './Variables/Scope';
 import { isMatlabFile } from './Utils/misc';
 
@@ -91,6 +92,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 		Variables.register(new Scalar());
 		Variables.register(new Matrix());
 		Variables.register(new LazyIndex());
+		Variables.register(new Uint8Matrix());
 		Variables.register(new SparseMatrix());
 		Variables.register(new ComplexMatrix());
 		Variables.register(new DiagonalMatrix());
