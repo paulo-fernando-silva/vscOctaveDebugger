@@ -38,6 +38,7 @@ import { LazyIndex } from './Variables/LazyIndex';
 import { Range } from './Variables/Range';
 import { Struct } from './Variables/Struct';
 import { ScalarStruct } from './Variables/ScalarStruct';
+import { InlineFunction } from './Variables/InlineFunction'
 import { Scope as OctaveScope } from './Variables/Scope';
 import { isMatlabFile } from './Utils/misc';
 
@@ -106,6 +107,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 		Variables.register(new BoolMatrix());
 		Variables.register(new SqString());
 		Variables.register(new Bool());
+		Variables.register(new InlineFunction());
 		// Everything not listed above is treated as a UnknownType.
 		Variables.registerFallback(new UnknownType());
 	}

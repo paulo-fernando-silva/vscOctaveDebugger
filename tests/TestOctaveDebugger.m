@@ -21,8 +21,9 @@ function TestOctaveDebugger()
 	float_ = single(1); double_ = double(1);
 	b = logical(1);
 	permMat = eye(3)(1:3,:);
+	f = inline ('x^2 + 2');
 	printf('hello ');
-	printf('World\n');	
+	printf('World\n');
 	x = 10;
 	y = [1*x 2*x; 3*x 4*x];
 	yy = [y y];
