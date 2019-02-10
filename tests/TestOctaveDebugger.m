@@ -12,6 +12,14 @@ function TestOctaveDebugger()
 % - conditional breakpoints
 % Todo:
 %
+
+
+	int8_ = int8(1); uint8_ = uint8(1);
+	int16_ = int16(1); uint16_ = uint16(1);
+	int32_ = int32(1); uint32_ = uint32(1);
+	int64_ = int64(1); uint64_ = uint64(1);
+	float_ = single(1); double_ = double(1);
+	b = logical(1);
 	printf('hello ');
 	printf('World\n');	
 	x = 10;

@@ -7,7 +7,6 @@ export class Scalar extends Variable {
 	//**************************************************************************
 	private static BASE_TYPE: string = 'scalar';
 	private _typename: string = Scalar.BASE_TYPE;
-	private _extendedTypename: string;
 
 
 	//**************************************************************************
