@@ -1,13 +1,18 @@
-import { Scalar } from './Scalar';
+import { Variables } from './Variables';
+import { Variable } from './Variable';
+import { Runtime } from '../Runtime';
 
-export class SqString extends Scalar {
+
+export class SqString extends Variable {
 	//**************************************************************************
 	constructor(
 		name: string = '',
 		value: string = ''
 	)
 	{
-		super(name, value);
+		super();
+		this._name = name;
+		this._value = value;
 	}
 
 
@@ -20,6 +25,10 @@ export class SqString extends Scalar {
 
 
 	//**************************************************************************
+	public extendedTypename(): string { return this.typename(); }
+
+
+	//**************************************************************************
 	public createConcreteType(
 		name: string,
 		value: string
@@ -27,4 +36,27 @@ export class SqString extends Scalar {
 	{
 		return new SqString(name, value);
 	}
+
+
+	//**************************************************************************
+	public loadNew(
+		name: string,
+		runtime: Runtime,
+		callback: (s: SqString) => void
+	): void
+	{
+		Variables.getValue(name, runtime, (value: string) => {
+			callback(this.createConcreteType(name, value));
+		});
+	}
+
+
+	//**************************************************************************
+	public listChildren(
+		runtime: Runtime,
+		count: number,
+		start: number,
+		callback: (vars: Array<Variable>) => void
+	): void
+	{} // SqString have no children.
 }
