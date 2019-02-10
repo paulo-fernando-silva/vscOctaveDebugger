@@ -14,15 +14,15 @@ This extension supports actions:
  * expression evaluation, via console input, watch UI, or mouse hover
 
 The following types are currently supported:
- * [DiagonalMatrix/ComplexDiagonalMatrix/PermutationMatrix](https://octave.org/doc/v4.2.1/Diagonal-and-Permutation-Matrices.html#Diagonal-and-Permutation-Matrices)
- * LazyIndex
- * [Matrix/Uint8Matrix/ComplexMatrix/BoolMatrix](https://octave.org/doc/v4.0.0/Matrices.html)
- * [Range](https://octave.org/doc/v4.0.0/Ranges.html)
  * Scalar: [floats](https://octave.org/doc/v4.0.0/Single-Precision-Data-Types.html) and [ints](https://octave.org/doc/v4.0.0/Integer-Data-Types.html), the default type being double
+ * [Matrix](https://octave.org/doc/v4.0.0/Matrices.html) of all basic types, includes ComplexMatrix/BoolMatrix
+ * [DiagonalMatrix/ComplexDiagonalMatrix/PermutationMatrix](https://octave.org/doc/v4.2.1/Diagonal-and-Permutation-Matrices.html#Diagonal-and-Permutation-Matrices)
  * [SparseMatrix/SparseComplexMatrix](https://octave.org/doc/v4.0.3/Sparse-Matrices.html)
- * SqString:
+ * [Range](https://octave.org/doc/v4.0.0/Ranges.html)
  * [ScalarStruct/Struct](https://octave.org/doc/v4.0.0/Structures.html)
  * [InlineFunction](https://octave.org/doc/v4.0.0/Inline-Functions.html)
+ * LazyIndex
+ * SqString
  * UnknownType: represents unknown types as strings.
 
 If a type isn't supported request it on the [project repository](https://github.com/paulo-fernando-silva/vscOctaveDebugger.git).

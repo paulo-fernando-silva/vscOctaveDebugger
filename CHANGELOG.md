@@ -1,3 +1,7 @@
+## 0.3.5
+* Extended matrix support to all basic types.
+* Extended sparse matrix support to extra basic types.
+
 ## 0.3.4
 * Fixed readme.
 
