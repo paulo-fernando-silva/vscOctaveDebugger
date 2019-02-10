@@ -42,7 +42,7 @@ export class StackFramesManager {
 	): void
 	{
 		if(n > 0) {
-			runtime.evaluate(`dbup ${n}`, (output: string) => callback());
+			runtime.execute(`dbup ${n}`, callback);
 		} else {
 			OctaveLogger.log(`Error: up(${n})!`);
 		}
@@ -57,7 +57,7 @@ export class StackFramesManager {
 	): void
 	{
 		if(n > 0) {
-			runtime.evaluate(`dbdown ${n}`, (output: string) => callback());
+			runtime.execute(`dbdown ${n}`, callback);
 		} else {
 			OctaveLogger.log(`Error: down(${n})!`);
 		}
@@ -81,31 +81,21 @@ debug>
 	): void
 	{
 		const stackframes = new Array<StackFrame>();
-		let syncRegex;
-		runtime.addInputHandler((str: string) => {
-			if(str.match(syncRegex) !== null) {
+		runtime.evaluate('dbstack;', (line: string | null) => {
+			if(line === null) {
 				callback(stackframes);
-				return true;
+			} else {
+				const match = line.match(/^\s*(?:-->)?\s*(\w+)(?:>(\w+))*? at line (\d+) \[(.*)\]$/);
+				if(match !== null && match.length > 1) {
+					const functionName = match[match.length - 3];
+					const name = (functionName !== undefined? functionName : match[1]);
+					const id = stackframes.length;
+					const source = new Source(name, match[match.length - 1]);
+					const lineNumber = parseInt(match[match.length - 2]);
+					const frame = new StackFrame(id, name, source, lineNumber);
+					stackframes.push(frame);
+				}
 			}
-
-			const match = str.match(/^\s*(?:-->)?\s*(\w+)(?:>(\w+))*? at line (\d+) \[(.*)\]$/);
-			if(match !== null && match.length > 1) {
-				const functionName = match[match.length - 3];
-				const name = (functionName !== undefined? functionName : match[1]);
-
-				const source = new Source(name, match[match.length - 1]);
-				const frame = new StackFrame(	stackframes.length,
-												name,
-												source,
-												parseInt(match[match.length - 2]));
-
-				stackframes.push(frame);
-			}
-
-			return false;
 		});
-
-		runtime.send('dbstack;');
-		syncRegex = Runtime.syncRegEx(runtime.sync());
 	}
 }

@@ -76,24 +76,16 @@ export class ScalarStruct extends Variable {
 	): void
 	{
 		let fieldnames = new Array<string>();
-		let syncRegex;
-
-		runtime.addInputHandler((str: string) => {
-			if(str.match(syncRegex) !== null) {
+		runtime.evaluate(`fieldnames(${name})`, (line: string | null) => {
+			if(line === null) {
 				callback(fieldnames);
-				return true;
+			} else {
+				const match = line.match(/^(?:\s*\[\d+,1\] = )(\w+)$/);
+				if(match !== null && match.length > 1) {
+					fieldnames.push(`${name}.${match[match.length - 1]}`);
+				}
 			}
-
-			const match = str.match(/^(?:\s*\[\d+,1\] = )(\w+)$/);
-			if(match !== null && match.length > 1) {
-				fieldnames.push(`${name}.${match[match.length - 1]}`);
-			}
-
-			return false;
 		});
-
-		runtime.send(`fieldnames(${name})`);
-		syncRegex = Runtime.syncRegEx(runtime.sync());
 	}
 
 

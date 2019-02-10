@@ -16,7 +16,7 @@ export class Expression {
 	{
 		if(ctx === Constants.CTX_CONSOLE) {
 			// Console just passes through.
-			runtime.evaluate(expression, callback);
+			runtime.execute(expression, callback);
 		} else if(ctx === Constants.CTX_WATCH) {
 			Expression.loadAsVariable(expression, runtime, callback);
 		} else {
@@ -83,7 +83,7 @@ export class Expression {
 		callback: (info: string | undefined) => void
 	): void
 	{
-		runtime.evaluate(expression, (value: string) => {
+		runtime.execute(expression, (value: string) => {
 			callback(Variables.removeName(expression, value));
 		});
 	}
@@ -101,28 +101,21 @@ export class Expression {
 		}
 
 		const typeRegex = new RegExp(`^.*'${expression}' is (?:a|the) (?:built-in )?(\\S+).*$`);
-		let syncRegEx;
 		let val: string | undefined = undefined;
 		let type: string | undefined = undefined;
 
-		runtime.addInputHandler((str: string) => {
-			if(str.match(syncRegEx) !== null) {
+		runtime.evaluate(`which ${expression}`, (line: string | null) => {
+			if(line === null) {
 				callback(val, type);
-				return true;
+			} else {
+				const match = line.match(typeRegex);
+				if(match !== null) {
+					val = Runtime.clean(line);
+					type = match[1];
+				} else if(val === undefined && Runtime.clean(line).length !== 0) {
+					val = '';
+				}
 			}
-
-			const match = str.match(typeRegex);
-			if(match !== null) {
-				val = Runtime.clean(str);
-				type = match[1];
-			} else if(val === undefined && Runtime.clean(str).length !== 0) {
-				val = '';
-			}
-
-			return false;
 		});
-
-		runtime.send(`which ${expression}`);
-		syncRegEx = Runtime.syncRegEx(runtime.sync());
 	}
 }

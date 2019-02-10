@@ -428,16 +428,17 @@ class OctaveDebugSession extends LoggingDebugSession {
 
 	//**************************************************************************
 	protected stepWith(cmd: string, responseCallback: () => void): void {
+		// TODO: flush ongoing commands
 		this._stepping = true;
 		OctaveLogger.debug(`stepRequest: request '${++this._stepCount}'`);
 
-		this._runtime.waitSend(cmd, (str: string) => {
+		this._runtime.execute(cmd, (commandOutput: string) => {
 			if(this._stepping) {
 				this.sendEvent(new TerminatedEvent());
 				this._stepping = false;
 			}
 
-			OctaveLogger.warn(str); // Output any output resulting from stepping.
+			OctaveLogger.warn(commandOutput);
 		});
 
 		responseCallback(); // It seems we need to respond immediately.

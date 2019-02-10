@@ -22,34 +22,29 @@ export class Breakpoints {
 	{
 		const confirmedBreakpoints = new Array<Breakpoint>();
 		if(breakpoints.length !== 0) {
-			let syncRegex;
-			runtime.addInputHandler((str: string) => {
-				if(str.match(syncRegex) !== null) {
-					callback(confirmedBreakpoints);
-					return true;
-				}
-
-				const match = str.match(/^(?:ans =)?\s*((?:\d+\s*)+)$/);
-				if(match !== null && match.length === 2) {
-					const lines = match[1].split(' ').filter((val) => val);
-					const octaveBreakpoints = lines.map(l => this.toBreakpoint(l));
-					octaveBreakpoints.forEach(b => confirmedBreakpoints.push(b));
-				}
-
-				return false;
-			});
-
 			const fname = functionFromPath(path);
 			let lines = '';
 			breakpoints.forEach(b => {
 				if(b.condition !== undefined && b.condition.length !== 0) {
-					runtime.send(`dbstop in ${fname} at ${b.line} if ${b.condition}`);
+					// TODO: shouldn't these also be confirmed?
+					runtime.execute(`dbstop in ${fname} at ${b.line} if ${b.condition}`);
 				} else {
 					lines += `${b.line} `;
 				}
 			});
-			runtime.send(`dbstop ${fname} ${lines}`);
-			syncRegex = Runtime.syncRegEx(runtime.sync());
+
+			runtime.evaluate(`dbstop ${fname} ${lines}`, (line: string | null) => {
+				if(line === null) {
+					callback(confirmedBreakpoints);
+				} else {
+					const match = line.match(/^(?:ans =)?\s*((?:\d+\s*)+)$/);
+					if(match !== null && match.length === 2) {
+						const lines = match[1].split(' ').filter((val) => val);
+						const octaveBreakpoints = lines.map(l => this.toBreakpoint(l));
+						octaveBreakpoints.forEach(b => confirmedBreakpoints.push(b));
+					}
+				}
+			});
 		} else {
 			callback(confirmedBreakpoints);
 		}
@@ -78,8 +73,7 @@ export class Breakpoints {
 	): void
 	{
 		const func = functionFromPath(path);
-		runtime.send(`dbclear ${func} ${lines}`);
-		runtime.sync();
+		runtime.execute(`dbclear ${func} ${lines}`);
 	}
 
 
@@ -108,23 +102,16 @@ export class Breakpoints {
 		const breakpointRegEx =
 		new RegExp(`^(?:${Runtime.PROMPT})*breakpoint[s]? in ${fname}(?:>\\w+)*? at line[s]? ((?:\\d+ )+)$`);
 		let lines = '';
-		let syncRegEx;
 
-		runtime.addInputHandler((str: string) => {
-			if(str.match(syncRegEx) !== null) {
+		runtime.evaluate(`dbstatus ${fname}`, (line: string | null) => {
+			if(line === null) {
 				callback(lines.trim());
-				return true;
+			} else {
+				const match = line.match(breakpointRegEx);
+				if(match !== null && match.length === 2) {
+					lines += match[1];
+				}
 			}
-
-			const match = str.match(breakpointRegEx);
-			if(match !== null && match.length === 2) {
-				lines += match[1];
-			}
-
-			return false;
 		});
-
-		runtime.send(`dbstatus ${fname}`);
-		syncRegEx = Runtime.syncRegEx(runtime.sync());
 	}
 }

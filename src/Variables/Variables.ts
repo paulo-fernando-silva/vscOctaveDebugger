@@ -165,7 +165,7 @@ export class Variables {
 		callback: (newValue: string) => void
 	): void
 	{
-		runtime.evaluate(`${name} = ${value}`, (result: string) => {
+		runtime.execute(`${name} = ${value}`, (result: string) => {
 			OctaveLogger.log(`setVariable operation result: ${result}`);
 			Variables.getValue(name, runtime, callback);
 		});
@@ -185,7 +185,7 @@ export class Variables {
 		callback: (type: string) => void
 	): void
 	{
-		runtime.evaluate(`typeinfo(${variable})`, (value: string) => {
+		runtime.execute(`typeinfo(${variable})`, (value: string) => {
 			callback(Variables.clean(value));
 		});
 	}
@@ -198,7 +198,7 @@ export class Variables {
 		callback: (value: string) => void
 	): void
 	{
-		runtime.evaluate(variable, (value: string) => {
+		runtime.execute(variable, (value: string) => {
 			callback(Variables.removeName(variable, value));
 		});
 	}
@@ -211,7 +211,7 @@ export class Variables {
 		callback: (s: Array<number>) => void
 	): void
 	{
-		runtime.evaluate(`size(${variable})`, (value: string) => {
+		runtime.execute(`size(${variable})`, (value: string) => {
 			const values = Variables.clean(value).split(' ').filter((val) => val);
 			const size = values.map(i => parseInt(i));
 			callback(size);
@@ -226,7 +226,7 @@ export class Variables {
 		callback: (n: number) => void
 	): void
 	{
-		runtime.evaluate(`nnz(${variable})`, (value: string) => {
+		runtime.execute(`nnz(${variable})`, (value: string) => {
 			callback(parseInt(Variables.clean(value)));
 		});
 	}

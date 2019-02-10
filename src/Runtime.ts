@@ -34,6 +34,8 @@ export class Runtime extends EventEmitter {
 
 
 	//**************************************************************************
+	// Public interface
+	//**************************************************************************
 	public constructor(
 		processName: string,
 		sourceFolder: string
@@ -64,6 +66,75 @@ export class Runtime extends EventEmitter {
 
 
 	//**************************************************************************
+	public connected(): boolean {
+		return this._process.pid !== undefined;
+	}
+
+
+	//**************************************************************************
+	public disconnect() {
+		OctaveLogger.debug("Killing Runtime.");
+		this._process.kill('SIGKILL');
+	}
+
+
+	//**************************************************************************
+	public start(program: string) {
+		this._program = program;
+		this.addFolder(dirname(program));
+		// The \\n separates the terminator from any earlier command.
+		// This is just like a deferred sync command.
+		const terminator = this.echo(`\\n${Runtime.TERMINATOR}`);
+		this.send(`${functionFromPath(program)};${terminator}`);
+	}
+
+
+	//**************************************************************************
+	public addStderrHandler(callback: (str: string) => boolean) {
+		this._stderrHandler.push(callback);
+	}
+
+
+	//**************************************************************************
+	public execute(
+		expression: string,
+		callback: (output: string) => void = () => {}
+	)
+	{
+		this.evaluate(expression, (line: string | null) => {
+			if(line === null) {
+				callback(this._stdoutBuffer.length !== 0? this._stdoutBuffer : '');
+			}
+		});
+	}
+
+
+	//**************************************************************************
+	public evaluate(expression: string, callback: (line: string | null) => void) {
+		let syncRegex;
+		this._inputHandler.push((line: string) => {
+			const done = line.match(syncRegex) !== null;
+			if(done) {
+				callback(null);
+			} else {
+				callback(line);
+			}
+			return done;
+		});
+		this.send(expression);
+		syncRegex = Runtime.syncRegEx(this.sync());
+	}
+
+
+	//**************************************************************************
+	public static clean(str: string): string {
+		return str.replace(Runtime.PROMPT_REGEX, '').trim();
+	}
+
+
+	//**************************************************************************
+	// Private interface
+	//**************************************************************************
 	private connect() {
 		OctaveLogger.debug(`Runtime: connecting to '${this._processName}'.`);
 		this._process = spawn(this._processName);
@@ -80,46 +151,19 @@ export class Runtime extends EventEmitter {
 
 
 	//**************************************************************************
-	public connected(): boolean {
-		return this._process.pid !== undefined;
-	}
-
-
-	//**************************************************************************
-	public disconnect() {
-		OctaveLogger.debug("Killing Runtime.");
-		this._process.kill('SIGKILL');
-	}
-
-
-	//**************************************************************************
-	// Public interface
-	//**************************************************************************
-	public addInputHandler(callback: (str: string) => boolean) {
-		this._inputHandler.push(callback);
-	}
-
-
-	//**************************************************************************
-	public addStderrHandler(callback: (str: string) => boolean) {
-		this._stderrHandler.push(callback);
-	}
-
-
-	//**************************************************************************
-	public clearInputHandlers() {
+	private clearInputHandlers() {
 		this._inputHandler = new Array<(str: string) => boolean>();
 	}
 
 
 	//**************************************************************************
-	public clearEventHandlers() {
+	private clearEventHandlers() {
 		this._stderrHandler = new Array<(str: string) => boolean>();
 	}
 
 
 	//**************************************************************************
-	public send(cmd: string) {
+	private send(cmd: string) {
 		++this._commandNumber;
 		OctaveLogger.info(`${this._processName}:${this._commandNumber}> ${cmd}`);
 		this._process.stdin.write(`${cmd}\n`); // \n here is like pressing enter
@@ -127,19 +171,19 @@ export class Runtime extends EventEmitter {
 
 
 	//**************************************************************************
-	public static syncString(id: number): string {
+	private static syncString(id: number): string {
 		return `${Runtime.SYNC}:${id}`;
 	}
 
 
 	//**************************************************************************
-	public static syncRegEx(id: number): RegExp {
+	private static syncRegEx(id: number): RegExp {
 		return new RegExp(`^(?:${Runtime.PROMPT})*${Runtime.syncString(id)}$`);
 	}
 
 
 	//**************************************************************************
-	public sync(): number {
+	private sync(): number {
 		const id = this._commandNumber;
 		// The \\n here separates the sync from other matlab commands.
 		this.send(this.echo(`\\n${Runtime.syncString(id)}`));
@@ -147,72 +191,6 @@ export class Runtime extends EventEmitter {
 	}
 
 
-	//**************************************************************************
-	public waitSync(callback: (str: string) => void): void {
-		let syncRegex;
-		this.addInputHandler((str: string) => {
-			if(str.match(syncRegex) !== null) {
-				// return everything we caught so far, except the sync tag.
-				callback(this._stdoutBuffer.length !== 0? this._stdoutBuffer : '');
-				return true;
-			}
-			return false;
-		});
-		syncRegex = Runtime.syncRegEx(this.sync());
-	}
-
-
-	//**************************************************************************
-	public waitSend(cmd: string, callback: (str: string) => void): void {
-		this.send(cmd);
-		this.waitSync(callback);
-	}
-
-
-	//**************************************************************************
-	public evaluate(expression: string, callback: (value: string) => void) {
-		let value = '';
-		let syncRegex;
-
-		this._inputHandler.push((str: string) => {
-			if(str.match(syncRegex) !== null) {
-				callback(value);
-				return true;
-			} else {
-				str = Runtime.clean(str);
-
-				if(str.length !== 0) {
-					if(value.length !== 0) {
-						value += '\n';
-					}
-
-					value += str;
-				}
-			}
-
-			return false;
-		});
-
-		this.send(expression);
-		syncRegex = Runtime.syncRegEx(this.sync());
-	}
-
-
-	//**************************************************************************
-	// Execution control
-	//**************************************************************************
-	public start(program: string) {
-		this._program = program;
-		this.addFolder(dirname(program));
-		// The \\n separates the terminator from any earlier command.
-		// This is just like a deferred sync command.
-		const terminator = this.echo(`\\n${Runtime.TERMINATOR}`);
-		this.send(`${functionFromPath(program)};${terminator}`);
-	}
-
-
-	//**************************************************************************
-	// Private interface
 	//**************************************************************************
 	private onStdout(data) {
 		if(!this.terminated(data)) {
@@ -300,11 +278,5 @@ export class Runtime extends EventEmitter {
 		}
 
 		return false;
-	}
-
-
-	//**************************************************************************
-	public static clean(str: string): string {
-		return str.replace(Runtime.PROMPT_REGEX, '').trim();
 	}
 }
