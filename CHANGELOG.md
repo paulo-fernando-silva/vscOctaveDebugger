@@ -1,7 +1,15 @@
+## 0.3.3
+* Created an UnknownType, and make sure of its size allows loading.
+* Replaced the old evaluate and waitSend by a new execute, and evaluate respectively.
+* Added support for uint8 matrix type.
+* Added support for int and float (complex) scalar types.
+* Added support for bool type.
+* Added support for permutation matrices.
+* Added support for inline functions.
+
 ## 0.3.2
 * Added Range support.
 * Fixed a bug by which children of subclasses of matrix would be matrices instead of the subclass.
-
 
 ## 0.3.1
 * Added a new line to lines output to the console.
