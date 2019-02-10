@@ -12,6 +12,8 @@ import * as Constants from '../Constants';
  */
 export class Matrix extends Variable {
 	//**************************************************************************
+	private static MATRIX_TYPENAME: string = 'matrix';
+	private _typename: string = Matrix.MATRIX_TYPENAME;
 	private _basename: string;
 	private _fixedIndices: Array<number>;
 	private _freeIndices: Array<number>;
@@ -35,16 +37,19 @@ export class Matrix extends Variable {
 		value: string = '',
 		freeIndices: Array<number> = [],
 		fixedIndices: Array<number> = [],
-		validValue: boolean = true
+		validValue: boolean = true,
+		type: string = Matrix.MATRIX_TYPENAME,
 	)
 	{
 		super();
+		value = value.replace(type, '').trim();
 		this._basename = name;
 		this._name = this.makeName(name, freeIndices, fixedIndices);
 		this._value = value;
 		this._freeIndices = freeIndices;
 		this._fixedIndices = fixedIndices;
 		this._validValue = validValue;
+		this._typename = type;
 
 		if(freeIndices.length !== 0) {
 			this._numberOfChildren = freeIndices[freeIndices.length - 1];
@@ -64,7 +69,7 @@ export class Matrix extends Variable {
 
 
 	//**************************************************************************
-	public typename(): string { return 'matrix'; }
+	public typename(): string { return this._typename; }
 
 
 	//**************************************************************************
@@ -72,7 +77,9 @@ export class Matrix extends Variable {
 
 
 	//**************************************************************************
-	public loads(type: string): boolean { return type === this.typename(); }
+	public loads(type: string): boolean {
+		return type.endsWith(this.typename());
+	}
 
 
 	//**************************************************************************
@@ -81,10 +88,11 @@ export class Matrix extends Variable {
 		value: string,
 		freeIndices: Array<number>,
 		fixedIndices: Array<number>,
-		validValue: boolean
+		validValue: boolean,
+		type: string
 	): Matrix
 	{
-		return new Matrix(name, value, freeIndices, fixedIndices, validValue);
+		return new Matrix(name, value, freeIndices, fixedIndices, validValue, type);
 	}
 
 
@@ -94,19 +102,21 @@ export class Matrix extends Variable {
 		runtime: Runtime,
 		callback: (m: Matrix) => void)
 	{
-		Variables.getSize(name, runtime, (size: Array<number>) => {
-			const loadable = Variables.loadable(size);
+		Variables.getType(name, runtime, (type: string) => {
+			Variables.getSize(name, runtime, (size: Array<number>) => {
+				const loadable = Variables.loadable(size);
 
-			const buildWith = (value: string) => {
-				const matrix = this.createConcreteType(name, value, size, [], loadable);
-				callback(matrix);
-			};
+				const buildWith = (value: string) => {
+					const matrix = this.createConcreteType(name, value, size, [], loadable, type);
+					callback(matrix);
+				};
 
-			if(loadable) {
-				Variables.getValue(name, runtime, buildWith);
-			} else {
-				buildWith(size.join(Constants.SIZE_SEPARATOR));
-			}
+				if(loadable) {
+					Variables.getValue(name, runtime, buildWith);
+				} else {
+					buildWith(size.join(Constants.SIZE_SEPARATOR));
+				}
+			});
 		});
 	}
 
@@ -330,7 +340,7 @@ export class Matrix extends Variable {
 
 		for(let i = 0; i !== count; ++i) {
 			const childFixedIndices = [i + offset + 1].concat(this._fixedIndices);
-			vars[i] = this.createConcreteType(this.basename(), ''+vector[i], childFreeIndices, childFixedIndices, true);
+			vars[i] = this.createConcreteType(this.basename(), ''+vector[i], childFreeIndices, childFixedIndices, true, this.typename());
 		}
 
 		callback(vars);
@@ -370,7 +380,7 @@ export class Matrix extends Variable {
 		for(let i = 0; i !== count; ++i) {
 			const childFixedIndices = [i + offset + 1].concat(this._fixedIndices);
 			const childValue = vectors[i].join(Constants.COLUMN_ELEMENTS_SEPARATOR);
-			vars[i] = this.createConcreteType(this.basename(), childValue, childFreeIndices, childFixedIndices, true);
+			vars[i] = this.createConcreteType(this.basename(), childValue, childFreeIndices, childFixedIndices, true, this.typename());
 		}
 
 		callback(vars);
@@ -418,7 +428,7 @@ export class Matrix extends Variable {
 			const vars = new Array<Matrix>(count);
 			for(let i = 0; i !== count; ++i) {
 				const childrenFixedIndices = [offset + i + 1].concat(this._fixedIndices);
-				vars[i] = this.createConcreteType(this.basename(), value, childrenFreeIndices, childrenFixedIndices, false);
+				vars[i] = this.createConcreteType(this.basename(), value, childrenFreeIndices, childrenFixedIndices, false, this.typename());
 			}
 			callback(vars);
 		}

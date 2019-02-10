@@ -26,14 +26,7 @@ import { Scalar } from './Variables/Scalar';
 import { Bool } from './Variables/Bool';
 import { SqString } from './Variables/SqString';
 import { Matrix } from './Variables/Matrix';
-import { Uint8Matrix } from './Variables/Uint8Matrix';
-import { BoolMatrix } from './Variables/BoolMatrix';
 import { SparseMatrix } from './Variables/SparseMatrix';
-import { ComplexMatrix } from './Variables/ComplexMatrix';
-import { DiagonalMatrix } from './Variables/DiagonalMatrix';
-import { PermutationMatrix } from './Variables/PermutationMatrix';
-import { SparseComplexMatrix } from './Variables/SparseComplexMatrix';
-import { ComplexDiagonalMatrix } from './Variables/ComplexDiagonalMatrix';
 import { LazyIndex } from './Variables/LazyIndex';
 import { Range } from './Variables/Range';
 import { Struct } from './Variables/Struct';
@@ -93,18 +86,11 @@ class OctaveDebugSession extends LoggingDebugSession {
 		// These are the supported variables factories.
 		Variables.register(new Range());
 		Variables.register(new Scalar());
+		Variables.register(new SparseMatrix()); // Needs to come before matrix to override load
 		Variables.register(new Matrix());
 		Variables.register(new LazyIndex());
-		Variables.register(new Uint8Matrix());
-		Variables.register(new SparseMatrix());
-		Variables.register(new ComplexMatrix());
-		Variables.register(new DiagonalMatrix());
-		Variables.register(new PermutationMatrix());
-		Variables.register(new SparseComplexMatrix());
-		Variables.register(new ComplexDiagonalMatrix());
 		Variables.register(new Struct());
 		Variables.register(new ScalarStruct());
-		Variables.register(new BoolMatrix());
 		Variables.register(new SqString());
 		Variables.register(new Bool());
 		Variables.register(new InlineFunction());

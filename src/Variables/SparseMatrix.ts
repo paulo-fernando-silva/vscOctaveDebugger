@@ -7,7 +7,13 @@ import * as Constants from '../Constants';
  * Class that adds support for sparse matrix type.
  */
 export class SparseMatrix extends Matrix {
+	//**************************************************************************
+	private static SPARSE_MATRIX_TYPENAME_PREFIX: string = 'sparse';
+	private static SPARSE_MATRIX_TYPENAME_SUFFIX: string = 'matrix';
+	private static SPARSE_MATRIX_TYPENAME: string = `${SparseMatrix.SPARSE_MATRIX_TYPENAME_PREFIX} ${SparseMatrix.SPARSE_MATRIX_TYPENAME_SUFFIX}`;
+	private static TYPENAME_REGEX = new RegExp(`${SparseMatrix.SPARSE_MATRIX_TYPENAME_PREFIX} (?:\\w+ )?${SparseMatrix.SPARSE_MATRIX_TYPENAME_SUFFIX}`);
 	private _indices: Array<number>;
+
 
 	/***************************************************************************
 	 * @param name the variable name without indices.
@@ -22,20 +28,23 @@ export class SparseMatrix extends Matrix {
 		value: string = '',
 		freeIndices: Array<number> = [],
 		fixedIndices: Array<number> = [],
-		validValue: boolean = true
+		validValue: boolean = true,
+		type: string = SparseMatrix.SPARSE_MATRIX_TYPENAME
 	)
 	{
-		super(name, value, freeIndices, fixedIndices, validValue);
+		super(name, value, freeIndices, fixedIndices, validValue, type);
 		this._indices = new Array<number>(this._numberOfChildren);
 	}
 
 
 	//**************************************************************************
-	public typename(): string { return 'sparse matrix'; }
+	public indices(): Array<number> { return this._indices; }
 
 
 	//**************************************************************************
-	public indices(): Array<number> { return this._indices; }
+	public loads(type: string): boolean {
+		return type.match(SparseMatrix.TYPENAME_REGEX) !== null;
+	}
 
 
 	//**************************************************************************
@@ -44,10 +53,11 @@ export class SparseMatrix extends Matrix {
 		value: string,
 		freeIndices: Array<number>,
 		fixedIndices: Array<number>,
-		validValue: boolean
+		validValue: boolean,
+		type: string
 	): SparseMatrix
 	{
-		return new SparseMatrix(name, value, freeIndices, fixedIndices, validValue);
+		return new SparseMatrix(name, value, freeIndices, fixedIndices, validValue, type);
 	}
 
 
@@ -57,24 +67,26 @@ export class SparseMatrix extends Matrix {
 		runtime: Runtime,
 		callback: (sm: SparseMatrix) => void)
 	{
-		Variables.getNonZero(name, runtime, (n: number) => {
-			const size = [n];
-			const loadable = Variables.loadable(size);
+		Variables.getType(name, runtime, (type: string) => {
+			Variables.getNonZero(name, runtime, (n: number) => {
+				const size = [n];
+				const loadable = Variables.loadable(size);
 
-			const buildWith = (value: string) => {
-				const matrix = this.createConcreteType(name, value, size, [], loadable);
+				const buildWith = (value: string) => {
+					const matrix = this.createConcreteType(name, value, size, [], loadable, type);
+					if(loadable) {
+						matrix.fetchIndices(runtime, 0, 0, () => { callback(matrix); });
+					} else {
+						callback(matrix);
+					}
+				};
+
 				if(loadable) {
-					matrix.fetchIndices(runtime, 0, 0, () => { callback(matrix); });
+					Variables.getValue(name, runtime, buildWith);
 				} else {
-					callback(matrix);
+					buildWith(size.join(Constants.SIZE_SEPARATOR));
 				}
-			};
-
-			if(loadable) {
-				Variables.getValue(name, runtime, buildWith);
-			} else {
-				buildWith(size.join(Constants.SIZE_SEPARATOR));
-			}
+			});
 		});
 	}
 
@@ -150,7 +162,7 @@ export class SparseMatrix extends Matrix {
 			const childFixedIndices = [this._indices[i + offset]];
 			const name = this.basename();
 			const val = ''+values[i];
-			vars[i] = new SparseMatrix(name, val, childFreeIndices, childFixedIndices);
+			vars[i] = this.createConcreteType(name, val, childFreeIndices, childFixedIndices, true, this.typename());
 		}
 
 		callback(vars);
