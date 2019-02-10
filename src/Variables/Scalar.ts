@@ -5,19 +5,27 @@ import { Runtime } from '../Runtime';
 
 export class Scalar extends Variable {
 	//**************************************************************************
+	private static BASE_TYPE: string = 'scalar';
+	private _typename: string = Scalar.BASE_TYPE;
+	private _extendedTypename: string;
+
+
+	//**************************************************************************
 	constructor(
 		name: string = '',
-		value: string = ''
+		value: string = '',
+		type: string = Scalar.BASE_TYPE,
 	)
 	{
 		super();
 		this._name = name;
 		this._value = value;
+		this._typename = type;
 	}
 
 
 	//**************************************************************************
-	public typename(): string { return 'scalar'; }
+	public typename(): string { return this._typename; }
 
 
 	//**************************************************************************
@@ -25,16 +33,19 @@ export class Scalar extends Variable {
 
 
 	//**************************************************************************
-	public loads(type: string): boolean { return type === this.typename(); }
+	public loads(type: string): boolean {
+		return type.endsWith(this.typename());
+	}
 
 
 	//**************************************************************************
 	public createConcreteType(
 		name: string,
-		value: string
+		value: string,
+		type: string
 	): Scalar
 	{
-		return new Scalar(name, value);
+		return new Scalar(name, value, type);
 	}
 
 
@@ -45,9 +56,10 @@ export class Scalar extends Variable {
 		callback: (s: Scalar) => void
 	): void
 	{
-		// TODO: get size...
-		Variables.getValue(name, runtime, (value: string) => {
-			callback(this.createConcreteType(name, value));
+		Variables.getType(name, runtime, (type: string) => {
+			Variables.getValue(name, runtime, (value: string) => {
+				callback(this.createConcreteType(name, value, type));
+			});
 		});
 	}
 
