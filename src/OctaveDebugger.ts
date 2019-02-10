@@ -23,6 +23,7 @@ import { Variables } from './Variables/Variables';
 import { Variable as OctaveVariable } from './Variables/Variable';
 import { UnknownType } from './Variables/UnknownType'
 import { Scalar } from './Variables/Scalar';
+import { Bool } from './Variables/Bool';
 import { SqString } from './Variables/SqString';
 import { Matrix } from './Variables/Matrix';
 import { Uint8Matrix } from './Variables/Uint8Matrix';
@@ -102,6 +103,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 		Variables.register(new ScalarStruct());
 		Variables.register(new BoolMatrix());
 		Variables.register(new SqString());
+		Variables.register(new Bool());
 		// Everything not listed above is treated as a UnknownType.
 		Variables.registerFallback(new UnknownType());
 	}
