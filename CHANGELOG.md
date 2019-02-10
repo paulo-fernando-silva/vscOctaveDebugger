@@ -1,3 +1,6 @@
+## 0.3.4
+* Fixed readme.
+
 ## 0.3.3
 * Created an UnknownType, and make sure of its size allows loading.
 * Replaced the old evaluate and waitSend by a new execute, and evaluate respectively.

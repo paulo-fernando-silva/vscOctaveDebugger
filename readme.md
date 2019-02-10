@@ -12,6 +12,7 @@ This extension supports actions:
  * variable inspection, variable editing
  * stack navigation and visualization
  * expression evaluation, via console input, watch UI, or mouse hover
+
 The following types are currently supported:
  * [DiagonalMatrix/ComplexDiagonalMatrix/PermutationMatrix](https://octave.org/doc/v4.2.1/Diagonal-and-Permutation-Matrices.html#Diagonal-and-Permutation-Matrices)
  * LazyIndex
@@ -23,6 +24,7 @@ The following types are currently supported:
  * [ScalarStruct/Struct](https://octave.org/doc/v4.0.0/Structures.html)
  * [InlineFunction](https://octave.org/doc/v4.0.0/Inline-Functions.html)
  * UnknownType: represents unknown types as strings.
+
 If a type isn't supported request it on the [project repository](https://github.com/paulo-fernando-silva/vscOctaveDebugger.git).
 
 ![Demo](images/OctaveDebugger.gif)
