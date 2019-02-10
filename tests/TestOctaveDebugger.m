@@ -20,6 +20,7 @@ function TestOctaveDebugger()
 	int64_ = int64(1); uint64_ = uint64(1);
 	float_ = single(1); double_ = double(1);
 	b = logical(1);
+	permMat = eye(3)(1:3,:);
 	printf('hello ');
 	printf('World\n');	
 	x = 10;

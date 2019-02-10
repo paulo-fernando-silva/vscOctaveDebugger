@@ -31,6 +31,7 @@ import { BoolMatrix } from './Variables/BoolMatrix';
 import { SparseMatrix } from './Variables/SparseMatrix';
 import { ComplexMatrix } from './Variables/ComplexMatrix';
 import { DiagonalMatrix } from './Variables/DiagonalMatrix';
+import { PermutationMatrix } from './Variables/PermutationMatrix';
 import { SparseComplexMatrix } from './Variables/SparseComplexMatrix';
 import { ComplexDiagonalMatrix } from './Variables/ComplexDiagonalMatrix';
 import { LazyIndex } from './Variables/LazyIndex';
@@ -97,6 +98,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 		Variables.register(new SparseMatrix());
 		Variables.register(new ComplexMatrix());
 		Variables.register(new DiagonalMatrix());
+		Variables.register(new PermutationMatrix());
 		Variables.register(new SparseComplexMatrix());
 		Variables.register(new ComplexDiagonalMatrix());
 		Variables.register(new Struct());
