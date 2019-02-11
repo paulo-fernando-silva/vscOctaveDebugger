@@ -21,7 +21,8 @@ function TestOctaveDebugger()
 	float_ = single(1); double_ = double(1);
 	b = logical(1);
 	permMat = eye(3)(1:3,:);
-	f = inline ('x^2 + 2');
+	f_inl = inline ('x^2 + 2');
+	f_hnd = @bsxfun;
 	printf('hello ');
 	printf('World\n');
 	x = 10;

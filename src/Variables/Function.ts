@@ -3,25 +3,34 @@ import { Variable } from './Variable';
 import { Runtime } from '../Runtime';
 
 
-export class InlineFunction extends Variable {
+export class Function extends Variable {
+	//**************************************************************************
+	private static BASE_TYPE: string = 'function';
+	private _typename: string = Function.BASE_TYPE;
+
+
 	//**************************************************************************
 	constructor(
 		name: string = '',
-		value: string = ''
+		value: string = '',
+		type: string = Function.BASE_TYPE
 	)
 	{
 		super();
 		this._name = name;
 		this._value = value;
+		this._typename = type;
 	}
 
 
 	//**************************************************************************
-	public typename(): string { return 'inline function'; }
+	public typename(): string { return this._typename; }
 
 
 	//**************************************************************************
-	public loads(type: string): boolean { return type === this.typename(); }
+	public loads(type: string): boolean {
+		return type.includes(this.typename());
+	}
 
 
 	//**************************************************************************
@@ -31,10 +40,11 @@ export class InlineFunction extends Variable {
 	//**************************************************************************
 	public createConcreteType(
 		name: string,
-		value: string
-	): InlineFunction
+		value: string,
+		type: string
+	): Function
 	{
-		return new InlineFunction(name, value);
+		return new Function(name, value, type);
 	}
 
 
@@ -42,12 +52,15 @@ export class InlineFunction extends Variable {
 	public loadNew(
 		name: string,
 		runtime: Runtime,
-		callback: (s: InlineFunction) => void
+		callback: (s: Function) => void
 	): void
 	{
-		Variables.getValue(name, runtime, (value: string) => {
-			callback(this.createConcreteType(name, value));
+		Variables.getType(name, runtime, (type: string) => {
+			Variables.getValue(name, runtime, (value: string) => {
+				callback(this.createConcreteType(name, value, type));
+			});
 		});
+
 	}
 
 
@@ -58,5 +71,5 @@ export class InlineFunction extends Variable {
 		start: number,
 		callback: (vars: Array<Variable>) => void
 	): void
-	{} // InlineFunction have no children.
+	{} // Function have no children.
 }
