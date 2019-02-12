@@ -7,7 +7,6 @@ import { functionFromPath } from './Utils/misc';
 import { dirname } from 'path';
 
 
-
 export class Runtime extends EventEmitter {
 	//**************************************************************************
 	public static readonly PROMPT = 'debug> ';
@@ -18,6 +17,10 @@ export class Runtime extends EventEmitter {
 	//**************************************************************************
 	private static readonly TERMINATOR = `end::${Runtime.SYNC}`;
 	private static readonly TERMINATOR_REGEX = new RegExp(`^(?:${Runtime.PROMPT})*${Runtime.TERMINATOR}$`);
+	//**************************************************************************
+	private static defaultOutputCallback = (output: string) => {
+		OctaveLogger.warn(output);
+	};
 
 
 	//**************************************************************************
@@ -57,10 +60,24 @@ export class Runtime extends EventEmitter {
 
 
 	//**************************************************************************
+	private static validDirectory(dir: string): boolean {
+		return dir !== '' && dir !== '.';
+	}
+
+
+	//**************************************************************************
 	public addFolder(sourceFolder: string): void {
 		// This allows us to run code from anywhere on our HD.
-		if(sourceFolder.length !== 0) {
-			this.send(`addpath('${sourceFolder}')`);
+		if(Runtime.validDirectory(sourceFolder)) {
+			this.execute(`addpath('${sourceFolder}')`);
+		}
+	}
+
+
+	//**************************************************************************
+	public cwd(newWorkingDirectory: string): void {
+		if(Runtime.validDirectory(newWorkingDirectory)) {
+			this.execute(`cd '${newWorkingDirectory}'`);
 		}
 	}
 
@@ -79,9 +96,11 @@ export class Runtime extends EventEmitter {
 
 
 	//**************************************************************************
-	public start(program: string) {
+	public start(program: string, workingDirectory: string) {
 		this._program = program;
 		this.addFolder(dirname(program));
+		this.cwd(workingDirectory);
+
 		// The \\n separates the terminator from any earlier command.
 		// This is just like a deferred sync command.
 		const terminator = this.echo(`\\n${Runtime.TERMINATOR}`);
@@ -98,7 +117,7 @@ export class Runtime extends EventEmitter {
 	//**************************************************************************
 	public execute(
 		expression: string,
-		callback: (output: string) => void = () => {}
+		callback: (output: string) => void = Runtime.defaultOutputCallback
 	)
 	{
 		this.evaluate(expression, (line: string | null) => {

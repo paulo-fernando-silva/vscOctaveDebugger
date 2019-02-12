@@ -98,7 +98,7 @@
 						"properties": {
 							"program": {
 								"type": "string",
-								"description": "Function to execute.",
+								"description": "Function or file to execute.",
 								"default": "${command:AskForProgramName}"
 							},
 							"trace": {
@@ -126,6 +126,11 @@
 								"description": "Absolute path to the project source folder.",
 								"default": "${workspaceFolder}"
 							},
+							"workingDirectory": {
+								"type": "string",
+								"description": "Absolute path to the project source folder.",
+								"default": ""
+							},
 							"prefetchCount": {
 								"type": "number",
 								"description": "Maximum number of chunks of elements to prefetch.",
@@ -142,6 +147,7 @@
 						"program": "${command:AskForProgramName}",
 						"octave": "octave-cli",
 						"sourceFolder": "${workspaceFolder}",
+						"workingDirectory": "",
 						"prefetchCount": 1,
 						"trace": false
 					}
@@ -157,6 +163,7 @@
 							"program": "^\"\\${command:AskForProgramName}\"",
 							"octave": "octave-cli",
 							"sourceFolder": "^\"\\${workspaceFolder}\"",
+							"workingDirectory": "",
 							"prefetchCount": 1,
 							"trace": false
 						}

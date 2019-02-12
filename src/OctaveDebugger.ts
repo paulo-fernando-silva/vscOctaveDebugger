@@ -34,6 +34,7 @@ import { ScalarStruct } from './Variables/ScalarStruct';
 import { Function } from './Variables/Function'
 import { Scope as OctaveScope } from './Variables/Scope';
 import { isMatlabFile } from './Utils/misc';
+import { dirname } from 'path';
 
 
 //******************************************************************************
@@ -50,6 +51,8 @@ interface LaunchRequestArguments extends DebugProtocol.LaunchRequestArguments {
 	octave: string;
 	/** Absolute path to the project source folder. */
 	sourceFolder: string;
+	/** Absolute path to the desired working directory. Defaults to program location. */
+	workingDirectory: string;
 	/** Maximum number of chunks of elements to prefetch. */
 	prefetchCount: number;
 }
@@ -192,6 +195,31 @@ class OctaveDebugSession extends LoggingDebugSession {
 
 
 	//**************************************************************************
+	private static validDirectory(dir: string): boolean {
+		return dir !== undefined && dir !== '' && dir !== '.';
+	}
+
+
+	//**************************************************************************
+	private static getWorkingDirectory(args: LaunchRequestArguments): string {
+		if(OctaveDebugSession.validDirectory(args.workingDirectory)) {
+			return args.workingDirectory;
+		}
+
+		const programDirectory = dirname(args.program);
+		if(OctaveDebugSession.validDirectory(programDirectory)) {
+			return programDirectory;
+		}
+
+		if(OctaveDebugSession.validDirectory(args.sourceFolder)) {
+			return args.sourceFolder;
+		}
+
+		return '';
+	}
+
+
+	//**************************************************************************
 	protected async launchRequest(
 		response: DebugProtocol.LaunchResponse,
 		args: LaunchRequestArguments
@@ -202,16 +230,17 @@ class OctaveDebugSession extends LoggingDebugSession {
 		Variables.evaluateAns = (args.evaluateAns !== undefined && args.evaluateAns);
 
 		this.setupRuntime(args.octave, args.sourceFolder);
+		const workingDirectory = OctaveDebugSession.getWorkingDirectory(args);
 
 		if(this.runtimeConnected()) {
 			this.runSetBreakpoints();
 
 			if(!this._configurationDone) {
 				this._runCallback = () => {
-					this._runtime.start(args.program);
+					this._runtime.start(args.program, workingDirectory);
 				};
 			} else {
-				this._runtime.start(args.program);
+				this._runtime.start(args.program, workingDirectory);
 			}
 		}
 

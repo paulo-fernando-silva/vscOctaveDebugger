@@ -56,6 +56,7 @@ class OctaveDebuggerConfigurationProvider implements vscode.DebugConfigurationPr
 			if(!config.program) 		{ config.program = '${file}'; }
 			if(!config.octave)			{ config.octave = Constants.DEFAULT_EXECUTABLE; }
 			if(!config.sourceFolder)	{ config.sourceFolder = '${workspaceFolder}'; }
+			if(!config.workingDirectory){ config.workingDirectory = ''; }
 			if(!config.prefetchCount)	{ config.prefetchCount = Constants.CHUNKS_PREFETCH; }
 			if(!config.allowArbitraryExpressionEvaluation) {
 				config.allowArbitraryExpressionEvaluation = false;
