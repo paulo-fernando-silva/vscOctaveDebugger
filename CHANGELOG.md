@@ -1,3 +1,8 @@
+## 0.3.6
+* Added suport for function handles.
+* Added a variable workingDirectory to the program arguments. If not set defaults to program directory, if no program directory is given defaults to sourceDirectory, otherwise defaults to the filesystem root.
+* Fixed scalar struct loading children. Now children are loaded as variables which avoids loading very large matrices. Struct has the same issue but will require more work to fix. Next release.
+
 ## 0.3.5
 * Extended matrix support to all basic types.
 * Extended sparse matrix support to extra basic types.

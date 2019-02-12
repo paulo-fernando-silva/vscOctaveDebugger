@@ -1,6 +1,6 @@
 # VS Code Octave Debugger
 
-This extension provides debugging support for code runnable on Octave (might include Matlab code).
+This extension provides debugging support for Octave code (might include Matlab code).
 This is done by interfacing with octave-cli via stdin/stdout. Do read the changelog to know what's new in this version.
 Though this is not necessary to use the extension, I still recommend the following language extensions for [matlab](https://marketplace.visualstudio.com/items?itemName=Gimly81.matlab) and [octave](https://marketplace.visualstudio.com/items?itemName=toasty-technologies.octave).
 
@@ -16,11 +16,11 @@ This extension supports actions:
 The following types are currently supported:
  * Scalar: [floats](https://octave.org/doc/v4.0.0/Single-Precision-Data-Types.html) and [ints](https://octave.org/doc/v4.0.0/Integer-Data-Types.html), the default type being double
  * [Matrix](https://octave.org/doc/v4.0.0/Matrices.html) of all basic types, includes ComplexMatrix/BoolMatrix
- * [DiagonalMatrix/ComplexDiagonalMatrix/PermutationMatrix](https://octave.org/doc/v4.2.1/Diagonal-and-Permutation-Matrices.html#Diagonal-and-Permutation-Matrices)
+ * [DiagonalMatrix/ComplexDiagonalMatrix/PermutationMatrix](https://octave.org/doc/v4.2.1/Diagonal-and-Permutation-Matrices.html)
  * [SparseMatrix/SparseComplexMatrix](https://octave.org/doc/v4.0.3/Sparse-Matrices.html)
  * [Range](https://octave.org/doc/v4.0.0/Ranges.html)
  * [ScalarStruct/Struct](https://octave.org/doc/v4.0.0/Structures.html)
- * [InlineFunction](https://octave.org/doc/v4.0.0/Inline-Functions.html)
+ * [Inline functions](https://octave.org/doc/v4.0.0/Inline-Functions.html) and [function handles](https://octave.org/doc/v4.4.0/Function-Handles.html)
  * LazyIndex
  * SqString
  * UnknownType: represents unknown types as strings.
@@ -59,7 +59,7 @@ Please submit bugs there too.
 ## History :)
 
 I started this project back in December 2017 or January 2018, not quite sure anymore, when I was going through the exercises from the [Andrew Ng's machine learning class](http://openclassroom.stanford.edu/MainFolder/CoursePage.php?course=MachineLearning).
-Also check these playlists [Stanford Machine Learning](https://www.youtube.com/watch?v=UzxYlbK2c7E&list=PLA89DCFA6ADACE599), [Caltech Learning from Data](https://www.youtube.com/watch?v=VeKeFIepJBU&list=PLCA2C1469EA777F9A), [Deep Learning tutorial](http://ufldl.stanford.edu/tutorial/),and there's plenty more from MIT and others.
+Also check these playlists [Stanford Machine Learning](https://www.youtube.com/watch?v=UzxYlbK2c7E&list=PLA89DCFA6ADACE599), [Caltech Learning from Data](https://www.youtube.com/watch?v=VeKeFIepJBU&list=PLCA2C1469EA777F9A), [Deep Learning tutorial](http://ufldl.stanford.edu/tutorial/), and there's plenty more from MIT and others.
 
 Since I was really into vscode but unfortunately there was no octave debugger at the time, and since I have a long commute to work, I decided to use that time to develop this adapter.
 It kind of was an on and off development, but I would say that about 80% of it was done on the train while commuting to work. I really would like to thank Andrew and all the openclassroom and other similar projects (e.g. OpenCourseWare), and of course the people behind vscode. The best editor of its genre out there.
