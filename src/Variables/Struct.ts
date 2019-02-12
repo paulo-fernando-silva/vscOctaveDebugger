@@ -31,6 +31,18 @@ export class Struct extends Variable {
 
 
 	//**************************************************************************
+	public typename(): string { return 'struct'; }
+
+
+	//**************************************************************************
+	public extendedTypename(): string { return this._extendedTypename; }
+
+
+	//**************************************************************************
+	public loads(type: string): boolean { return type === this.typename(); }
+
+
+	//**************************************************************************
 	public loadNew(
 		name: string,
 		runtime: Runtime,
@@ -116,16 +128,4 @@ export class Struct extends Variable {
 			});
 		}
 	}
-
-
-	//**************************************************************************
-	public typename(): string { return 'struct'; }
-
-
-	//**************************************************************************
-	public extendedTypename(): string { return this._extendedTypename; }
-
-
-	//**************************************************************************
-	public loads(type: string): boolean { return type === this.typename(); }
 }

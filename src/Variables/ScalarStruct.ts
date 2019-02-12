@@ -1,3 +1,4 @@
+import * as Constants from '../Constants';
 import { Variable } from './Variable';
 import { Variables } from './Variables';
 import { Runtime } from '../Runtime';
@@ -6,20 +7,23 @@ import { Runtime } from '../Runtime';
 export class ScalarStruct extends Variable {
 	//**************************************************************************
 	private _fields: Array<string>;
+	private _children: Array<Variable>;
 
 
 	//**************************************************************************
 	constructor(
 		name: string = '',
-		value: string = '',
 		fields: Array<string> = []
 	)
 	{
 		super();
 		this._name = name;
-		this._value = value;
+		this._value = fields.join(Constants.FIELDS_SEPARATOR);
 		this._fields = fields;
 		this._numberOfChildren = this._fields.length;
+		if(this._numberOfChildren !== 0) {
+			this._children = new Array<Variable>();
+		}
 	}
 
 
@@ -43,14 +47,9 @@ export class ScalarStruct extends Variable {
 	): void
 	{
 		ScalarStruct.getFields(name, runtime, (fields: Array<string>) => {
-			// TODO: Then parent sync issue is fixed display something interesting.
-			ScalarStruct.getFieldValues(fields, runtime, (values: Array<string>) => {
-				const value = values.join(', ');
-				const struct = new ScalarStruct(name, `{${value}}`, fields);
-
-				Variables.addReferenceTo(struct);
-				callback(struct);
-			});
+			const struct = new ScalarStruct(name, fields);
+			Variables.addReferenceTo(struct);
+			callback(struct);
 		});
 	}
 
@@ -63,8 +62,16 @@ export class ScalarStruct extends Variable {
 		callback: (vars: Array<Variable>) => void
 	): void
 	{
-		// TODO: handle children range
-		Variables.listVariables(this._fields, runtime, callback);
+		const self = this;
+		this._fields.forEach(name => {
+			Variables.loadVariable(name, runtime, (v: Variable) => {
+				self._children.push(v);
+
+				if(self._children.length === self._numberOfChildren) {
+					callback(self._children.slice(start, start+count));
+				}
+			});
+		});
 	}
 
 
@@ -86,24 +93,5 @@ export class ScalarStruct extends Variable {
 				}
 			}
 		});
-	}
-
-
-	//**************************************************************************
-	public static getFieldValues(
-		fields: Array<string>,
-		runtime: Runtime,
-		callback: (values: Array<string>) => void
-	): void
-	{
-		let values = new Array<string>();
-
-		fields.forEach(field => Variables.getValue(field, runtime, (value: string) => {
-			values.push(value);
-
-			if(values.length === fields.length) {
-				callback(values);
-			}
-		}));
 	}
 }

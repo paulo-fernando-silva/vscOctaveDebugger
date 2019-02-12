@@ -16,4 +16,5 @@ export const CTX_WATCH = 'watch';
 export const CTX_HOVER = 'hover';
 export const EVAL_UNDEF = 'undefined';
 export const ERROR_EXP = 'error:';
+export const FIELDS_SEPARATOR = ROW_ELEMENTS_SEPARATOR;
 
