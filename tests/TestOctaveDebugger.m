@@ -12,8 +12,9 @@ function TestOctaveDebugger()
 % - conditional breakpoints
 % Todo:
 %
-
-
+	s = struct('f', zeros(101,1));
+	ss = [ s s; s s ];
+	
 	int8_ = int8(1); uint8_ = uint8(1);
 	int16_ = int16(1); uint16_ = uint16(1);
 	int32_ = int32(1); uint32_ = uint32(1);

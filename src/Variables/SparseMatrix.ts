@@ -1,7 +1,8 @@
-import { Matrix } from './Matrix';
-import { Variables } from './Variables';
-import { Runtime } from '../Runtime';
 import * as Constants from '../Constants';
+import { Variables } from './Variables';
+import { Variable } from './Variable';
+import { Runtime } from '../Runtime';
+import { Matrix } from './Matrix';
 
 /*
  * Class that adds support for sparse matrix type.
@@ -96,7 +97,7 @@ export class SparseMatrix extends Matrix {
 		runtime: Runtime,
 		offset: number,
 		count: number,
-		callback: (vars: Array<SparseMatrix>) => void
+		callback: (vars: Array<Variable>) => void
 	): void
 	{
 		this.fetchIndices(runtime, offset, count, (fetchedIndices: Array<number>) => {
@@ -105,7 +106,7 @@ export class SparseMatrix extends Matrix {
 			// matlab indices start at 1
 			const exp = `${this.name()}(find(${this.name()})(${begin}:${end}))`;
 			runtime.execute(exp, (value: string) => {
-				this.parseChildren(value, offset, count, (children: Array<SparseMatrix>) => {
+				this.parseChildren(value, offset, count, (children: Array<Variable>) => {
 					callback(children);
 				});
 			});
@@ -147,11 +148,11 @@ export class SparseMatrix extends Matrix {
 		value: string,
 		offset: number,
 		count: number,
-		callback: (vars: Array<SparseMatrix>) => void
+		callback: (vars: Array<Variable>) => void
 	): void
 	{
 		const childFreeIndices = [];
-		const vars = new Array<SparseMatrix>(count);
+		const vars = new Array<Variable>(count);
 		const values = SparseMatrix.extractValues(value);
 
 		if(values.length !== count) {

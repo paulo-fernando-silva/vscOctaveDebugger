@@ -1,45 +1,65 @@
+import { ScalarStruct } from './ScalarStruct';
 import * as Constants from '../Constants';
 import { Variables } from './Variables';
 import { Variable } from './Variable';
 import { Runtime } from '../Runtime';
+import { Matrix } from './Matrix';
 
 
 // This is actually an array much like a matrix.
-export class Struct extends Variable {
+export class Struct extends Matrix {
 	//**************************************************************************
-	private _size: Array<number>;
-	private _firstNonOne: number;
-	private _extendedTypename: string;
+	private static STRUCT_TYPENAME: string = 'struct';
+	private _fields: Array<string>;
 
 
-	//**************************************************************************
+	/***************************************************************************
+	 * @param name the variable name without indices.
+	 * @param value the contents of the variable.
+	 * @param freeIndices the number of elements in each dimension.
+	 * @param fixedIndices if this is a part of a larger matrix, the right-most
+	 * indices that are used to access this submatrix (one based).
+	 * @param validValue actually the variable content and not a placeholder?
+	 **************************************************************************/
 	constructor(
 		name: string = '',
 		value: string = '',
-		size: Array<number> = []
+		freeIndices: Array<number> = [],
+		fixedIndices: Array<number> = []
 	)
 	{
-		super();
-		this._name = name;
-		this._value = value;
-		this._size = size;
-		this._firstNonOne = Struct.firstNonOne(size);
-		this._numberOfChildren = this._size[this._firstNonOne];
-		const dim = size.join(Constants.SIZE_SEPARATOR)
-		this._extendedTypename = `${this.typename()} ${dim}`;
+		super(name, value, freeIndices, fixedIndices, false, Struct.STRUCT_TYPENAME);
+		this._fields = value.split(Constants.FIELDS_SEPARATOR);
 	}
 
 
 	//**************************************************************************
-	public typename(): string { return 'struct'; }
+	private static remove(prefix: string, fields: Array<string>): Array<string> {
+		const N = prefix.length;
+		return fields.map((v: string) => v.substr(N));
+	}
 
 
 	//**************************************************************************
-	public extendedTypename(): string { return this._extendedTypename; }
+	public typename(): string { return Struct.STRUCT_TYPENAME; }
 
 
 	//**************************************************************************
 	public loads(type: string): boolean { return type === this.typename(); }
+
+
+	//**************************************************************************
+	public createConcreteType(
+		name: string,
+		value: string,
+		freeIndices: Array<number>,
+		fixedIndices: Array<number>,
+		validValue: boolean,
+		type: string
+	): Struct
+	{
+		return new Struct(name, value, freeIndices, fixedIndices);
+	}
 
 
 	//**************************************************************************
@@ -49,83 +69,64 @@ export class Struct extends Variable {
 		callback: (s: Struct) => void
 	): void
 	{
-		Variables.getSize(name, runtime, (size: Array<number>) => {
-			// TODO: VSC doesn't seem to support updating parents when children change.
-			Variables.getValue(name, runtime, (value: string) => {
-				const array = new Struct(name, value, size);
-				Variables.addReferenceTo(array);
-				callback(array);
+		ScalarStruct.getFields(name, runtime, (fields: Array<string>) => {
+			fields = Struct.remove(name, fields);
+			const value = fields.join(Constants.FIELDS_SEPARATOR);
+
+			Variables.getSize(name, runtime, (size: Array<number>) => {
+				const struct = this.createConcreteType(name, value, size, [], false, Struct.STRUCT_TYPENAME);
+				Variables.addReferenceTo(struct);
+				callback(struct);
 			});
 		});
 	}
 
 
 	//**************************************************************************
-	private static firstNonOne(size: Array<number>) {
-		for(let i = 0; i !== size.length; ++i) {
-			if(size[i] > 1) {
-				return i;
-			}
-		}
-
-		return size.length;
-	}
-
-
-	//**************************************************************************
-	private static childName(
-		name: string,
-		index: number,
-		dimensions: number,
-		firstNonOne: number
-	) : string
+	public createChildType(
+		value: string,
+		freeIndices: Array<number>,
+		fixedIndices: Array<number>,
+		validValue: boolean
+	): Variable
 	{
-		let prefix = '', suffix = '';
+		let struct;
 
-		// Extract any existing indices if any
-		const match = name.match(/^(\w+)\(([^:]+,):(.*)\)$/);
-		if(match !== null && match.length > 1) {
-			name = match[1];
-			prefix = match[2];
-			suffix = match[3];
-		} else { // calculate new indices
-			for(let i = 0; i !== firstNonOne; ++i) {
-				prefix += '1,'; // Same as prefix = Array(firstNonOne).join('1,')
-			}
-
-			for(let i = 1 + firstNonOne; i !== dimensions; ++i) {
-				suffix += ',:'; // Same as suffix = Array(dimensions - firstNonOne).join(',:')
-			}
+		if(freeIndices.length === 0) {
+			// if there are no free indices then the variable is a scalar struct
+			const name = this.makeName(this.basename(), freeIndices, fixedIndices);
+			const fields = this._fields.map((v: string) => name + v);
+			struct = new ScalarStruct(name, fields);
+		} else {
+			// whem we have a free indices, the variable is still a struct
+			struct = this.createConcreteType(this.basename(), value, freeIndices, fixedIndices, false, Struct.STRUCT_TYPENAME);
 		}
 
-		return `${name}(${prefix}${index+1}${suffix})`;
+		Variables.addReferenceTo(struct);
+		return struct;
 	}
 
 
 	//**************************************************************************
-	public listChildren(
+	public loadChildrenRange(
 		runtime: Runtime,
+		offset: number,
 		count: number,
-		start: number,
 		callback: (vars: Array<Variable>) => void
 	): void
 	{
-		const variables = new Array<Variable>();
-		const Nmax = this._size[this._firstNonOne];
-		const cnt = (count === 0? Nmax : count);
-		const end = start + cnt;
-		const N = Math.min(end, Nmax);
+		const vars = new Array<Variable>(count);
+		const freeIndices = this.freeIndices();
+		const fixedIndices = this.fixedIndices();
+		const childrenFreeIndices = freeIndices.slice(0, freeIndices.length - 1);
+		// Just to make sure the value didn't change, we create it again.
+		const value = this._fields.join(Constants.FIELDS_SEPARATOR);
 
-		for(let i = start; i !== N; ++i) {
-			const child = Struct.childName(this.name(), i, this._size.length, this._firstNonOne);
-
-			Variables.loadVariable(child, runtime, (v: Variable) => {
-				variables.push(v);
-
-				if(variables.length === cnt) {
-					callback(variables);
-				}
-			});
+		for(let i = 0; i !== count; ++i) {
+			const childFixedIndices = [i + offset + 1].concat(fixedIndices);
+			vars[i] = this.createChildType(value, childrenFreeIndices, childFixedIndices, false);
 		}
+
+		callback(vars);
 	}
 }
