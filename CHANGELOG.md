@@ -1,3 +1,6 @@
+## 0.3.7
+* Fixed loading large structs.
+
 ## 0.3.6
 * Added suport for function handles.
 * Added a variable workingDirectory to the program arguments. If not set defaults to program directory, if no program directory is given defaults to sourceDirectory, otherwise defaults to the filesystem root.
