@@ -67,14 +67,9 @@ export class UnknownType extends Variable {
 	{
 		Variables.getType(name, runtime, (type: string) => {
 			Variables.getSize(name, runtime, (size: Array<number>) => {
-				if(Variables.loadable(size)) {
-					Variables.getValue(name, runtime, (value: string) => {
-						callback(this.createConcreteType(name, value, type, size));
-					});
-				} else {
-					const value = size.join(Constants.SIZE_SEPARATOR);
-					callback(this.createConcreteType(name, value, type, size));
-				}
+				// Can't get value. Might be too large.
+				const value = size.join(Constants.SIZE_SEPARATOR);
+				callback(this.createConcreteType(name, value, type, size));
 			});
 		});
 	}
