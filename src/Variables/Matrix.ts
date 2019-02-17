@@ -187,7 +187,7 @@ export class Matrix extends Variable {
 				this.parseAllChildren((children: Array<Variable>) => {
 					self._children = children;
 					callback();
-				})
+				});
 			} else {
 				callback();
 			}

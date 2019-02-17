@@ -23,6 +23,7 @@ export class ScalarStruct extends Variable {
 		this._numberOfChildren = this._fields.length;
 		if(this._numberOfChildren !== 0) {
 			this._children = new Array<Variable>();
+			Variables.addReferenceTo(this);
 		}
 	}
 
@@ -40,6 +41,16 @@ export class ScalarStruct extends Variable {
 
 
 	//**************************************************************************
+	public createConcreteType(
+		name: string,
+		fields: Array<string>
+	): ScalarStruct
+	{
+		return new ScalarStruct(name, fields);
+	}
+
+
+	//**************************************************************************
 	public loadNew(
 		name: string,
 		runtime: Runtime,
@@ -47,8 +58,7 @@ export class ScalarStruct extends Variable {
 	): void
 	{
 		ScalarStruct.getFields(name, runtime, (fields: Array<string>) => {
-			const struct = new ScalarStruct(name, fields);
-			Variables.addReferenceTo(struct);
+			const struct = this.createConcreteType(name, fields);
 			callback(struct);
 		});
 	}
