@@ -482,7 +482,9 @@ export class Matrix extends Variable {
 	public makeName(
 		name: string,
 		freeIndices: Array<number>,
-		fixedIndices: Array<number>
+		fixedIndices: Array<number>,
+		left: string = Constants.DEFAULT_LEFT,
+		right: string = Constants.DEFAULT_RIGHT
 	): string
 	{
 		let freeIndicesStr = '', fixedIndicesStr = '';
@@ -497,7 +499,7 @@ export class Matrix extends Variable {
 			freeIndicesStr = ':,'.repeat(freeIndices.length);
 		}
 
-		return `${name}(${freeIndicesStr}${fixedIndicesStr})`;
+		return `${name}${left}${freeIndicesStr}${fixedIndicesStr}${right}`;
 	}
 
 

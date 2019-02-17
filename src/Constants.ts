@@ -17,4 +17,8 @@ export const CTX_HOVER = 'hover';
 export const EVAL_UNDEF = 'undefined';
 export const ERROR_EXP = 'error:';
 export const FIELDS_SEPARATOR = ROW_ELEMENTS_SEPARATOR;
+export const DEFAULT_LEFT = '(';
+export const DEFAULT_RIGHT = ')';
+export const CELL_LEFT = '{';
+export const CELL_RIGHT = '}';
 

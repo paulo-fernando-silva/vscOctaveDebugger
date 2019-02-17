@@ -32,6 +32,7 @@ import { Range } from './Variables/Range';
 import { Struct } from './Variables/Struct';
 import { ScalarStruct } from './Variables/ScalarStruct';
 import { Function } from './Variables/Function'
+import { Cell } from './Variables/Cell';
 import { Scope as OctaveScope } from './Variables/Scope';
 import { isMatlabFile } from './Utils/misc';
 import { dirname } from 'path';
@@ -97,6 +98,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 		Variables.register(new SqString());
 		Variables.register(new Bool());
 		Variables.register(new Function());
+		Variables.register(new Cell());
 		// Everything not listed above is treated as a UnknownType.
 		Variables.registerFallback(new UnknownType());
 	}
