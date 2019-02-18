@@ -44,7 +44,7 @@ export class StackFramesManager {
 		if(n > 0) {
 			runtime.execute(`dbup ${n}`, callback);
 		} else {
-			OctaveLogger.log(`Error: up(${n})!`);
+			OctaveLogger.error(`Error: up(${n})!`);
 		}
 	}
 
@@ -59,7 +59,7 @@ export class StackFramesManager {
 		if(n > 0) {
 			runtime.execute(`dbdown ${n}`, callback);
 		} else {
-			OctaveLogger.log(`Error: down(${n})!`);
+			OctaveLogger.error(`Error: down(${n})!`);
 		}
 	}
 

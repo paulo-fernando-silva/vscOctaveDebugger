@@ -59,7 +59,7 @@ export class Variables {
 				return Variables._REFS[index];
 			}
 		} else {
-			OctaveLogger.log(`Error: getVariable(${reference})!`);
+			OctaveLogger.error(`Error: getVariable(${reference})!`);
 		}
 
 		return null;
@@ -87,7 +87,7 @@ export class Variables {
 		if(variable !== null) {
 			variable.listChildren(runtime, count, start, callback);
 		} else {
-			OctaveLogger.log(`Error: listByReference invalid reference ${ref}`);
+			OctaveLogger.error(`Error: listByReference invalid reference ${ref}`);
 		}
 	}
 
@@ -112,7 +112,7 @@ export class Variables {
 			Variables.loadVariable(name, runtime, (v: Variable | null) => {
 				if(v === null) {
 					if(!Variables.skipVariable(name)) {
-						OctaveLogger.log(`Error: could not load variable '${name}'!`);
+						OctaveLogger.error(`Error: could not load variable '${name}'!`);
 					}
 					++skipped;
 				} else {
