@@ -10,6 +10,7 @@ export class Variables {
 	private static _FALLBACK: Variable;
 	private static _REFS = new Array<Variable>();
 	private static _CHUNKS_PREFETCH = Constants.CHUNKS_PREFETCH;
+	private static _EMPTY_ARRAY = new Array<Variable>();
 
 	public static evaluateAns = false;
 
@@ -88,6 +89,7 @@ export class Variables {
 			variable.listChildren(runtime, count, start, callback);
 		} else {
 			OctaveLogger.error(`Error: listByReference invalid reference ${ref}`);
+			callback(Variables._EMPTY_ARRAY);
 		}
 	}
 
