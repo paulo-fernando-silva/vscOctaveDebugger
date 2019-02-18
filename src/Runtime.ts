@@ -96,6 +96,13 @@ export class Runtime extends EventEmitter {
 
 
 	//**************************************************************************
+	public pause() {
+		OctaveLogger.debug("Pausing Runtime.");
+		this._process.kill('SIGINT');
+	}
+
+
+	//**************************************************************************
 	public start(program: string, workingDirectory: string) {
 		this._program = program;
 		this.addFolder(dirname(program));

@@ -512,6 +512,19 @@ class OctaveDebugSession extends LoggingDebugSession {
 
 
 	//**************************************************************************
+	protected pauseRequest(
+		response: DebugProtocol.PauseResponse,
+		args: DebugProtocol.PauseArguments
+	): void
+	{
+		// args can be ignored as there's only one thread.
+		OctaveLogger.warn('Pausing...');
+		this._runtime.pause();
+		this.sendResponse(response);
+	}
+
+
+	//**************************************************************************
 	private clear(): void {
 		Variables.clearReferences();
 		this._stackManager.clear();
