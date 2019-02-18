@@ -290,7 +290,8 @@ export class Runtime extends EventEmitter {
 
 	//**************************************************************************
 	private echo(str: string): string {
-		return `printf("${str}\\n");`;
+		// The ' ' space at the beginning unpauses octave when stepping.
+		return ` printf("${str}\\n");`;
 	}
 
 
