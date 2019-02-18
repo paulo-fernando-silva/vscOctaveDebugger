@@ -56,6 +56,11 @@ Project homepage and source available
 Please submit bugs there too.
 
 
+## Known Issues
+
+* Can't rely on the value of ans as it changes due to the debugging session.
+* Can't use pause as that would pause debugging. When stepping over a pause it'll be unpaused automatically.
+
 ## History :)
 
 I started this project back in December 2017 or January 2018, not quite sure anymore, when I was going through the exercises from the [Andrew Ng's machine learning class](http://openclassroom.stanford.edu/MainFolder/CoursePage.php?course=MachineLearning).

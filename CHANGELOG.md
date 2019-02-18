@@ -1,3 +1,7 @@
+## 0.3.9
+* Added Support for "pause" execution.
+* Fixed pausing issue that would break debugging session.
+
 ## 0.3.8
 * Now UnknownType never loads the value to prevent loading large data types.
 * Added support for cell type.
