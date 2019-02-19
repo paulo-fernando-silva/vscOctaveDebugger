@@ -21,4 +21,6 @@ export const DEFAULT_LEFT = '(';
 export const DEFAULT_RIGHT = ')';
 export const CELL_LEFT = '{';
 export const CELL_RIGHT = '}';
-
+export const eEXIT = 'exit';
+export const eEND = 'end';
+export const eERROR = 'error';

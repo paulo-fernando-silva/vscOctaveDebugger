@@ -121,13 +121,13 @@ class OctaveDebugSession extends LoggingDebugSession {
 			return;
 		}
 
-		this._runtime.on('exit', () => {
+		this._runtime.on(Constants.eEXIT, () => {
 			this.sendEvent(new TerminatedEvent());
 		});
-		this._runtime.on('end', () => {
+		this._runtime.on(Constants.eEND, () => {
 			this.sendEvent(new TerminatedEvent());
 		});
-		this._runtime.on('error', () => {
+		this._runtime.on(Constants.eERROR, () => {
 			this.sendEvent(new TerminatedEvent());
 		});
 		this._runtime.addStderrHandler((line: string) => {

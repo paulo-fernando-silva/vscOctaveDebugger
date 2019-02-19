@@ -268,8 +268,13 @@ export class Runtime extends EventEmitter {
 
 	//**************************************************************************
 	private onExit(code) {
-		OctaveLogger.debug(`Runtime: ${this._processName} exited with code: ${code}`);
-		this.emit('exit');
+		const msg = `Runtime: ${this._processName} exited with code: ${code}`;
+		if(code !== 0) {
+			OctaveLogger.debug(msg);
+		} else {
+			OctaveLogger.error(msg);
+		}
+		this.emit(Constants.eEXIT);
 	}
 
 
@@ -284,7 +289,7 @@ export class Runtime extends EventEmitter {
 		}
 
 		OctaveLogger.debug(msg);
-		this.emit('error');
+		this.emit(Constants.eERROR);
 	}
 
 
@@ -300,7 +305,7 @@ export class Runtime extends EventEmitter {
 		if(data.match(Runtime.TERMINATOR_REGEX) !== null) {
 			this.flushStdout();
 			OctaveLogger.debug(`Runtime: program ${this._program} exited normally.`);
-			this.emit('end');
+			this.emit(Constants.eEND);
 			return true;
 		}
 
