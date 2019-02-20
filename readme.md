@@ -21,6 +21,7 @@ The following types are currently supported:
  * [Range](https://octave.org/doc/v4.0.0/Ranges.html)
  * [ScalarStruct/Struct](https://octave.org/doc/v4.0.0/Structures.html)
  * [Inline functions](https://octave.org/doc/v4.0.0/Inline-Functions.html) and [function handles](https://octave.org/doc/v4.4.0/Function-Handles.html)
+ * [Cell Arrays](https://octave.org/doc/v4.0.3/Cell-Arrays.html)
  * LazyIndex
  * SqString
  * UnknownType: represents unknown types as strings.

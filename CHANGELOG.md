@@ -1,3 +1,7 @@
+## 0.3.10
+* Small fix to the variable response. Now it wont stop if you step before the variable listing is complete. Needs refactoring as it's way too slow for certain complex codebases.
+* Added a bit of extra error logging.
+
 ## 0.3.9
 * Added Support for "pause" execution.
 * Fixed pausing issue that would break debugging session.
