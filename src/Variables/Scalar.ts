@@ -51,14 +51,13 @@ export class Scalar extends Variable {
 	//**************************************************************************
 	public loadNew(
 		name: string,
+		type: string,
 		runtime: Runtime,
 		callback: (s: Scalar) => void
 	): void
 	{
-		Variables.getType(name, runtime, (type: string) => {
-			Variables.getValue(name, runtime, (value: string) => {
-				callback(this.createConcreteType(name, value, type));
-			});
+		Variables.getValue(name, runtime, (value: string) => {
+			callback(this.createConcreteType(name, value, type));
 		});
 	}
 

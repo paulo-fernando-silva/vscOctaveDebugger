@@ -53,6 +53,7 @@ export class ScalarStruct extends Variable {
 	//**************************************************************************
 	public loadNew(
 		name: string,
+		type: string,
 		runtime: Runtime,
 		callback: (ss: ScalarStruct) => void
 	): void

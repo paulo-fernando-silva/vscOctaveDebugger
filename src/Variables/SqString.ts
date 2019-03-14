@@ -41,6 +41,7 @@ export class SqString extends Variable {
 	//**************************************************************************
 	public loadNew(
 		name: string,
+		type: string,
 		runtime: Runtime,
 		callback: (s: SqString) => void
 	): void

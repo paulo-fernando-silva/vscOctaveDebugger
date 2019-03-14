@@ -54,13 +54,14 @@ export class Cell extends Matrix {
 	//**************************************************************************
 	public loadNew(
 		name: string,
+		type: string,
 		runtime: Runtime,
 		callback: (s: Cell) => void
 	): void
 	{
 		Variables.getSize(name, runtime, (size: Array<number>) => {
 			const value = size.join(Constants.SIZE_SEPARATOR);
-			const cell = this.createConcreteType(name, value, size, [], false, Cell.CELL_TYPENAME);
+			const cell = this.createConcreteType(name, value, size, [], false, type);
 			callback(cell);
 		});
 	}

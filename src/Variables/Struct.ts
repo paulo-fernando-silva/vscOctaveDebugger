@@ -64,6 +64,7 @@ export class Struct extends Matrix {
 	//**************************************************************************
 	public loadNew(
 		name: string,
+		type: string,
 		runtime: Runtime,
 		callback: (s: Struct) => void
 	): void
@@ -73,7 +74,7 @@ export class Struct extends Matrix {
 			const value = fields.join(Constants.FIELDS_SEPARATOR);
 
 			Variables.getSize(name, runtime, (size: Array<number>) => {
-				const struct = this.createConcreteType(name, value, size, [], false, Struct.STRUCT_TYPENAME);
+				const struct = this.createConcreteType(name, value, size, [], false, type);
 				callback(struct);
 			});
 		});

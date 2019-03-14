@@ -119,24 +119,23 @@ export class Matrix extends Variable {
 	//**************************************************************************
 	public loadNew(
 		name: string,
+		type: string,
 		runtime: Runtime,
 		callback: (m: Matrix) => void)
 	{
-		Variables.getType(name, runtime, (type: string) => {
-			Variables.getSize(name, runtime, (size: Array<number>) => {
-				const loadable = Variables.loadable(size);
+		Variables.getSize(name, runtime, (size: Array<number>) => {
+			const loadable = Variables.loadable(size);
 
-				const buildWith = (value: string) => {
-					const matrix = this.createConcreteType(name, value, size, [], loadable, type);
-					callback(matrix);
-				};
+			const buildWith = (value: string) => {
+				const matrix = this.createConcreteType(name, value, size, [], loadable, type);
+				callback(matrix);
+			};
 
-				if(loadable) {
-					Variables.getValue(name, runtime, buildWith);
-				} else {
-					buildWith(size.join(Constants.SIZE_SEPARATOR));
-				}
-			});
+			if(loadable) {
+				Variables.getValue(name, runtime, buildWith);
+			} else {
+				buildWith(size.join(Constants.SIZE_SEPARATOR));
+			}
 		});
 	}
 

@@ -65,29 +65,28 @@ export class SparseMatrix extends Matrix {
 	//**************************************************************************
 	public loadNew(
 		name: string,
+		type: string,
 		runtime: Runtime,
 		callback: (sm: SparseMatrix) => void)
 	{
-		Variables.getType(name, runtime, (type: string) => {
-			Variables.getNonZero(name, runtime, (n: number) => {
-				const size = [n];
-				const loadable = Variables.loadable(size);
+		Variables.getNonZero(name, runtime, (n: number) => {
+			const size = [n];
+			const loadable = Variables.loadable(size);
 
-				const buildWith = (value: string) => {
-					const matrix = this.createConcreteType(name, value, size, [], loadable, type);
-					if(loadable) {
-						matrix.fetchIndices(runtime, 0, 0, () => { callback(matrix); });
-					} else {
-						callback(matrix);
-					}
-				};
-
+			const buildWith = (value: string) => {
+				const matrix = this.createConcreteType(name, value, size, [], loadable, type);
 				if(loadable) {
-					Variables.getValue(name, runtime, buildWith);
+					matrix.fetchIndices(runtime, 0, 0, () => { callback(matrix); });
 				} else {
-					buildWith(size.join(Constants.SIZE_SEPARATOR));
+					callback(matrix);
 				}
-			});
+			};
+
+			if(loadable) {
+				Variables.getValue(name, runtime, buildWith);
+			} else {
+				buildWith(size.join(Constants.SIZE_SEPARATOR));
+			}
 		});
 	}
 

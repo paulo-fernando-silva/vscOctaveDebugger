@@ -21,6 +21,7 @@ export abstract class Variable {
 	//**************************************************************************
 	public abstract loadNew(
 		name: string,
+		type: string,
 		runtime: Runtime,
 		callback: (v: Variable) => void): void;
 

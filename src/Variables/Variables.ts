@@ -142,13 +142,13 @@ export class Variables {
 					const factory = Variables._FACTORIES[i];
 
 					if(factory.loads(type)) {
-						factory.loadNew(name, runtime, callback);
+						factory.loadNew(name, type, runtime, callback);
 						return;
 					}
 				}
 
 				if(Variables._FALLBACK !== null && Variables._FALLBACK.loads(type)) {
-					Variables._FALLBACK.loadNew(name, runtime, callback);
+					Variables._FALLBACK.loadNew(name, type, runtime, callback);
 				} else {
 					callback(null);
 				}
