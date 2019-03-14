@@ -235,8 +235,17 @@ export class Variables {
 
 
 	//**************************************************************************
+	public static escape(str: string): string {
+		// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions
+		return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+	}
+
+
+	//**************************************************************************
 	public static removeName(name: string, value: string): string {
-		return value.replace(new RegExp(`^(?:ans|${name}) =(?:\n\n)?\s*`), '').trim();
+		name = Variables.escape(name);
+		value = value.replace(new RegExp(`^(?:ans|${name}) =(?:\n\n)?\s*`), '');
+		return value.trim();
 	}
 
 
