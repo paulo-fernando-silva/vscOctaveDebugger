@@ -1,3 +1,7 @@
+## 0.3.11
+* Escaped variable names as these might contain special characters.
+* Avoided loading type again when loading new variable instances.
+
 ## 0.3.10
 * Small fix to the variable response. Now it wont stop if you step before the variable listing is complete. Needs refactoring as it's way too slow for certain complex codebases.
 * Added a bit of extra error logging.
