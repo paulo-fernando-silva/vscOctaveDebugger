@@ -1,3 +1,6 @@
+## 0.3.12
+* Updated packages that had vulnerabilities.
+
 ## 0.3.11
 * Escaped variable names as these might contain special characters.
 * Avoided loading type again when loading new variable instances.
