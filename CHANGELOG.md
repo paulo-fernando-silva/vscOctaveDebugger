@@ -1,3 +1,7 @@
+
+## 0.3.13
+* Upgrade querystringify to version 2.0.0
+
 ## 0.3.12
 * Updated packages that had vulnerabilities.
 
