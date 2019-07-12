@@ -1,7 +1,7 @@
 {
 	"name": "vsc-octave-debugger",
 	"displayName": "Octave Debugger",
-	"version": "0.3.13",
+	"version": "0.3.14",
 	"publisher": "paulosilva",
 	"description": "Octave debugger adapter for vsc.",
 	"author": {
@@ -31,7 +31,7 @@
 		"vscode-debugadapter": "^1.25.0-pre.0",
 		"vscode-debugprotocol": "^1.25.0-pre.0",
 		"node.extend": ">=1.1.7",
-		"querystringify": ">=2.0.0"
+		"querystringify": "=2.0.0"
 	},
 	"devDependencies": {
 		"@types/mocha": "^2.2.44",
@@ -44,7 +44,8 @@
 		"tar": ">=4.4.2",
 		"tslint": "^5.8.0",
 		"typescript": "^2.5.3",
-		"vsce": "^1.62.0",
+		"lodash": ">=4.17.13",
+		"vsce": "^1.65.0",
 		"vscode": "^1.1.33",
 		"vscode-debugadapter-testsupport": "^1.24.0"
 	},

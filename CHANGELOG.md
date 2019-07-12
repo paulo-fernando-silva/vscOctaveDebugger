@@ -1,3 +1,5 @@
+## 0.3.14
+* Security update. Upgraded lodash to version 4.17.13 or later.
 
 ## 0.3.13
 * Upgrade querystringify to version 2.0.0
