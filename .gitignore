@@ -5,3 +5,4 @@ npm-debug.log
 OctaveDebugger.txt
 *.vsix
 octave-workspace
+dist/
