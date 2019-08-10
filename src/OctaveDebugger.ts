@@ -42,20 +42,18 @@ import { dirname } from 'path';
 interface LaunchRequestArguments extends DebugProtocol.LaunchRequestArguments {
 	/** An absolute path to the "program" to debug. */
 	program: string;
-	/** Enable logging the Debug Adapter Protocol. */
-	trace: boolean;
-	/** Enable verbose logging the Debug Adapter Protocol. */
-	verbose?: boolean;
-	/** Enable ans evaluation. */
-	evaluateAns?: boolean;
 	/** Path to the octave-cli. */
 	octave: string;
-	/** Absolute path to the project source folder. */
-	sourceFolder: string;
+	/** Absolute path to the project source folder. Defaults to workspace folder. */
+	sourceFolder?: string;
 	/** Absolute path to the desired working directory. Defaults to program location. */
-	workingDirectory: string;
+	workingDirectory?: string;
+	/** Enable verbose logging the Debug Adapter Protocol. */
+	verbose?: boolean;
 	/** Maximum number of chunks of elements to prefetch. */
-	prefetchCount: number;
+	prefetchCount?: number;
+	/** Enable ans evaluation. */
+	evaluateAns?: boolean;
 }
 
 
@@ -105,6 +103,15 @@ class OctaveDebugSession extends LoggingDebugSession {
 
 
 	//**************************************************************************
+	private sendTerminatedEvent() {
+		// This seems to be deprecated. How do I check if we're being debugged?
+		if(!this._isServer) {
+			this.sendEvent(new TerminatedEvent());
+		}
+	}
+
+
+	//**************************************************************************
 	private setupRuntime(
 		octave: string,
 		sourceFolder: string
@@ -121,15 +128,9 @@ class OctaveDebugSession extends LoggingDebugSession {
 			return;
 		}
 
-		this._runtime.on(Constants.eEXIT, () => {
-			this.sendEvent(new TerminatedEvent());
-		});
-		this._runtime.on(Constants.eEND, () => {
-			this.sendEvent(new TerminatedEvent());
-		});
-		this._runtime.on(Constants.eERROR, () => {
-			this.sendEvent(new TerminatedEvent());
-		});
+		this._runtime.on(Constants.eEXIT, () => this.sendTerminatedEvent());
+		this._runtime.on(Constants.eEND, () => this.sendTerminatedEvent());
+		this._runtime.on(Constants.eERROR, () => this.sendTerminatedEvent());
 		this._runtime.addStderrHandler((line: string) => {
 			if(line.match(/^stopped in .*? at line \d+$/) !== null) {
 				const currStep = this._stepCount;
@@ -198,23 +199,22 @@ class OctaveDebugSession extends LoggingDebugSession {
 
 
 	//**************************************************************************
-	private static validDirectory(dir: string): boolean {
-		return dir !== undefined && dir !== '' && dir !== '.';
-	}
-
-
-	//**************************************************************************
 	private static getWorkingDirectory(args: LaunchRequestArguments): string {
-		if(OctaveDebugSession.validDirectory(args.workingDirectory)) {
+		if(args.workingDirectory !== undefined
+			&& Runtime.validDirectory(args.workingDirectory))
+		{
 			return args.workingDirectory;
 		}
 
 		const programDirectory = dirname(args.program);
-		if(OctaveDebugSession.validDirectory(programDirectory)) {
+		if(Runtime.validDirectory(programDirectory)) {
 			return programDirectory;
 		}
 
-		if(OctaveDebugSession.validDirectory(args.sourceFolder)) {
+		// If the debugger was already running we could find the directory of the "program"
+		if(args.sourceFolder !== undefined
+			&& Runtime.validDirectory(args.sourceFolder))
+		{
 			return args.sourceFolder;
 		}
 
@@ -228,11 +228,15 @@ class OctaveDebugSession extends LoggingDebugSession {
 		args: LaunchRequestArguments
 	)
 	{
-		Variables.setChunkPrefetch(args.prefetchCount);
 		OctaveLogger.setup(args.verbose);
 		Variables.evaluateAns = (args.evaluateAns !== undefined && args.evaluateAns);
+		if(args.prefetchCount !== undefined) {
+			Variables.setChunkPrefetch(args.prefetchCount);
+		}
 
-		this.setupRuntime(args.octave, args.sourceFolder);
+		this.setupRuntime(
+			(args.octave !== undefined? args.octave : Constants.DEFAULT_EXECUTABLE),
+			(args.sourceFolder !== undefined? args.sourceFolder : ''));
 		const workingDirectory = OctaveDebugSession.getWorkingDirectory(args);
 
 		if(this.runtimeConnected()) {
@@ -466,7 +470,8 @@ class OctaveDebugSession extends LoggingDebugSession {
 
 		this._runtime.execute(cmd, (commandOutput: string) => {
 			if(this._stepping) {
-				this.sendEvent(new TerminatedEvent());
+				// _stepping wasn't cleared by a breakpoint interrupt so the program terminated
+				this.sendTerminatedEvent();
 				this._stepping = false;
 			}
 		});

@@ -5,6 +5,7 @@ import { EventEmitter } from 'events';
 import * as Constants from './Constants';
 import { functionFromPath } from './Utils/misc';
 import { dirname } from 'path';
+import * as fs from 'fs';
 
 
 export class Runtime extends EventEmitter {
@@ -58,8 +59,14 @@ export class Runtime extends EventEmitter {
 
 
 	//**************************************************************************
-	private static validDirectory(dir: string): boolean {
-		return dir !== '' && dir !== '.';
+	public static validDirectory(dir: string): boolean {
+		try {
+			if(dir !== undefined && dir !== '' && dir !== '.') {
+				fs.accessSync(dir, fs.constants.F_OK);
+				return true;
+			}
+		} catch (err) {};
+		return false;
 	}
 
 
