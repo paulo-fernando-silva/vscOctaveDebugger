@@ -168,7 +168,7 @@ export class Variables {
 	): void
 	{
 		runtime.execute(`${name} = ${value}`, (result: string) => {
-			OctaveLogger.log(`setVariable operation result: ${result}`);
+			OctaveLogger.debug(`setVariable operation result: ${result}`);
 			Variables.getValue(name, runtime, callback);
 		});
 	}
@@ -244,7 +244,7 @@ export class Variables {
 	//**************************************************************************
 	public static removeName(name: string, value: string): string {
 		name = Variables.escape(name);
-		value = value.replace(new RegExp(`^(?:ans|${name}) =(?:\n\n)?\s*`), '');
+		value = value.replace(new RegExp(`^(?:ans|${name}) =(?:\n\n)?\\s*`), '');
 		return value.trim();
 	}
 

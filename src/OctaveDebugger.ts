@@ -228,8 +228,8 @@ class OctaveDebugSession extends LoggingDebugSession {
 		args: LaunchRequestArguments
 	)
 	{
-		OctaveLogger.setup(args.trace, args.verbose);
 		Variables.setChunkPrefetch(args.prefetchCount);
+		OctaveLogger.setup(args.verbose);
 		Variables.evaluateAns = (args.evaluateAns !== undefined && args.evaluateAns);
 
 		this.setupRuntime(args.octave, args.sourceFolder);
@@ -469,8 +469,6 @@ class OctaveDebugSession extends LoggingDebugSession {
 				this.sendEvent(new TerminatedEvent());
 				this._stepping = false;
 			}
-
-			OctaveLogger.warn(commandOutput);
 		});
 
 		responseCallback(); // It seems we need to respond immediately.

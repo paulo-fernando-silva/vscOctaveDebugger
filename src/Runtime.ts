@@ -18,9 +18,7 @@ export class Runtime extends EventEmitter {
 	private static readonly TERMINATOR = `end::${Runtime.SYNC}`;
 	private static readonly TERMINATOR_REGEX = new RegExp(`^(?:${Runtime.PROMPT})*${Runtime.TERMINATOR}$`);
 	//**************************************************************************
-	private static defaultOutputCallback = (output: string) => {
-		OctaveLogger.warn(output);
-	};
+	private static defaultOutputCallback = (output: string) => {};
 
 
 	//**************************************************************************
@@ -191,7 +189,7 @@ export class Runtime extends EventEmitter {
 	//**************************************************************************
 	private send(cmd: string) {
 		++this._commandNumber;
-		OctaveLogger.info(`${this._processName}:${this._commandNumber}> ${cmd}`);
+		OctaveLogger.debug(`${this._processName}:${this._commandNumber}> ${cmd}`);
 		this._process.stdin.write(`${cmd}\n`); // \n here is like pressing enter
 	}
 
