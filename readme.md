@@ -42,25 +42,53 @@ More information about debugging with Octave can be found
 ## Using Octave Debugger
 
 * Open a directory containing the project that you want to debug.
-* Switch to the debug view and press the gear dropdown.
-* Click on "debug configuration" and select "OctaveDebugger" from the configuration menu that comes up.
-* You can set "program" parameter to whatever filename / function you want to debug, e.g.:
-    "name": "My configuration",
-    "program": "myFunctionOrScript"
-    Program can be anything that can be evaluated. Can be a "path/to/file.m", or "functionName(value)".
-* Set breakpoints as needed by clicking on the empty space left of the line numbers.
-* Press the 'play' button to start debugging. If you have the default keybindings then F5 should also work.
-If you don't set any breakpoints it'll just run Octave in the DEBUG CONSOLE as if you were running from the terminal.
+* In the debug view click the DEBUG drop-down box and select "Add configuration..."
+* Select "OctaveDebugger" from the menu that pops up.
+* The following is an example of a minimal configuration:
+    "type": "OctaveDebugger",
+    "request": "launch",
+    "name": "My Hello World",
+    "program": "printf('Hello World');"
+* Set breakpoints as needed.
+* Press the DEBUG '▷' button or F5 to start debugging.
 
-Project homepage and source available
-[here](https://github.com/paulo-fernando-silva/vscOctaveDebugger.git).
+
+## Understanding the Debug Session Configuration
+
+* Example configuration:
+    "type": "OctaveDebugger",
+    "request": "launch",
+    "name": "My Debug Config - free text",
+    "program": "file_or_function_name_and_parameters(foo,bar)",
+    "octave": "/path/to/octave-cli",
+    "sourceFolder": "${workspaceFolder}",
+    "workingDirectory": "${workspaceFolder}"
+    "debug": false
+* "octave" must point to the location where "octave-cli" is installed. This parameter is optional, and defaults to "octave-cli" which assumes that "octave-cli" is in your path. If that's not the case make sure to provide the full installation path.
+* "sourceFolder" is and optional parameter that defaults to "${workspaceFolder}". Basically it is added using "addpath()" before starting the "program".
+    For example:
+        "program": "foo",
+        "sourceFolder": "${workspaceFolder}/A/B/C/"
+    is equivalent to
+        "program": "${workspaceFolder}/A/B/C/foo.m"
+* "workingDirectory" is another optional parameter. Octave will switch to this directory before running "program". This allows you to create configurations like:
+    "program": "foo",
+    "sourceFolder": "${workspaceFolder}"
+    "workingDirectory": "${workspaceFolder}/A/B/C/"
+    where program "foo" can exist anywhere under "${workspaceFolder}", but will be executed from "${workspaceFolder}/A/B/C/"
+* "program" can be anything that can be evaluated, e.g. a "path/to/file.m", or "functionName(value)".
+
+
+## Project Homepage
+Source available [here](https://github.com/paulo-fernando-silva/vscOctaveDebugger.git).
 Please submit bugs there too.
 
 
 ## Known Issues
 
-* Can't rely on the value of ans as it changes due to the debugging session.
-* Can't use pause as that would pause debugging. When stepping over a pause it'll be unpaused automatically.
+* ans: Can't rely on the value of ans as it changes due to the debugging session.
+* stdinput: Currently after the first breakpoint is hit no further stdinput can be done as vsc-octave-debugger uses stdio to communicate with the octave process. For example, pause(), input(), etc... will fetch characters from stdin. Since these characters can be part of commands coming from vsc-octave-debugger the input will likely produce meaningless results. This will hopefully be fixed in the future.
+
 
 ## History :)
 
