@@ -1,4 +1,5 @@
 import { Logger, logger } from 'vscode-debugadapter';
+import { timestamp } from './Utils/fsutils';
 
 
 //******************************************************************************
@@ -14,10 +15,19 @@ export class OctaveLogger {
 
 
 	//**************************************************************************
-	public static setup(verbose: boolean | undefined): void {
+	public static setup(
+		verbose: boolean | undefined,
+		filename: string | undefined
+	): void
+	{
 		const logLevel = (verbose? Logger.LogLevel.Verbose : Logger.LogLevel.Log);
 		OctaveLogger.outputEnabled = true;
-		logger.setup(logLevel, false);
+
+		if(filename !== undefined) {
+			logger.setup(logLevel, `${filename}${timestamp()}.txt`, true);
+		} else {
+			logger.setup(logLevel, false);
+		}
 	}
 
 

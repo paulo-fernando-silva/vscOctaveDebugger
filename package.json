@@ -118,12 +118,17 @@
 							"workingDirectory": {
 								"type": "string",
 								"description": "Execute program from this directory. (Optional)",
-								"default": false
+								"default": ""
 							},
 							"verbose": {
 								"type": "boolean",
 								"description": "Turn on debug messages. (Optional)",
 								"default": false
+							},
+							"logFilename": {
+								"type": "string",
+								"description": "Output log to file. Use absolute filename. (Optional)",
+								"default": "${workspaceFolder}/log"
 							}
 						}
 					}
@@ -132,13 +137,10 @@
 					{
 						"type": "OctaveDebugger",
 						"request": "launch",
-						"name": "Ask for file name",
+						"name": "Function or file to execute.",
 						"program": "${command:AskForProgramName}",
 						"octave": "octave-cli",
-						"sourceFolder": "${workspaceFolder}",
-						"workingDirectory": "",
-						"prefetchCount": 1,
-						"trace": false
+						"sourceFolder": "${workspaceFolder}"
 					}
 				],
 				"configurationSnippets": [
@@ -151,10 +153,7 @@
 							"name": "${2:Launch Program}",
 							"program": "^\"\\${command:AskForProgramName}\"",
 							"octave": "octave-cli",
-							"sourceFolder": "^\"\\${workspaceFolder}\"",
-							"workingDirectory": "",
-							"prefetchCount": 1,
-							"trace": false
+							"sourceFolder": "^\"\\${workspaceFolder}\""
 						}
 					}
 				],

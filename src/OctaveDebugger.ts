@@ -12,7 +12,7 @@ import {
 	InitializedEvent, TerminatedEvent, StoppedEvent,
 	Thread, StackFrame, Scope, Breakpoint, Variable
 } from 'vscode-debugadapter';
-import { OctaveLogger } from './Utils/OctaveLogger';
+import { OctaveLogger } from './OctaveLogger';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import * as Constants from './Constants';
 import { Runtime } from './Runtime';
@@ -34,7 +34,7 @@ import { ScalarStruct } from './Variables/ScalarStruct';
 import { Function } from './Variables/Function'
 import { Cell } from './Variables/Cell';
 import { Scope as OctaveScope } from './Variables/Scope';
-import { isMatlabFile } from './Utils/misc';
+import { isMatlabFile, validDirectory } from './Utils/fsutils';
 import { dirname } from 'path';
 
 
@@ -50,6 +50,8 @@ interface LaunchRequestArguments extends DebugProtocol.LaunchRequestArguments {
 	workingDirectory?: string;
 	/** Enable verbose logging the Debug Adapter Protocol. */
 	verbose?: boolean;
+	/** Output verbose logging to file. */
+	logFilename?: string;
 	/** Maximum number of chunks of elements to prefetch. */
 	prefetchCount?: number;
 	/** Enable ans evaluation. */
@@ -71,7 +73,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 
 	//**************************************************************************
 	public constructor() {
-		super(`${Constants.MODULE_NAME}.txt`);
+		super();
 
 		this._stackManager = new StackFramesManager();
 
@@ -121,6 +123,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 			return;
 		}
 
+		OctaveLogger.logToConsole = this._isServer;
 		this._runtime = new Runtime(octave, sourceFolder);
 
 		if(!this.runtimeConnected()) {
@@ -228,7 +231,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 		args: LaunchRequestArguments
 	)
 	{
-		OctaveLogger.setup(args.verbose);
+		OctaveLogger.setup(args.verbose, args.logFilename);
 		Variables.evaluateAns = (args.evaluateAns !== undefined && args.evaluateAns);
 		if(args.prefetchCount !== undefined) {
 			Variables.setChunkPrefetch(args.prefetchCount);

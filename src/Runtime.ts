@@ -1,11 +1,10 @@
-import { OctaveLogger } from './Utils/OctaveLogger';
+import { OctaveLogger } from './OctaveLogger';
 import { spawn, ChildProcess } from 'child_process';
 import { ReadLine, createInterface } from "readline";
 import { EventEmitter } from 'events';
 import * as Constants from './Constants';
-import { functionFromPath } from './Utils/misc';
+import { functionFromPath, validDirectory } from './Utils/fsutils';
 import { dirname } from 'path';
-import * as fs from 'fs';
 
 
 export class Runtime extends EventEmitter {

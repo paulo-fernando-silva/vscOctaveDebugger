@@ -1,4 +1,4 @@
-import { OctaveLogger } from '../Utils/OctaveLogger';
+import { OctaveLogger } from '../OctaveLogger';
 import { Variable } from '../Variables/Variable';
 import { Variables } from '../Variables/Variables';
 import { Matrix } from '../Variables/Matrix';
