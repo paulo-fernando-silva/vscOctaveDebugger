@@ -1,3 +1,11 @@
+## 0.3.15
+* Updated readme.
+* Fixed a long-standing issue between stepping and pause, input, keyboard, and other input commands. Now pause can be used, but one needs to "continue/F5" the execution over those commands, or dbstep and multiple enters in the "DEBUG CONSOLE" as this bypasses the vsc-octave-debugger control commands.
+* Added option "logFilename" for debugging the extension.
+* Added option "verbose" for debugging the extension.
+* Simplified the configuration. Now a minimal config is only the "program" and "name".
+* Refactored the logger. Now user commands show immediately in the DEBUG CONSOLE. Stepping still shows the output only at the end. Will likely change this in the near future.
+
 ## 0.3.14
 * Security update. Upgraded lodash to version 4.17.13 or later.
 
