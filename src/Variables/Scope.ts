@@ -6,7 +6,7 @@ import { Runtime } from '../Runtime';
 // The idea here is that a Scope is a variable that contains other variables.
 export class Scope extends Variable {
 	//**************************************************************************
-	private static readonly HEADER_REGEX = new RegExp(`^(?:${Runtime.PROMPT})*Variables in the current scope:$`);
+	private static readonly HEADER_REGEX = new RegExp(`^Variables in the current scope:$`);
 
 
 	//**************************************************************************
@@ -51,20 +51,20 @@ export class Scope extends Variable {
 		let matchesHeader = false;
 		let vars = '';
 
-		runtime.evaluate(`who ${this.name()}`, (line: string | null) => {
-			if(line === null) {
-				if(vars.length !== 0) {
-					const names = vars.trim().split(/\s+/).sort();
-					Variables.listVariables(names, runtime, callback);
-				} else {
-					callback(new Array<Variable>());
-				}
-			} else {
-				if(matchesHeader && line !== Runtime.PROMPT) {
+		runtime.evaluate(`who ${this.name()}`, (output: string[]) => {
+			output.forEach(line => {
+				if(matchesHeader) {
 					vars += ' ' + line;
 				} else if(line.match(Scope.HEADER_REGEX) !== null) {
 					matchesHeader = true;
 				}
+			});
+
+			if(vars.length !== 0) {
+				const names = vars.trim().split(/\s+/).sort();
+				Variables.listVariables(names, runtime, callback);
+			} else {
+				callback(new Array<Variable>());
 			}
 		});
 	}

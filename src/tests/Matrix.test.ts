@@ -260,7 +260,7 @@ const value =
 			OctaveLogger.logToConsole = true;
 			runtime = new Runtime(Constants.DEFAULT_EXECUTABLE, '.');
 			const cmd = `${name} = [${vectors[0]},${vectors[1]}];`;
-			runtime.execute(cmd, () => {
+			runtime.evaluateAsLine(cmd, (output: string) => {
 				const matrix = new Matrix(name, '', freeIndices, fixedIndices);
 				matrix.fetchAllChildren(runtime, (parsedChildren: Array<Matrix>) => {
 						children = parsedChildren;
@@ -335,7 +335,7 @@ const value =
 			OctaveLogger.logToConsole = true;
 			runtime = new Runtime(Constants.DEFAULT_EXECUTABLE, '.');
 			const cmd = `${name} = sparse([${rows.join(' ')}], [${columns.join(' ')}], [${values.join(' ')}]);`;
-			runtime.execute(cmd, () => {
+			runtime.evaluateAsLine(cmd, (output: string) => {
 				const factory = new SparseMatrix();
 				factory.loadNew(name, factory.typename(), runtime, (sm: SparseMatrix) => {
 					matrix = sm;

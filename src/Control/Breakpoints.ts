@@ -33,17 +33,18 @@ export class Breakpoints {
 				}
 			});
 
-			runtime.evaluate(`dbstop ${fname} ${lines}`, (line: string | null) => {
-				if(line === null) {
-					callback(confirmedBreakpoints);
-				} else {
+			runtime.evaluate(`dbstop ${fname} ${lines}`, (output: string[]) => {
+				output.forEach(line => {
 					const match = line.match(/^(?:ans =)?\s*((?:\d+\s*)+)$/);
+
 					if(match !== null && match.length === 2) {
 						const lines = match[1].split(' ').filter((val) => val);
 						const octaveBreakpoints = lines.map(l => this.toBreakpoint(l));
 						octaveBreakpoints.forEach(b => confirmedBreakpoints.push(b));
 					}
-				}
+				});
+
+				callback(confirmedBreakpoints);
 			});
 		} else {
 			callback(confirmedBreakpoints);
@@ -100,18 +101,19 @@ export class Breakpoints {
 	{
 		const fname = functionFromPath(path);
 		const breakpointRegEx =
-		new RegExp(`^(?:${Runtime.PROMPT})*breakpoint[s]? in ${fname}(?:>\\w+)*? at line[s]? ((?:\\d+ )+)$`);
+			new RegExp(`^breakpoint[s]? in ${fname}(?:>\\w+)*? at line[s]? ((?:\\d+ ?)+)$`);
 		let lines = '';
 
-		runtime.evaluate(`dbstatus ${fname}`, (line: string | null) => {
-			if(line === null) {
-				callback(lines.trim());
-			} else {
+		runtime.evaluate(`dbstatus ${fname}`, (output: string[]) => {
+			output.forEach(line => {
 				const match = line.match(breakpointRegEx);
+
 				if(match !== null && match.length === 2) {
 					lines += match[1];
 				}
-			}
+			});
+
+			callback(lines.trim());
 		});
 	}
 }

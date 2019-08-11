@@ -16,7 +16,10 @@ export class Expression {
 	{
 		if(ctx === Constants.CTX_CONSOLE) {
 			// Console just passes through.
-			runtime.execute(expression, callback);
+			runtime.execute(expression);
+			// We don't send anything back now as any output will be written on the console anyway.
+			// This also avoids the issue with the pause, input, etc.
+			callback('');
 		} else if(ctx === Constants.CTX_WATCH) {
 			Expression.loadAsVariable(expression, runtime, callback);
 		} else {
@@ -83,8 +86,8 @@ export class Expression {
 		callback: (info: string | undefined) => void
 	): void
 	{
-		runtime.execute(expression, (value: string) => {
-			callback(Variables.removeName(expression, value));
+		runtime.evaluateAsLine(expression, (output: string) => {
+			callback(Variables.removeName(expression, output));
 		});
 	}
 
@@ -104,18 +107,19 @@ export class Expression {
 		let val: string | undefined = undefined;
 		let type: string | undefined = undefined;
 
-		runtime.evaluate(`which ${expression}`, (line: string | null) => {
-			if(line === null) {
-				callback(val, type);
-			} else {
+		runtime.evaluate(`which ${expression}`, (output: string[]) => {
+			output.forEach(line => {
 				const match = line.match(typeRegex);
+
 				if(match !== null) {
-					val = Runtime.clean(line);
+					val = line;
 					type = match[1];
-				} else if(val === undefined && Runtime.clean(line).length !== 0) {
+				} else if(val === undefined && line.length !== 0) {
 					val = '';
 				}
-			}
+			});
+
+			callback(val, type);
 		});
 	}
 }

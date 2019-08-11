@@ -104,7 +104,7 @@ export class SparseMatrix extends Matrix {
 			const end = begin + count - 1;
 			// matlab indices start at 1
 			const exp = `${this.name()}(find(${this.name()})(${begin}:${end}))`;
-			runtime.execute(exp, (value: string) => {
+			runtime.evaluateAsLine(exp, (value: string) => {
 				this.parseChildren(value, offset, count, (children: Array<Variable>) => {
 					callback(children);
 				});
@@ -129,8 +129,9 @@ export class SparseMatrix extends Matrix {
 		const begin = 1 + offset;
 		const end = begin + count - 1;
 		const idxExp = `find(${this.name()})(${begin}:${end})`;
-		runtime.execute(idxExp, (value: string) => {
-			const values = Variables.clean(value).split('\n').filter((val) => val);
+		runtime.evaluate(idxExp, (output: string[]) => {
+			output[0] = Variables.clean(output[0]);
+			const values = output.filter((val) => val);
 			const indices = values.map(i => parseInt(i));
 
 			for(let i = 0; i !== indices.length; ++i) {

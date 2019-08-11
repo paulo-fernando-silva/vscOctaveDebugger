@@ -42,7 +42,7 @@ export class StackFramesManager {
 	): void
 	{
 		if(n > 0) {
-			runtime.execute(`dbup ${n}`, callback);
+			runtime.evaluate(`dbup ${n}`, (output: string[]) => { callback(); });
 		} else {
 			OctaveLogger.error(`Error: up(${n})!`);
 		}
@@ -57,7 +57,7 @@ export class StackFramesManager {
 	): void
 	{
 		if(n > 0) {
-			runtime.execute(`dbdown ${n}`, callback);
+			runtime.evaluate(`dbdown ${n}`, (output: string[]) => { callback(); });
 		} else {
 			OctaveLogger.error(`Error: down(${n})!`);
 		}
@@ -81,11 +81,10 @@ debug>
 	): void
 	{
 		const stackframes = new Array<StackFrame>();
-		runtime.evaluate('dbstack;', (line: string | null) => {
-			if(line === null) {
-				callback(stackframes);
-			} else {
+		runtime.evaluate('dbstack;', (output: string[]) => {
+			output.forEach(line => {
 				const match = line.match(/^\s*(?:-->)?\s*(\w+)(?:>(\w+))*? at line (\d+) \[(.*)\]$/);
+
 				if(match !== null && match.length > 1) {
 					const functionName = match[match.length - 3];
 					const name = (functionName !== undefined? functionName : match[1]);
@@ -95,7 +94,9 @@ debug>
 					const frame = new StackFrame(id, name, source, lineNumber);
 					stackframes.push(frame);
 				}
-			}
+			});
+
+			callback(stackframes);
 		});
 	}
 }

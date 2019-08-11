@@ -94,15 +94,16 @@ export class ScalarStruct extends Variable {
 	): void
 	{
 		let fieldnames = new Array<string>();
-		runtime.evaluate(`fieldnames(${name})`, (line: string | null) => {
-			if(line === null) {
-				callback(fieldnames);
-			} else {
+		runtime.evaluate(`fieldnames(${name})`, (output: string[]) => {
+			output.forEach(line => {
 				const match = line.match(/^(?:\s*\[\d+,1\] = )(\w+)$/);
+
 				if(match !== null && match.length > 1) {
 					fieldnames.push(`${name}.${match[match.length - 1]}`);
 				}
-			}
+			});
+
+			callback(fieldnames);
 		});
 	}
 }

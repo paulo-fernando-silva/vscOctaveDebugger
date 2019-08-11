@@ -106,10 +106,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 
 	//**************************************************************************
 	private sendTerminatedEvent() {
-		// This seems to be deprecated. How do I check if we're being debugged?
-		if(!this._isServer) {
-			this.sendEvent(new TerminatedEvent());
-		}
+		this.sendEvent(new TerminatedEvent());
 	}
 
 
@@ -203,21 +200,17 @@ class OctaveDebugSession extends LoggingDebugSession {
 
 	//**************************************************************************
 	private static getWorkingDirectory(args: LaunchRequestArguments): string {
-		if(args.workingDirectory !== undefined
-			&& Runtime.validDirectory(args.workingDirectory))
-		{
+		if(args.workingDirectory !== undefined && validDirectory(args.workingDirectory)) {
 			return args.workingDirectory;
 		}
 
 		const programDirectory = dirname(args.program);
-		if(Runtime.validDirectory(programDirectory)) {
+		if(validDirectory(programDirectory)) {
 			return programDirectory;
 		}
 
 		// If the debugger was already running we could find the directory of the "program"
-		if(args.sourceFolder !== undefined
-			&& Runtime.validDirectory(args.sourceFolder))
-		{
+		if(args.sourceFolder !== undefined && validDirectory(args.sourceFolder)) {
 			return args.sourceFolder;
 		}
 
@@ -465,21 +458,24 @@ class OctaveDebugSession extends LoggingDebugSession {
 
 
 	//**************************************************************************
-	protected stepWith(cmd: string, responseCallback: () => void): void {
+	protected stepWith(cmd: string): void {
 		// TODO: flush ongoing commands
 		this._stepping = true;
 		const currStep = ++this._stepCount;
 		OctaveLogger.debug(`stepRequest: request '${currStep}'`);
 
-		this._runtime.execute(cmd, (commandOutput: string) => {
+		this._runtime.evaluateAsLine(cmd, (output: string) => {
+			OctaveLogger.log(output);
 			if(this._stepping) {
-				// _stepping wasn't cleared by a breakpoint interrupt so the program terminated
-				this.sendTerminatedEvent();
 				this._stepping = false;
+				this._runtime.evaluateAsLine('dbwhere', (output: string) => {
+					if(output.match(/stopped at top level/)) {
+						this.sendTerminatedEvent();
+					}
+				});
 			}
 		});
 
-		responseCallback(); // It seems we need to respond immediately.
 		OctaveLogger.debug(`stepRequest: response '${currStep}'`);
 	}
 
@@ -490,7 +486,8 @@ class OctaveDebugSession extends LoggingDebugSession {
 		args: DebugProtocol.ContinueArguments
 	): void
 	{
-		this.stepWith('dbcont', () => { this.sendResponse(response); });
+		this._runtime.execute('dbcont');
+		this.sendResponse(response);
 	}
 
 
@@ -500,7 +497,8 @@ class OctaveDebugSession extends LoggingDebugSession {
 		args: DebugProtocol.NextArguments
 	): void
 	{
-		this.stepWith('dbstep', () => { this.sendResponse(response); });
+		this.stepWith('dbstep');
+		this.sendResponse(response);
 	}
 
 
@@ -510,7 +508,8 @@ class OctaveDebugSession extends LoggingDebugSession {
 		args: DebugProtocol.StepInArguments
 	): void
 	{
-		this.stepWith('dbstep in', () => { this.sendResponse(response); });
+		this.stepWith('dbstep in');
+		this.sendResponse(response);
 	}
 
 
@@ -520,7 +519,8 @@ class OctaveDebugSession extends LoggingDebugSession {
 		args: DebugProtocol.StepOutArguments
 	): void
 	{
-		this.stepWith('dbstep out', () => { this.sendResponse(response); });
+		this.stepWith('dbstep out');
+		this.sendResponse(response);
 	}
 
 

@@ -51,6 +51,7 @@ More information about debugging with Octave can be found
     "program": "printf('Hello World');"
 * Set breakpoints as needed.
 * Press the DEBUG '▷' button or F5 to start debugging.
+* Open the "DEBUG CONSOLE" to view any output from your program or to interact with it. Commands will be sent directly to octave.
 
 
 ## Understanding the Debug Session Configuration
@@ -87,7 +88,7 @@ Please submit bugs there too.
 ## Known Issues
 
 * ans: Can't rely on the value of ans as it changes due to the debugging session.
-* stdinput: Currently after the first breakpoint is hit no further stdinput can be done as vsc-octave-debugger uses stdio to communicate with the octave process. For example, pause(), input(), etc... will fetch characters from stdin. Since these characters can be part of commands coming from vsc-octave-debugger the input will likely produce meaningless results. This will hopefully be fixed in the future.
+* stdinput: Currently if you're stepping you can't rely on stdinput from your matlab/octave code. The reason is that vsc-octave-debugger uses stdio to communicate with the octave process. For example, pause(), input(), keyboard(), etc... will fetch characters from stdin, and since these characters can be part of commands coming from vsc-octave-debugger the input will likely produce meaningless results. This will hopefully be fixed in the future. If you need input place a breakpoint after the input, and use continue to step over it.
 
 
 ## History :)
