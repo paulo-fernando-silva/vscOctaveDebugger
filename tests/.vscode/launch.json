@@ -13,7 +13,6 @@
             "sourceFolder": "${workspaceFolder}",
             "prefetchCount": 1,
             "debugServer": 4711,
-            "trace": true,
             "verbose": true
         }
     ]
