@@ -7,7 +7,12 @@ const MATLAB_EXT = '.m';
 
 //**************************************************************************
 export const functionFromPath = (path: string): string => {
-	return basename(path, MATLAB_EXT);
+	// check if it's indeed a path, and if so return the filename
+	// TODO: check if file exists?
+	if(path.endsWith(MATLAB_EXT)) {
+		return basename(path, MATLAB_EXT);
+	}
+	return path;
 };
 
 
