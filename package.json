@@ -1,7 +1,7 @@
 {
 	"name": "vsc-octave-debugger",
 	"displayName": "Octave Debugger",
-	"version": "0.3.15",
+	"version": "0.3.16",
 	"publisher": "paulosilva",
 	"description": "Octave debugger adapter for vsc.",
 	"author": {
@@ -129,6 +129,11 @@
 								"type": "string",
 								"description": "Output log to file. Use absolute filename. (Optional)",
 								"default": "${workspaceFolder}/log"
+							},
+							"autoTerminate": {
+								"type": "boolean",
+								"description": "Defaults to true, i.e. octave process will be terminated after the last program line is executed. Setting this to false will allow the program to continue executing. This is useful if you're running UI elements with callbacks and you want to continue debugging after the end of the program code. (Optional)",
+								"default": true
 							}
 						}
 					}
@@ -140,7 +145,8 @@
 						"name": "Function or file to execute.",
 						"program": "${command:AskForProgramName}",
 						"octave": "octave-cli",
-						"sourceFolder": "${workspaceFolder}"
+						"sourceFolder": "${workspaceFolder}",
+						"autoTerminate": true
 					}
 				],
 				"configurationSnippets": [
@@ -153,7 +159,8 @@
 							"name": "${2:Launch Program}",
 							"program": "^\"\\${command:AskForProgramName}\"",
 							"octave": "octave-cli",
-							"sourceFolder": "^\"\\${workspaceFolder}\""
+							"sourceFolder": "^\"\\${workspaceFolder}\"",
+							"autoTerminate": true
 						}
 					}
 				],

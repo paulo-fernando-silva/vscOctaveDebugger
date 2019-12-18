@@ -1,3 +1,9 @@
+## 0.3.16
+* Updated readme.
+* Added autoTerminate to launch.json to control if octave terminates automatically when the last program instruction is executed. Default value is true, i.e. octave process will be terminated after the last program line is executed. Setting this to false will allow the program to continue executing.
+* Fixes issue #25 basename fails when path is not a path, but includes a path-like structure.
+* Fixes issue with https-proxy-agent.
+
 ## 0.3.15
 * Updated readme.
 * Fixed a long-standing issue between stepping and pause, input, keyboard, and other input commands. Now pause can be used, but one needs to "continue/F5" the execution over those commands, or dbstep and multiple enters in the "DEBUG CONSOLE" as this bypasses the vsc-octave-debugger control commands.
