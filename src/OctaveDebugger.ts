@@ -48,7 +48,7 @@ interface LaunchRequestArguments extends DebugProtocol.LaunchRequestArguments {
 	sourceFolder?: string;
 	/** Absolute path to the desired working directory. Defaults to program location. */
 	workingDirectory?: string;
-	/** Enable verbose logging the Debug Adapter Protocol. */
+	/** Enable verbose logging of the Debug Adapter Protocol. */
 	verbose?: boolean;
 	/** Output verbose logging to file. */
 	logFilename?: string;
@@ -56,6 +56,8 @@ interface LaunchRequestArguments extends DebugProtocol.LaunchRequestArguments {
 	prefetchCount?: number;
 	/** Enable ans evaluation. */
 	evaluateAns?: boolean;
+	/** Terminates Octave process when debug runs beyond the end of the program. */
+	autoTerminate?: boolean;
 }
 
 
@@ -113,7 +115,8 @@ class OctaveDebugSession extends LoggingDebugSession {
 	//**************************************************************************
 	private setupRuntime(
 		octave: string,
-		sourceFolder: string
+		sourceFolder: string,
+		autoTerminate: boolean
 	)
 	{
 		if(this._runtime) {
@@ -121,7 +124,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 		}
 
 		OctaveLogger.logToConsole = this._isServer;
-		this._runtime = new Runtime(octave, sourceFolder);
+		this._runtime = new Runtime(octave, sourceFolder, autoTerminate);
 
 		if(!this.runtimeConnected()) {
 			OctaveLogger.warn(`Could not connect to '${octave}'! Check path.`);
@@ -219,20 +222,31 @@ class OctaveDebugSession extends LoggingDebugSession {
 
 
 	//**************************************************************************
+	private val(value: any, _default: any): any {
+		if(value !== undefined && value !== null) {
+			return value;
+		}
+		return _default;
+	}
+
+
+	//**************************************************************************
 	protected async launchRequest(
 		response: DebugProtocol.LaunchResponse,
 		args: LaunchRequestArguments
 	)
 	{
 		OctaveLogger.setup(args.verbose, args.logFilename);
-		Variables.evaluateAns = (args.evaluateAns !== undefined && args.evaluateAns);
+		Variables.evaluateAns = this.val(args.evaluateAns, false);
+
 		if(args.prefetchCount !== undefined) {
 			Variables.setChunkPrefetch(args.prefetchCount);
 		}
 
 		this.setupRuntime(
-			(args.octave !== undefined? args.octave : Constants.DEFAULT_EXECUTABLE),
-			(args.sourceFolder !== undefined? args.sourceFolder : ''));
+			this.val(args.octave, Constants.DEFAULT_EXECUTABLE),
+			this.val(args.sourceFolder, ''),
+			this.val(args.autoTerminate, true));
 		const workingDirectory = OctaveDebugSession.getWorkingDirectory(args);
 
 		if(this.runtimeConnected()) {
@@ -460,7 +474,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 	//**************************************************************************
 	protected stepWith(cmd: string): void {
 		// TODO: flush ongoing commands
-		this._stepping = true;
+		this._stepping = this._runtime.autoTerminate();
 		const currStep = ++this._stepCount;
 		OctaveLogger.debug(`stepRequest: request '${currStep}'`);
 

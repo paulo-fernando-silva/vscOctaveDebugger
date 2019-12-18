@@ -30,6 +30,7 @@ export class Runtime extends EventEmitter {
 	private _processStdout: ReadLine;
 	private _processStderr: ReadLine;
 	private _program: string;
+	private _autoTerminate: boolean;
 
 
 	//**************************************************************************
@@ -124,14 +125,19 @@ export class Runtime extends EventEmitter {
 
 		if(!this._process.connected) {
 			msg += `\nCould not connect to '${this._processName}'.`;
+			this.emit(Constants.eEXIT);
 		}
 
 		if(this._process.killed) {
 			msg += `\nProcess '${this._processName}' was killed.`;
+			this.emit(Constants.eEXIT);
 		}
 
 		OctaveLogger.debug(msg);
-		this.emit(Constants.eERROR);
+
+		if(this.autoTerminate()) {
+			this.emit(Constants.eERROR);
+		}
 	}
 
 
@@ -146,7 +152,7 @@ export class Runtime extends EventEmitter {
 
 	//**************************************************************************
 	private terminated(data: string): boolean {
-		if(data.match(Runtime.TERMINATOR_REGEX) !== null) {
+		if(this.autoTerminate() && data.match(Runtime.TERMINATOR_REGEX) !== null) {
 			OctaveLogger.debug(`Runtime: program ${this._program} exited normally.`);
 			this.emit(Constants.eEND);
 			return true;
@@ -164,16 +170,18 @@ export class Runtime extends EventEmitter {
 	//**************************************************************************
 	public constructor(
 		processName: string,
-		sourceFolder: string
+		sourceFolder: string,
+		autoTerminate = true
 	)
 	{
 		super();
 		this._processName = processName;
+		this._autoTerminate = autoTerminate;
 
 		this.connect();
 
 		if(this.connected()) {
-			this.execute('debug_on_error;debug_on_warning;debug_on_interrupt;');
+			// this.execute('debug_on_error;debug_on_warning;debug_on_interrupt;');
 			this.addFolder(sourceFolder);
 		}
 	}
@@ -290,6 +298,12 @@ export class Runtime extends EventEmitter {
 		this._process.stdin.write(`${expression}\n`);
 		// We keep track of the commands sent through
 		++this._commandNumber;
+	}
+
+
+	//**************************************************************************
+	public autoTerminate(): boolean {
+		return this._autoTerminate;
 	}
 
 
