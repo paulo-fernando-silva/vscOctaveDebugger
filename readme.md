@@ -45,40 +45,56 @@ More information about debugging with Octave can be found
 * In the debug view click the DEBUG drop-down box and select "Add configuration..."
 * Select "OctaveDebugger" from the menu that pops up.
 * The following is an example of a minimal configuration:
+
+>
     "type": "OctaveDebugger",
     "request": "launch",
     "name": "My Hello World",
     "program": "printf('Hello World');"
+
 * Set breakpoints as needed.
 * Press the DEBUG '▷' button or F5 to start debugging.
 * Open the "DEBUG CONSOLE" to view any output from your program or to interact with it. Commands will be sent directly to octave.
-
+Note that octave-cli must be instaleld on your system. You can download it [here](https://www.gnu.org/software/octave/download.html).
 
 ## Understanding the Debug Session Configuration
 
 * Example configuration:
+
+>
     "type": "OctaveDebugger",
     "request": "launch",
     "name": "My Debug Config - free text",
     "program": "file_or_function_name_and_parameters(foo,bar)",
     "octave": "/path/to/octave-cli",
     "sourceFolder": "${workspaceFolder}",
-    "workingDirectory": "${workspaceFolder}"
-    "debug": false
+    "workingDirectory": "${workspaceFolder}",
+    "autoTerminate": true
+
 * "octave" must point to the location where "octave-cli" is installed. This parameter is optional, and defaults to "octave-cli" which assumes that "octave-cli" is in your path. If that's not the case make sure to provide the full installation path.
-* "sourceFolder" is and optional parameter that defaults to "${workspaceFolder}". Basically it is added using "addpath()" before starting the "program".
-    For example:
+* "sourceFolder" is an optional parameter that defaults to "${workspaceFolder}". Basically it is added using "addpath()" before starting the "program".
+
+For example:
+
+>
         "program": "foo",
         "sourceFolder": "${workspaceFolder}/A/B/C/"
-    is equivalent to
+
+is equivalent to
+
+>
         "program": "${workspaceFolder}/A/B/C/foo.m"
+
 * "workingDirectory" is another optional parameter. Octave will switch to this directory before running "program". This allows you to create configurations like:
+
     "program": "foo",
     "sourceFolder": "${workspaceFolder}"
     "workingDirectory": "${workspaceFolder}/A/B/C/"
-    where program "foo" can exist anywhere under "${workspaceFolder}", but will be executed from "${workspaceFolder}/A/B/C/"
-* "program" can be anything that can be evaluated, e.g. a "path/to/file.m", or "functionName(value)".
 
+    where program "foo" can exist anywhere under "${workspaceFolder}", but will be executed from "${workspaceFolder}/A/B/C/"
+
+* "program" can be anything that can be evaluated, e.g. a "path/to/file.m", or "functionName(value)".
+* "autoTerminate" Setting this to false will allow the program to continue executing after the last line of code is excuted. This is useful if you're running UI elements with callbacks and you want to continue debugging after the end of the program code.
 
 ## Project Homepage
 Source available [here](https://github.com/paulo-fernando-silva/vscOctaveDebugger.git).
@@ -87,8 +103,8 @@ Please submit bugs there too.
 
 ## Known Issues
 
-* ans: Can't rely on the value of ans as it changes due to the debugging session.
-* stdinput: Currently if you're stepping you can't rely on stdinput from your matlab/octave code. The reason is that vsc-octave-debugger uses stdio to communicate with the octave process. For example, pause(), input(), keyboard(), etc... will fetch characters from stdin, and since these characters can be part of commands coming from vsc-octave-debugger the input will likely produce meaningless results. This will hopefully be fixed in the future. If you need input place a breakpoint after the input, and use continue to step over it.
+* ans: Is not displayed in the variables view by default. You can still output it in the console of watch view.
+* stdinput: Currently if you're stepping you can't rely on stdinput from your matlab/octave code. You can use pause, as long as it's not during a "step over", "step into" and "step out". That is, if you press F5 (continue) the pause will wait for your input in the DEBUG CONSOLE. Same for input(), keyboard(), etc. In the limit you can also step over/into/out using the DEBUG CONSOLE, by typing dbstep and enter. Then each new enter should work as a step directly. This is the way octave-cli works by default. Since the DEBUG CONSOLE just forwards your commands to octave-cli you can interact with it as if it was a normal terminal.
 
 
 ## History :)
