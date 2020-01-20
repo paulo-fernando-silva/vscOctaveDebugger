@@ -36,7 +36,7 @@ That expression will be evaluated and if successful the variable will be updated
 You can also submit any command you like through the debug console as if it you were typing directly into Octave.
 
 More information about debugging with Octave can be found
-[here](https://www.gnu.org/software/octave/doc/v4.0.0/Debugging.html).
+[here](https://octave.org/doc/v5.1.0/Debugging.html).
 
 
 ## Using Octave Debugger
