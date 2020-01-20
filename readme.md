@@ -87,6 +87,7 @@ is equivalent to
 
 * "workingDirectory" is another optional parameter. Octave will switch to this directory before running "program". This allows you to create configurations like:
 
+>
     "program": "foo",
     "sourceFolder": "${workspaceFolder}"
     "workingDirectory": "${workspaceFolder}/A/B/C/"
