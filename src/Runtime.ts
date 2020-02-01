@@ -189,10 +189,9 @@ export class Runtime extends EventEmitter {
 
 	//**************************************************************************
 	public addFolder(sourceFolder: string): void {
+		// We can pass multiple directories here separated by :
 		// This allows us to run code from anywhere on our HD.
-		if(validDirectory(sourceFolder)) {
-			this.execute(`addpath('${sourceFolder}')`);
-		}
+		this.execute(`addpath('${sourceFolder}')`);
 	}
 
 
