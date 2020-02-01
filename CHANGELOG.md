@@ -1,3 +1,7 @@
+## 0.3.17
+* Updated readme.
+* Fixed support for multiple source directories.
+
 ## 0.3.16
 * Updated readme.
 * Added autoTerminate to launch.json to control if octave terminates automatically when the last program instruction is executed. Default value is true, i.e. octave process will be terminated after the last program line is executed. Setting this to false will allow the program to continue executing.
