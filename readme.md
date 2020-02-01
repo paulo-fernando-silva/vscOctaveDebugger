@@ -42,8 +42,8 @@ More information about debugging with Octave can be found
 ## Using Octave Debugger
 
 * Open a directory containing the project that you want to debug.
-* In the debug view click the DEBUG drop-down box and select "Add configuration..."
-* Select "OctaveDebugger" from the menu that pops up.
+* In the debug view click the DEBUG drop-down box and select `"Add configuration..."`
+* Select `"OctaveDebugger"` from the menu that pops up.
 * The following is an example of a minimal configuration:
 
 >
@@ -54,7 +54,7 @@ More information about debugging with Octave can be found
 
 * Set breakpoints as needed.
 * Press the DEBUG '▷' button or F5 to start debugging.
-* Open the "DEBUG CONSOLE" to view any output from your program or to interact with it. Commands will be sent directly to octave.
+* Open the `DEBUG CONSOLE` to view any output from your program or to interact with it. Commands will be sent directly to octave.
 Note that octave-cli must be instaleld on your system. You can download it [here](https://www.gnu.org/software/octave/download.html).
 
 ## Understanding the Debug Session Configuration
@@ -67,12 +67,12 @@ Note that octave-cli must be instaleld on your system. You can download it [here
     "name": "My Debug Config - free text",
     "program": "file_or_function_name_and_parameters(foo,bar)",
     "octave": "/path/to/octave-cli",
-    "sourceFolder": "${workspaceFolder}",
+    "sourceFolder": "${workspaceFolder}:/usr/local/matlab/code:/opt/local/matlab/more_code",
     "workingDirectory": "${workspaceFolder}",
     "autoTerminate": true
 
-* "octave" must point to the location where "octave-cli" is installed. This parameter is optional, and defaults to "octave-cli" which assumes that "octave-cli" is in your path. If that's not the case make sure to provide the full installation path.
-* "sourceFolder" is an optional parameter that defaults to "${workspaceFolder}". Basically it is added using "addpath()" before starting the "program".
+* `"octave"` must point to the location where `"octave-cli"` is installed. This parameter is optional, and defaults to `"octave-cli"` which assumes that `"octave-cli"` is in your path. If that's not the case make sure to provide the full installation path.
+* `"sourceFolder"` is an optional parameter that defaults to `"${workspaceFolder}"`. Basically it is added using `"addpath()"` before starting the `"program"`. More than one directory can be added by separating them with `pathsep()` which defaults to `:`.
 
 For example:
 
@@ -85,7 +85,7 @@ is equivalent to
 >
         "program": "${workspaceFolder}/A/B/C/foo.m"
 
-* "workingDirectory" is another optional parameter. Octave will switch to this directory before running "program". This allows you to create configurations like:
+* `"workingDirectory"` is another optional parameter. Octave will switch to this directory before running `"program"`. This allows you to create configurations like:
 
 >
     "program": "foo",
@@ -94,8 +94,8 @@ is equivalent to
 
     where program "foo" can exist anywhere under "${workspaceFolder}", but will be executed from "${workspaceFolder}/A/B/C/"
 
-* "program" can be anything that can be evaluated, e.g. a "path/to/file.m", or "functionName(value)".
-* "autoTerminate" Setting this to false will allow the program to continue executing after the last line of code is excuted. This is useful if you're running UI elements with callbacks and you want to continue debugging after the end of the program code.
+* `"program"` can be anything that can be evaluated, e.g. a `"path/to/file.m"`, or `"functionName(value)"`.
+* `"autoTerminate"` Setting this to false will allow the program to continue executing after the last line of code is excuted. This is useful if you're running for example UI elements with callbacks and you want to continue debugging after the end of the program code. You'll need to stop the debug session manually by pressing the □ button.
 
 ## Project Homepage
 Source available [here](https://github.com/paulo-fernando-silva/vscOctaveDebugger.git).
@@ -105,7 +105,7 @@ Please submit bugs there too.
 ## Known Issues
 
 * ans: Is not displayed in the variables view by default. You can still output it in the console of watch view.
-* stdinput: Currently if you're stepping you can't rely on stdinput from your matlab/octave code. You can use pause, as long as it's not during a "step over", "step into" and "step out". That is, if you press F5 (continue) the pause will wait for your input in the DEBUG CONSOLE. Same for input(), keyboard(), etc. In the limit you can also step over/into/out using the DEBUG CONSOLE, by typing dbstep and enter. Then each new enter should work as a step directly. This is the way octave-cli works by default. Since the DEBUG CONSOLE just forwards your commands to octave-cli you can interact with it as if it was a normal terminal.
+* stdinput: Currently if you're stepping you can't rely on stdinput from your matlab/octave code. You can use pause, as long as it's not during a `step over`, `step into` and `step out`. That is, if you press F5 (continue) the pause will wait for your input in the `DEBUG CONSOLE`. Same for `input()`, `keyboard()`, etc. You can also step over/into/out using the `DEBUG CONSOLE`, by typing dbstep and enter. Then each new enter should work as a step directly. This is the way octave-cli works by default. Since the DEBUG CONSOLE just forwards your commands to octave-cli you can interact with it as if it was a normal terminal.
 
 
 ## History :)
@@ -123,7 +123,7 @@ A debug session follows these steps
  * Debug session begin or step
  * Request stack frames comes in
  * Request scopes for selected frame comes in (usually 0, the top frame, but can go up to n where n is the current stack frames depth).
- * Request variables for current open scopes comes in (scope reference is only fetched if > 0) If scope is different than 0, then we need to do a dbup or dbdown before fetching the variables.
+ * Request variables for current open scopes comes in (scope reference is only fetched if > 0) If scope is different than 0, then we need to do a `dbup` or `dbdown` before fetching the variables.
  * Request child variables as needed (child variable ref > 0)
 
 More information about vscode Debug Adapter Protocol can be found here [DAP](https://microsoft.github.io/debug-adapter-protocol/overview) and the [API](https://code.visualstudio.com/docs/extensionAPI/api-debugging), and information on publishing extensions can be found [here](https://code.visualstudio.com/docs/extensions/publish-extension#_publishers-and-personal-access-tokens).
