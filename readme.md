@@ -1,8 +1,8 @@
 # VS Code Octave Debugger
 
 This extension provides debugging support for Octave code (might include Matlab code).
-This is done by interfacing with octave-cli via stdin/stdout. Do read the changelog to know what's new in this version.
-Though this is not necessary to use the extension, I still recommend the following language extensions for [matlab](https://marketplace.visualstudio.com/items?itemName=Gimly81.matlab) and [octave](https://marketplace.visualstudio.com/items?itemName=toasty-technologies.octave).
+This is done by interfacing with `octave-cli` via stdin/stdout. Do read the changelog to know what's new in this version.
+Though this is not necessary to use the extension, I still recommend the following language extension for Octave syntax highlighting, snippets, and most cool code outline [Octave Hacking](https://marketplace.visualstudio.com/items?itemName=apjanke.octave-hacking). If you want Matlab language support you can use [matlab](https://marketplace.visualstudio.com/items?itemName=Gimly81.matlab), though you don't get the outline. The only thing we're missing is F12 "jump to definition" code navigation.
 
 
 **Octave Debugger**
@@ -31,7 +31,7 @@ If a type isn't supported request it on the [project repository](https://github.
 ![Demo](images/OctaveDebugger.gif)
 
 
-If you want to edit the value of a variable be it scalar, array, or structure, you can double click on it in the VARIABLES view, and type in the new value.
+If you want to edit the value of a variable be it scalar, array, or structure, you can double click on it in the `VARIABLES` view, and type in the new value.
 That expression will be evaluated and if successful the variable will be updated with the new value.
 You can also submit any command you like through the debug console as if it you were typing directly into Octave.
 
@@ -42,7 +42,7 @@ More information about debugging with Octave can be found
 ## Using Octave Debugger
 
 * Open a directory containing the project that you want to debug.
-* In the debug view click the DEBUG drop-down box and select `"Add configuration..."`
+* In the debug view click the `DEBUG` drop-down box and select `"Add configuration..."`
 * Select `"OctaveDebugger"` from the menu that pops up.
 * The following is an example of a minimal configuration:
 
@@ -53,9 +53,9 @@ More information about debugging with Octave can be found
     "program": "printf('Hello World');"
 
 * Set breakpoints as needed.
-* Press the DEBUG '▷' button or F5 to start debugging.
+* Press the `DEBUG` '▷' button or F5 to start debugging.
 * Open the `DEBUG CONSOLE` to view any output from your program or to interact with it. Commands will be sent directly to octave.
-Note that octave-cli must be instaleld on your system. You can download it [here](https://www.gnu.org/software/octave/download.html).
+Note that `octave-cli` must be installed on your system. You can download it [here](https://www.gnu.org/software/octave/download.html).
 
 ## Understanding the Debug Session Configuration
 
@@ -95,7 +95,7 @@ is equivalent to
     where program "foo" can exist anywhere under "${workspaceFolder}", but will be executed from "${workspaceFolder}/A/B/C/"
 
 * `"program"` can be anything that can be evaluated, e.g. a `"path/to/file.m"`, or `"functionName(value)"`.
-* `"autoTerminate"` Setting this to false will allow the program to continue executing after the last line of code is excuted. This is useful if you're running for example UI elements with callbacks and you want to continue debugging after the end of the program code. You'll need to stop the debug session manually by pressing the □ button.
+* `"autoTerminate"` Setting this to false will allow the program to continue executing after the last line of code is executed. This is useful if you're running for example UI elements with callbacks and you want to continue debugging after the end of the program code. You'll need to stop the debug session manually by pressing the □ button.
 
 ## Project Homepage
 Source available [here](https://github.com/paulo-fernando-silva/vscOctaveDebugger.git).
@@ -105,7 +105,7 @@ Please submit bugs there too.
 ## Known Issues
 
 * ans: Is not displayed in the variables view by default. You can still output it in the console of watch view.
-* stdinput: Currently if you're stepping you can't rely on stdinput from your matlab/octave code. You can use pause, as long as it's not during a `step over`, `step into` and `step out`. That is, if you press F5 (continue) the pause will wait for your input in the `DEBUG CONSOLE`. Same for `input()`, `keyboard()`, etc. You can also step over/into/out using the `DEBUG CONSOLE`, by typing dbstep and enter. Then each new enter should work as a step directly. This is the way octave-cli works by default. Since the DEBUG CONSOLE just forwards your commands to octave-cli you can interact with it as if it was a normal terminal.
+* stdinput: Currently if you're stepping you can't rely on stdinput from your matlab/octave code. You can use pause, as long as it's not during a `step over`, `step into` and `step out`. That is, if you press F5 (continue) the pause will wait for your input in the `DEBUG CONSOLE`. Same for `input()`, `keyboard()`, etc. You can also step over/into/out using the `DEBUG CONSOLE`, by typing `dbstep` and `RETURN`. Then each new enter should work as a step directly. This is the way `octave-cli` works by default. Since the `DEBUG CONSOLE` just forwards your commands to `octave-cli` you can interact with it as if it was a normal terminal.
 
 
 ## History :)
@@ -114,8 +114,7 @@ I started this project back in December 2017 or January 2018, not quite sure any
 Also check these playlists [Stanford Machine Learning](https://www.youtube.com/watch?v=UzxYlbK2c7E&list=PLA89DCFA6ADACE599), [Caltech Learning from Data](https://www.youtube.com/watch?v=VeKeFIepJBU&list=PLCA2C1469EA777F9A), [Deep Learning tutorial](http://ufldl.stanford.edu/tutorial/), and there's plenty more from MIT and others.
 
 Since I was really into vscode but unfortunately there was no Octave debugger at the time, and since I have a long commute to work, I decided to use that time to develop this adapter.
-It kind of was an on and off development, but I would say that about 80% of it was done on the train while commuting to work. I really would like to thank Andrew and all the openclassroom and other similar projects (e.g. OpenCourseWare), and of course the people behind vscode. The best editor of its genre out there.
-
+It kind of was an on and off development, but I would say that about 80% of it was done on the train while commuting to work. I really would like to thank Andrew and all the openclassroom and other similar projects (e.g. OpenCourseWare), and of course the people behind Octave and vscode.
 
 ## High-Level Description of Inner Workings
 
