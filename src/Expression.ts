@@ -1,7 +1,7 @@
-import { Runtime } from '../Runtime';
-import { Variables } from '../Variables/Variables';
-import { Variable } from '../Variables/Variable';
-import * as Constants from '../Constants';
+import { Runtime } from './Runtime';
+import { Variables } from './Variables/Variables';
+import { Variable } from './Variables/Variable';
+import * as Constants from './Constants';
 
 
 //******************************************************************************

@@ -1,6 +1,6 @@
-import { OctaveLogger } from '../OctaveLogger';
+import { OctaveLogger } from './OctaveLogger';
 import { StackFrame, Source } from 'vscode-debugadapter';
-import { Runtime } from '../Runtime';
+import { Runtime } from './Runtime';
 
 
 export class StackFramesManager {

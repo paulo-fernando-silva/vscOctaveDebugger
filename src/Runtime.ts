@@ -1,6 +1,6 @@
 import { OctaveLogger } from './OctaveLogger';
 import { spawn, ChildProcess } from 'child_process';
-import { ReadLine, createInterface } from "readline";
+import { ReadLine, createInterface } from 'readline';
 import { EventEmitter } from 'events';
 import * as Constants from './Constants';
 import { functionFromPath, validDirectory } from './Utils/fsutils';

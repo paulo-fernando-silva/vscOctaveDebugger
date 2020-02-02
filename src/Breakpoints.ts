@@ -1,8 +1,8 @@
 //******************************************************************************
 import { DebugProtocol } from 'vscode-debugprotocol';
 import { Breakpoint } from 'vscode-debugadapter';
-import { Runtime } from '../Runtime';
-import { functionFromPath } from '../Utils/fsutils';
+import { Runtime } from './Runtime';
+import { functionFromPath } from './Utils/fsutils';
 
 type ConditionalBreakpoint = DebugProtocol.SourceBreakpoint;
 

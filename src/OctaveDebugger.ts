@@ -16,9 +16,9 @@ import { OctaveLogger } from './OctaveLogger';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import * as Constants from './Constants';
 import { Runtime } from './Runtime';
-import { Breakpoints } from './Control/Breakpoints';
-import { Expression } from './Control/Expression';
-import { StackFramesManager } from './Control/StackFramesManager';
+import { Breakpoints } from './Breakpoints';
+import { Expression } from './Expression';
+import { StackFramesManager } from './StackFramesManager';
 import { Variables } from './Variables/Variables';
 import { Variable as OctaveVariable } from './Variables/Variable';
 import { UnknownType } from './Variables/UnknownType'
