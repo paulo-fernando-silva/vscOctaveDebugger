@@ -10,6 +10,14 @@
             "name": "TestOctaveDebugger",
             "program": "TestOctaveDebugger",
             "octave": "octave-cli",
+            "sourceFolder": "${workspaceFolder}"
+        },
+        {
+            "type": "OctaveDebugger",
+            "request": "launch",
+            "name": "Debug Extension",
+            "program": "TestOctaveDebugger",
+            "octave": "octave-cli",
             "sourceFolder": "${workspaceFolder}",
             "prefetchCount": 1,
             "debugServer": 4711,
