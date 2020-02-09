@@ -7,29 +7,49 @@ import { functionFromPath, validDirectory } from './Utils/fsutils';
 import { dirname } from 'path';
 
 
+//**************************************************************************
+class InputHandler {
+	public fn: (str: string) => number;
+	public name: string;
+
+	public constructor(fn: (str: string) => number, name: string) {
+		this.fn = fn;
+		this.name = name;
+	}
+};
+
+//**************************************************************************
+enum Status {
+	NOT_CONSUMING = 0x00000000,
+	BEGUN_CONSUMING = 0x00000001,
+	ENDED_CONSUMING = 0x00000002
+};
+
+//**************************************************************************
+enum MatchIndex {
+	FULL_MATCH,
+	STATUS,
+	CMD_NUMBER,
+	LENGTH
+};
+
+
 export class Runtime extends EventEmitter {
 	//**************************************************************************
 	//#region private
 	//**************************************************************************
 	public static readonly DBG_PROMPT = 'debug> ';
 	//**************************************************************************
-	private static readonly SYNC = `vsc::${Constants.MODULE_NAME}:`;
-	private static readonly SYNC_BEGIN = `begin::${Runtime.SYNC}`;
-	private static readonly SYNC_END = `end::${Runtime.SYNC}`;
-	private static readonly SYNC_BEGIN_REGEX = new RegExp(`${Runtime.SYNC_BEGIN}(\\d+)`);
-	private static readonly SYNC_END_REGEX = new RegExp(`${Runtime.SYNC_END}(\\d+)`);
-	private static readonly SYNC_REGEX = new RegExp(`::${Runtime.SYNC}(\\d+)`);
+	private static readonly SYNC = `vsc::${Constants.MODULE_NAME}`;
+	private static readonly SEP = '::';
+	private static readonly SYNC_REGEX =
+		new RegExp(`(\\d+)${Runtime.SEP}(\\d+)${Runtime.SEP}${Runtime.SYNC}`);
 	//**************************************************************************
 	private static readonly TERMINATOR = `end::${Runtime.SYNC}`;
 	private static readonly TERMINATOR_REGEX = new RegExp(`^${Runtime.TERMINATOR}$`);
-	//**************************************************************************
-	private static readonly NOT_CONSUMING = 0x00000000;
-	private static readonly BEGUN_CONSUMING = 0x00000001;
-	private static readonly ENDED_CONSUMING = 0x00000002;
-
 
 	//**************************************************************************
-	private _inputHandler = new Array<(str: string) => number>();
+	private _inputHandler = new Array<InputHandler>();
 	private _stderrHandler = new Array<(str: string) => boolean>();
 	private _commandNumber = 0;
 	private _processName: string;
@@ -66,26 +86,27 @@ export class Runtime extends EventEmitter {
 
 	//**************************************************************************
 	private isConsumed(data: string): boolean {
-		let consumeCallbackResult = Runtime.NOT_CONSUMING;
+		let consumeCallbackResult = Status.NOT_CONSUMING;
 
 		while(this._inputHandler.length !== 0) {
-			consumeCallbackResult = this._inputHandler[0](data);
+			const handler = this._inputHandler[0];
+			consumeCallbackResult = handler.fn(data);
 
-			if(consumeCallbackResult === Runtime.ENDED_CONSUMING) {
+			if(consumeCallbackResult === Status.ENDED_CONSUMING) {
 				this._inputHandler.shift(); // Done consuming input, remove handler.
 			} else {
 				break; // This handler requires more input so we exit now.
 			}
 		}
 
-		return consumeCallbackResult !== Runtime.NOT_CONSUMING;
+		return consumeCallbackResult !== Status.NOT_CONSUMING;
 	}
 
 
 	//**************************************************************************
 	private isSync(data: string): boolean {
 		const match = data.match(Runtime.SYNC_REGEX);
-		return match !== null && match.length > 1;
+		return match !== null;
 	}
 
 
@@ -271,30 +292,42 @@ export class Runtime extends EventEmitter {
 	public evaluate(expression: string, callback: (lines: string[]) => void) {
 		let commandNumber: number = this._commandNumber; // cache the current command #
 		let lines: string[] = [];
-		let status = Runtime.NOT_CONSUMING;
-		let regex = Runtime.SYNC_BEGIN_REGEX;
+		let status = Status.NOT_CONSUMING;
 
-		this._inputHandler.push((line: string) => {
-			const match = line.match(regex);
-			// pause, input, etc... can consume sync commands
-			// so we need to consider any sync match >= the original one
-			if(match !== null && match.length > 1 && parseInt(match[1]) >= commandNumber) {
-				regex = Runtime.SYNC_END_REGEX;
-				++status;
-				// If we hit the end sync we skip this line on the output
-				if(status === Runtime.ENDED_CONSUMING) {
-					callback(lines);
-					OctaveLogger.debug(lines.join('\n'));
+		this._inputHandler.push(new InputHandler(
+			(line: string) => {
+				const match = line.match(Runtime.SYNC_REGEX);
+				// pause, input, errors, etc... can consume sync commands
+				if(match !== null && match.length === MatchIndex.LENGTH) {
+					const cmdNum = parseInt(match[MatchIndex.CMD_NUMBER]);
+					// check if sync cmd# >= the current cmd#
+					if(cmdNum > commandNumber) {
+						return Status.ENDED_CONSUMING;
+					} else if(cmdNum < commandNumber) {
+						return Status.NOT_CONSUMING;
+					}
+					// cmdNum === commandNumber so update status
+					status = parseInt(match[MatchIndex.STATUS]);
+					// If we hit the end sync we skip this line on the output
+					if(status === Status.ENDED_CONSUMING) {
+						callback(lines);
+						OctaveLogger.debug(lines.join('\n'));
+					}
+				} else if(status === Status.BEGUN_CONSUMING) {
+					lines.push(line);
 				}
-			} else if(status === Runtime.BEGUN_CONSUMING) {
-				lines.push(line);
-			}
 
-			return status;
-		});
+				return status;
+			},
+			`${commandNumber}> ${expression}`
+		));
 
-		const syncBeginCmd = this.echo(`${Runtime.SYNC_BEGIN}${commandNumber}`);
-		const syncEndCmd = this.echo(`${Runtime.SYNC_END}${commandNumber}`);
+		const vars = new Array<string>(MatchIndex.LENGTH);
+		vars[MatchIndex.CMD_NUMBER] = `${commandNumber}${Runtime.SEP}`;
+		vars[MatchIndex.STATUS] = `${Status.BEGUN_CONSUMING}${Runtime.SEP}`;
+		const syncBeginCmd = this.echo(`${vars.join('')}${Runtime.SYNC}`);
+		vars[MatchIndex.STATUS] = `${Status.ENDED_CONSUMING}${Runtime.SEP}`;
+		const syncEndCmd = this.echo(`${vars.join('')}${Runtime.SYNC}`);
 		// The 1st & 3rd cmds don't need \n, as it's included in the echo.
 		// The user expression needs it as it might not have ;
 		this.execute(`${syncBeginCmd}${expression}\n${syncEndCmd}`);
