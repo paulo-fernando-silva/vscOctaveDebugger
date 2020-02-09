@@ -7,6 +7,16 @@ import * as Constants from './Constants';
 //******************************************************************************
 export class Expression {
 	//**************************************************************************
+	private static clean(expression: string): string {
+		if(expression.match(/^'[^']*$/) !== null) {
+			expression = expression.replace('\'', '');
+		}
+
+		return expression;
+	}
+
+
+	//**************************************************************************
 	public static evaluate(
 		expression: string,
 		runtime: Runtime,
@@ -23,12 +33,15 @@ export class Expression {
 		} else if(ctx === Constants.CTX_WATCH) {
 			Expression.loadAsVariable(expression, runtime, callback);
 		} else {
-			Expression.type(expression, runtime,
+			// fixes an issue with vsc not knowing how to parse octave code.
+			// i.e. if you hover 'var', expression will equal 'var
+			const hoverExpression = Expression.clean(expression);
+			Expression.type(hoverExpression, runtime,
 				(value: string | undefined, type: string | undefined) => {
 					if(value === undefined && type === undefined) {
 						callback(Constants.EVAL_UNDEF);
 					} else if(ctx === Constants.CTX_HOVER) {
-						Expression.handleHover(expression, runtime, value, type, callback);
+						Expression.handleHover(hoverExpression, runtime, value, type, callback);
 					} else { // and all the rest
 						Expression.forceEvaluate(expression, runtime, callback);
 					}
@@ -99,10 +112,6 @@ export class Expression {
 		callback: (val: string | undefined, type: string | undefined) => void
 	): void
 	{
-		if(expression.match(/^'[^']*$/) !== null) {
-			expression = expression.replace('\'', '');
-		}
-
 		const typeRegex = new RegExp(`^.*'${expression}' is (?:a|the) (?:built-in )?(\\S+).*$`);
 		let val: string | undefined = undefined;
 		let type: string | undefined = undefined;
