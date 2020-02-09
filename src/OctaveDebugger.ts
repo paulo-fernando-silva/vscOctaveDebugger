@@ -27,6 +27,7 @@ import { Bool } from './Variables/Bool';
 import { SqString } from './Variables/SqString';
 import { Matrix } from './Variables/Matrix';
 import { SparseMatrix } from './Variables/SparseMatrix';
+import { ComplexDiagonalMatrix } from './Variables/ComplexDiagonalMatrix';
 import { LazyIndex } from './Variables/LazyIndex';
 import { Range } from './Variables/Range';
 import { Struct } from './Variables/Struct';
@@ -93,6 +94,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 		Variables.register(new Range());
 		Variables.register(new Scalar());
 		Variables.register(new SparseMatrix()); // Needs to come before matrix to override load
+		Variables.register(new ComplexDiagonalMatrix());
 		Variables.register(new Matrix());
 		Variables.register(new LazyIndex());
 		Variables.register(new Struct());

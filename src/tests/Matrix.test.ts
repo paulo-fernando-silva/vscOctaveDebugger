@@ -34,31 +34,6 @@ describe('Test Matrix', function() {
 
 
 	// ********************************************************************************
-	describe('Matrix.extractValuesLines', function() {
-		const values = [
-			4.6334e-01, 7.9992e-01, 7.4334e-01, 3.5166e-01, 7.7881e-01, 5.7979e-01,
-			4.1951e-02, 4.3208e-01, 1.4571e-01, 3.4048e-01, 3.7403e-01, 6.5560e-01,
-			7.5752e-01
-		];
-const value =
-`Columns 1 through 8:
-
-   ${values[0]}   ${values[1]}   ${values[2]}   ${values[3]}   ${values[4]}   ${values[5]}   ${values[6]}   ${values[7]}
-
- Columns 9 through 13:
-
-   ${values[8]}   ${values[9]}   ${values[10]}   ${values[11]}   ${values[12]}
-`;
-		const expectedValue = `${values[0]}   ${values[1]}   ${values[2]}   ${values[3]}   ${values[4]}   ${values[5]}   ${values[6]}   ${values[7]}${Constants.ROW_ELEMENTS_SEPARATOR}${values[8]}   ${values[9]}   ${values[10]}   ${values[11]}   ${values[12]}`;
-
-		it(`Should match value '${expectedValue}'`, function() {
-			const ans = Matrix.extractValuesLine(value);
-			assert.equal(ans, expectedValue);
-		});
-	});
-
-
-	// ********************************************************************************
 	describe('Matrix.parseAllChildrenOf1DMatrix short', function() {
 		const name = 'm1D';
 		const values = [0.59733, 0.48898, 0.97283];
@@ -102,7 +77,7 @@ const value = `
    ${values[2]}`;
 		const freeIndices = [values.length];
 		const fixedIndices = [2,4,5];
-		const matrix = new Matrix(name, '', freeIndices, fixedIndices, false);
+		const matrix = new Matrix(name, '', freeIndices, fixedIndices, false, "complex matrix");
 		matrix.parseAllChildrenOf1DMatrix(value, (children: Array<Matrix>) => {
 				const expectedChildCount = values.length;
 
@@ -111,7 +86,7 @@ const value = `
 				});
 
 				for(let i = 0; i !== expectedChildCount; ++i) {
-					const val = values[i];
+					const val = values[i].replace(/\s+/g, ''); // complex numbers have no spaces.
 					const child = children[i];
 					const expectedName = `${name}(${i+1},${fixedIndices.join(',')})`;
 					it(`Should match ${i}-th child value ${val}`, function() {
@@ -129,16 +104,16 @@ const value = `
 	// ********************************************************************************
 	describe('Matrix.parseAllChildrenOf2DMatrix', function() {
 		const name = 'm2D';
-		const values = [
-			['0.0720969 + 0.0720969i', '0.8437697 + 0.8437697i', '0.4532340 + 0.4532340i'],
-			['0.3728132 + 0.3728132i', '0.4578918 + 0.4578918i', '0.2673617 + 0.2673617i'],
-			['0.3595750 + 0.3595750i', '0.4374822 + 0.4374822i', '0.2433045 + 0.2433045i'],
-			['0.2571942 + 0.2571942i', '0.8806884 + 0.8806884i', '0.6366056 + 0.6366056i'],
-			['0.0903121 + 0.0903121i', '0.0477089 + 0.0477089i', '0.7309768 + 0.7309768i'],
-			['0.0014517 + 0.0014517i', '0.5637025 + 0.5637025i', '0.7037470 + 0.7037470i'],
-			['0.8455747 + 0.8455747i', '0.0913287 + 0.0913287i', '0.0333014 + 0.0333014i'],
-			['0.3085562 + 0.3085562i', '0.3474878 + 0.3474878i', '0.1476501 + 0.1476501i'],
-			['0.2173087 + 0.2173087i', '0.2924523 + 0.2924523i', '0.4891809 + 0.4891809i']
+		const values = [ // Add some extra spaces to test if those are correctly handled.
+			['0.0720969 +  0.0720969i', '0.8437697 + 0.8437697i', '0.4532340 + 0.4532340i'],
+			['0.3728132 + 0.3728132i', '0.4578918 +  0.4578918i', '0.2673617 + 0.2673617i'],
+			['0.3595750 + 0.3595750i', '0.4374822 + 0.4374822i', '0.2433045 +  0.2433045i'],
+			['0.2571942 +   0.2571942i', '0.8806884 + 0.8806884i', '0.6366056 + 0.6366056i'],
+			['0.0903121 + 0.0903121i', '0.0477089 +   0.0477089i', '0.7309768 + 0.7309768i'],
+			['0.0014517 + 0.0014517i', '0.5637025 + 0.5637025i', '0.7037470 +   0.7037470i'],
+			['0.8455747 +    0.8455747i', '0.0913287 + 0.0913287i', '0.0333014 + 0.0333014i'],
+			['0.3085562 + 0.3085562i', '0.3474878 +    0.3474878i', '0.1476501 + 0.1476501i'],
+			['0.2173087 + 0.2173087i', '0.2924523 + 0.2924523i', '0.4891809 +    0.4891809i']
 		];
 const value =
 `Columns 1 through 3:
@@ -159,21 +134,22 @@ const value =
    ${values[6][1]}   ${values[7][1]}   ${values[8][1]}
    ${values[6][2]}   ${values[7][2]}   ${values[8][2]}
 `;
+		const exp = /(?:\s+([\+\-])\s+)/g; // no spaces in complex values
 		const columns = [
-			values[0].join(Constants.COLUMN_ELEMENTS_SEPARATOR),
-			values[1].join(Constants.COLUMN_ELEMENTS_SEPARATOR),
-			values[2].join(Constants.COLUMN_ELEMENTS_SEPARATOR),
-			values[3].join(Constants.COLUMN_ELEMENTS_SEPARATOR),
-			values[4].join(Constants.COLUMN_ELEMENTS_SEPARATOR),
-			values[5].join(Constants.COLUMN_ELEMENTS_SEPARATOR),
-			values[6].join(Constants.COLUMN_ELEMENTS_SEPARATOR),
-			values[7].join(Constants.COLUMN_ELEMENTS_SEPARATOR),
-			values[8].join(Constants.COLUMN_ELEMENTS_SEPARATOR)
+			values[0].join(Constants.COLUMN_ELEMENTS_SEPARATOR).replace(exp, "$1"),
+			values[1].join(Constants.COLUMN_ELEMENTS_SEPARATOR).replace(exp, "$1"),
+			values[2].join(Constants.COLUMN_ELEMENTS_SEPARATOR).replace(exp, "$1"),
+			values[3].join(Constants.COLUMN_ELEMENTS_SEPARATOR).replace(exp, "$1"),
+			values[4].join(Constants.COLUMN_ELEMENTS_SEPARATOR).replace(exp, "$1"),
+			values[5].join(Constants.COLUMN_ELEMENTS_SEPARATOR).replace(exp, "$1"),
+			values[6].join(Constants.COLUMN_ELEMENTS_SEPARATOR).replace(exp, "$1"),
+			values[7].join(Constants.COLUMN_ELEMENTS_SEPARATOR).replace(exp, "$1"),
+			values[8].join(Constants.COLUMN_ELEMENTS_SEPARATOR).replace(exp, "$1")
 		];
 		// freeIndices.size == two free indices
 		const freeIndices = [columns[0].length, columns.length];
 		const fixedIndices = [4,5]; // 4 and 5 are actually 1-based indices
-		const matrix = new Matrix(name, '', freeIndices, fixedIndices, false);
+		const matrix = new Matrix(name, '', freeIndices, fixedIndices, false, "complex matrix");
 		matrix.parseAllChildrenOf2DMatrix(value, (children: Array<Matrix>) => {
 				const expectedChildCount = columns.length;
 
