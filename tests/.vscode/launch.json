@@ -19,9 +19,7 @@
             "program": "TestOctaveDebugger",
             "octave": "octave-cli",
             "sourceFolder": "${workspaceFolder}",
-            "prefetchCount": 1,
-            "debugServer": 4711,
-            "verbose": true
+            "debugServer": 4711
         }
     ]
 }

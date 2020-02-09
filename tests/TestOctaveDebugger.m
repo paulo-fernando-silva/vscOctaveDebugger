@@ -12,6 +12,12 @@ function TestOctaveDebugger()
 % - conditional breakpoints
 % Todo:
 %
+	cm = 100 * magic(2) + i;
+	cdm = diag([1:10]+i);
+	dg_mt = diag([1:20]);
+	mm = magic(20);
+	permMat = eye(3)(1:3,:);
+
 	s = struct('f', zeros(101,1));
 	ss = [ s s; s s ];
 	
@@ -21,7 +27,6 @@ function TestOctaveDebugger()
 	int64_ = int64(1); uint64_ = uint64(1);
 	float_ = single(1); double_ = double(1);
 	b = logical(1);
-	permMat = eye(3)(1:3,:);
 	f_inl = inline ('x^2 + 2');
 	f_hnd = @bsxfun;
 	printf('hello ');
@@ -32,11 +37,8 @@ function TestOctaveDebugger()
 	sm = sparse([1 2 3], [4 5 6], [-10.2, 5.0, 101])
 	csm = sparse([1 2 3], [4 5 6], [-10.2 + i, 5.0, 101])
 	lsm = sparse(1:400, 201:600, magic(20)(:)); 
-	dg_mt = diag([1:10]);
-	cplx_dg_mt = diag([1:10]+i);
 	manyRowsMatrix = rand(1000, 1);
 	manyColumnsMatrix = rand(3,9,1) * (1 + i);
-	complexMatrix = rand(2,2) + rand(2,2)*i;
 	testNestedFunction();
 	aReallyLongVariableName = 0;
 	s11 = struct('a', 1, 'b', 1);
