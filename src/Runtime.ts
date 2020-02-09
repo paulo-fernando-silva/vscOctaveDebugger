@@ -11,18 +11,25 @@ export class Runtime extends EventEmitter {
 	//**************************************************************************
 	//#region private
 	//**************************************************************************
-	public static readonly PROMPT = 'debug> ';
-	public static readonly PROMPT_REGEX = new RegExp(`^(?:${Runtime.PROMPT})*`);
+	public static readonly DBG_PROMPT = 'debug> ';
 	//**************************************************************************
 	private static readonly SYNC = `vsc::${Constants.MODULE_NAME}:`;
-	private static readonly SYNC_REGEX = new RegExp(`^(?:${Runtime.PROMPT})*\\s*${Runtime.SYNC}(\\d+)`);
+	private static readonly SYNC_BEGIN = `begin::${Runtime.SYNC}`;
+	private static readonly SYNC_END = `end::${Runtime.SYNC}`;
+	private static readonly SYNC_BEGIN_REGEX = new RegExp(`${Runtime.SYNC_BEGIN}(\\d+)`);
+	private static readonly SYNC_END_REGEX = new RegExp(`${Runtime.SYNC_END}(\\d+)`);
+	private static readonly SYNC_REGEX = new RegExp(`::${Runtime.SYNC}(\\d+)`);
 	//**************************************************************************
 	private static readonly TERMINATOR = `end::${Runtime.SYNC}`;
-	private static readonly TERMINATOR_REGEX = new RegExp(`^(?:${Runtime.PROMPT})*${Runtime.TERMINATOR}$`);
+	private static readonly TERMINATOR_REGEX = new RegExp(`^${Runtime.TERMINATOR}$`);
+	//**************************************************************************
+	private static readonly NOT_CONSUMING = 0x00000000;
+	private static readonly BEGUN_CONSUMING = 0x00000001;
+	private static readonly ENDED_CONSUMING = 0x00000002;
 
 
 	//**************************************************************************
-	private _inputHandler = new Array<(str: string) => boolean>();
+	private _inputHandler = new Array<(str: string) => number>();
 	private _stderrHandler = new Array<(str: string) => boolean>();
 	private _commandNumber = 0;
 	private _processName: string;
@@ -34,8 +41,8 @@ export class Runtime extends EventEmitter {
 
 
 	//**************************************************************************
-	private static clean(str: string): string {
-		return str.replace(Runtime.PROMPT_REGEX, '').trim();
+	private static split(str: string): Array<string> {
+		return str.split(this.DBG_PROMPT).filter((val) => val);
 	}
 
 
@@ -59,35 +66,42 @@ export class Runtime extends EventEmitter {
 
 	//**************************************************************************
 	private isConsumed(data: string): boolean {
-		let consumed = this._inputHandler.length !== 0;
+		let consumeCallbackResult = Runtime.NOT_CONSUMING;
 
 		while(this._inputHandler.length !== 0) {
-			const doneConsuming = this._inputHandler.shift();
+			consumeCallbackResult = this._inputHandler[0](data);
 
-			if(doneConsuming === undefined) {
-				OctaveLogger.debug("Error: undefined input handler!");
-				continue; // this should never happen
-			}
-
-			if(!doneConsuming(data)) {
-				this._inputHandler.unshift(doneConsuming);
-				// This handler requires more input so we exit now.
-				break;
+			if(consumeCallbackResult === Runtime.ENDED_CONSUMING) {
+				this._inputHandler.shift(); // Done consuming input, remove handler.
+			} else {
+				break; // This handler requires more input so we exit now.
 			}
 		}
 
-		return consumed;
+		return consumeCallbackResult !== Runtime.NOT_CONSUMING;
+	}
+
+
+	//**************************************************************************
+	private isSync(data: string): boolean {
+		const match = data.match(Runtime.SYNC_REGEX);
+		return match !== null && match.length > 1;
 	}
 
 
 	//**************************************************************************
 	private onStdout(data: string) {
-		data = Runtime.clean(data);
+		const lines = Runtime.split(data);
 
-		if(!this.terminated(data) && !this.isConsumed(data)) {
-			// User data, output immediately.
-			OctaveLogger.log(data);
-		}
+		lines.forEach(line => {
+			if(	!this.terminated(line) &&
+				!this.isConsumed(line) &&
+				!this.isSync(line))
+			{
+				// User data, output immediately.
+				OctaveLogger.log(line);
+			}
+		});
 	}
 
 
@@ -257,34 +271,33 @@ export class Runtime extends EventEmitter {
 	public evaluate(expression: string, callback: (lines: string[]) => void) {
 		let commandNumber: number = this._commandNumber; // cache the current command #
 		let lines: string[] = [];
+		let status = Runtime.NOT_CONSUMING;
+		let regex = Runtime.SYNC_BEGIN_REGEX;
 
 		this._inputHandler.push((line: string) => {
-			const match = line.match(Runtime.SYNC_REGEX);
-			let done = false;
-			let matched = false;
-
-			if(match !== null && match.length > 1) {
-				matched = true;
-				// pause, input, etc... can consume sync commands
-				// so we need to consider any sync match >= the original one
-				done = parseInt(match[1]) >= commandNumber;
-			}
-
-			if(done) {
-				// we hit the sync so skip this line on the output
-				callback(lines);
-				OctaveLogger.debug(lines.join('\n'));
-			} else if(matched) {
-				lines = []; // just hit a sync from a previous command
-			} else {
+			const match = line.match(regex);
+			// pause, input, etc... can consume sync commands
+			// so we need to consider any sync match >= the original one
+			if(match !== null && match.length > 1 && parseInt(match[1]) >= commandNumber) {
+				regex = Runtime.SYNC_END_REGEX;
+				++status;
+				// If we hit the end sync we skip this line on the output
+				if(status === Runtime.ENDED_CONSUMING) {
+					callback(lines);
+					OctaveLogger.debug(lines.join('\n'));
+				}
+			} else if(status === Runtime.BEGUN_CONSUMING) {
 				lines.push(line);
 			}
 
-			return done;
+			return status;
 		});
 
-		const syncCommand = this.echo(`${Runtime.SYNC}${commandNumber}`);
-		this.execute(`${expression}\n${syncCommand}`);
+		const syncBeginCmd = this.echo(`${Runtime.SYNC_BEGIN}${commandNumber}`);
+		const syncEndCmd = this.echo(`${Runtime.SYNC_END}${commandNumber}`);
+		// The 1st & 3rd cmds don't need \n, as it's included in the echo.
+		// The user expression needs it as it might not have ;
+		this.execute(`${syncBeginCmd}${expression}\n${syncEndCmd}`);
 	}
 
 
