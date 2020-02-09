@@ -1,3 +1,11 @@
+## 0.3.18
+* Tweaked the .vscodeignore. This removes unnecessary files, and should make the extension smaller and allow faster loading.
+* Pressing return/enter in the DEBUG CONSOLE no longer prints synchronization tags.
+* Fix a bug that would prevent stdio from the script, e.g. printf("foo"), from being output to the DEBUG CONSOLE as it would be mixed in the variable fetching and therefore silently ignored. Now commands have a begin and end to separate their output from other output.
+* Fixed Permutation, Complex Diagonal, and Diagonal Matrix types parsing. It has been broken for over 1 year, but apparently noone noticed.
+* Fixed bug with wrong HOVER evaluation, i.e. if you hover 'var', evaluate would eval "'var".
+* Fixed bug where evaluate errors would consume begin/end tags. Now if an error occurs, the input handlers will skip their capture it's passed their command number.
+
 ## 0.3.17
 * Updated readme.
 * Fixed support for multiple source directories.

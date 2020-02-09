@@ -85,14 +85,12 @@ is equivalent to
 >
         "program": "${workspaceFolder}/A/B/C/foo.m"
 
-* `"workingDirectory"` is another optional parameter. Octave will switch to this directory before running `"program"`. This allows you to create configurations like:
+* `"workingDirectory"` is another optional parameter. Octave will switch to this directory before running `"program"`. In the following example  program `"foo"` can exist anywhere under `"${workspaceFolder}"`, but will be executed from `"${workspaceFolder}/A/B/C/"`:
 
 >
     "program": "foo",
     "sourceFolder": "${workspaceFolder}"
     "workingDirectory": "${workspaceFolder}/A/B/C/"
-
-    where program "foo" can exist anywhere under "${workspaceFolder}", but will be executed from "${workspaceFolder}/A/B/C/"
 
 * `"program"` can be anything that can be evaluated, e.g. a `"path/to/file.m"`, or `"functionName(value)"`.
 * `"autoTerminate"` Setting this to false will allow the program to continue executing after the last line of code is executed. This is useful if you're running for example UI elements with callbacks and you want to continue debugging after the end of the program code. You'll need to stop the debug session manually by pressing the □ button.
