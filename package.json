@@ -16,10 +16,6 @@
 		"node": "^7.9.0"
 	},
 	"icon": "images/OctaveDebuggerIcon.png",
-	"galleryBanner": {
-		"color": "#eff1f3",
-		"theme": "dark"
-	},
 	"categories": [
 		"Debuggers"
 	],
