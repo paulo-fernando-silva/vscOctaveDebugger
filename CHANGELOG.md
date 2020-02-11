@@ -1,5 +1,9 @@
 ## 0.3.19
 * Removed the theme color. Doesn't look as I imagined. Have to figure out how to use it.
+* Webpacked the project. Should load faster, and maybe be a bit snappier.
+* Fixed WATCH errors for undefined variables.
+* Removed leading spaces in matrix hover evaluation.
+* Other smaller misc changes.
 
 ## 0.3.18
 * Tweaked the .vscodeignore. This removes unnecessary files, and should make the extension smaller and allow faster loading.
