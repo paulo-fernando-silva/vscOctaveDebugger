@@ -48,32 +48,39 @@ export class Matrix extends Variable {
 	)
 	{
 		super();
-
+		// These need to be set before anything else is set.
 		this._typeRegex = new RegExp(type, 'i')
 		this._basename = name;
-		this._name = this.makeName(name, freeIndices, fixedIndices);
-		this._freeIndices = freeIndices;
-		this._fixedIndices = fixedIndices;
 		this._typename = type;
-
+		// These perform a more complex setting with some bookkeeping
+		this.setIndices(freeIndices, fixedIndices);
 		this.setValue(value, validValue);
-
-		if(freeIndices.length !== 0) {
-			this._numberOfChildren = freeIndices[freeIndices.length - 1];
-
-			if(this._numberOfChildren !== 0) {
-				Variables.addReferenceTo(this);
-			}
-
-			const size = freeIndices.join(Constants.SIZE_SEPARATOR)
-			this._extendedTypename = `${this.typename()} ${size}`;
-		}
 	}
 
 
 	//**************************************************************************
 	public static cleanComplex(value: string): string {
 		return value.replace(/(?:\s+([\+\-])\s+)/g, "$1");
+	}
+
+
+	//**************************************************************************
+	public setIndices(free: Array<number>, fixed: Array<number>): void {
+		this._freeIndices = free;
+		this._fixedIndices = fixed;
+
+		this._name = this.makeName(this._basename, this._freeIndices, this._fixedIndices);
+
+		if(this._freeIndices.length !== 0) {
+			this._numberOfChildren = this._freeIndices[this._freeIndices.length - 1];
+
+			if(this._numberOfChildren !== 0) {
+				Variables.addReferenceTo(this);
+			}
+
+			const size = this._freeIndices.join(Constants.SIZE_SEPARATOR)
+			this._extendedTypename = `${this.typename()} ${size}`;
+		}
 	}
 
 
