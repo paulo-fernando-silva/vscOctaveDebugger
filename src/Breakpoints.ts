@@ -39,8 +39,7 @@ export class Breakpoints {
 
 					if(match !== null && match.length === 2) {
 						const lines = match[1].split(' ').filter((val) => val);
-						const octaveBreakpoints = lines.map(l => this.toBreakpoint(l));
-						octaveBreakpoints.forEach(b => confirmedBreakpoints.push(b));
+						lines.forEach(l => confirmedBreakpoints.push(this.toBreakpoint(l)));
 					}
 				});
 
