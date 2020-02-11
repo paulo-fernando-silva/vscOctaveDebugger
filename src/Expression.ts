@@ -30,8 +30,6 @@ export class Expression {
 			// We don't send anything back now as any output will be written on the console anyway.
 			// This also avoids the issue with the pause, input, etc.
 			callback('');
-		} else if(ctx === Constants.CTX_WATCH) {
-			Expression.loadAsVariable(expression, runtime, callback);
 		} else {
 			// fixes an issue with vsc not knowing how to parse octave code.
 			// i.e. if you hover 'var', expression will equal 'var
@@ -40,7 +38,7 @@ export class Expression {
 				(value: string | undefined, type: string | undefined) => {
 					if(value === undefined && type === undefined) {
 						callback(Constants.EVAL_UNDEF);
-					} else if(ctx === Constants.CTX_HOVER) {
+					} else if(ctx === Constants.CTX_HOVER || ctx === Constants.CTX_WATCH) {
 						Expression.handleHover(hoverExpression, runtime, value, type, callback);
 					} else { // and all the rest
 						Expression.forceEvaluate(expression, runtime, callback);
