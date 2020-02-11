@@ -17,16 +17,17 @@ export class Matrix extends Variable {
 	// However, for certain types this might differ from the overriden typename.
 	// This is because mainly because in octave typesnames might come in two formats.
 	// e.g. "complex diagonal matrix" uses "diagonal matrix" in certain places...
-	private _typename: string;
-	private _basename: string;
-	private _fixedIndices: Array<number>;
-	private _freeIndices: Array<number>;
-	private _children: Array<Variable>;
-	private _availableChildrenRange: Array<boolean>;
-	private _validValue: boolean;
-	private _parsedValue: boolean;
-	private _extendedTypename: string;
-	private _typeRegex: RegExp;
+	// typename used by octave when printing the value
+	private _typename: string; // typename used by octave when printing the value
+	private _basename: string; // name of the variable without indices
+	private _fixedIndices: Array<number>; // subvariable indices
+	private _freeIndices: Array<number>; // children indices
+	private _children: Array<Variable>; // the childen parsed so far
+	private _availableChildrenRange: Array<boolean>; // children parsed?
+	private _validValue: boolean; // is the value parsable?
+	private _parsedValue: boolean; // has the value been parsed?
+	private _extendedTypename: string; // used for displaying when value is not valid.
+	private _typeRegex: RegExp; // used to clean the value from pesky _typenames
 
 
 	/***************************************************************************
@@ -47,15 +48,15 @@ export class Matrix extends Variable {
 	)
 	{
 		super();
+
 		this._typeRegex = new RegExp(type, 'i')
-		value = value.replace(this._typeRegex, '').trim();
 		this._basename = name;
 		this._name = this.makeName(name, freeIndices, fixedIndices);
-		this._value = value;
 		this._freeIndices = freeIndices;
 		this._fixedIndices = fixedIndices;
-		this._validValue = validValue;
 		this._typename = type;
+
+		this.setValue(value, validValue);
 
 		if(freeIndices.length !== 0) {
 			this._numberOfChildren = freeIndices[freeIndices.length - 1];
@@ -67,6 +68,29 @@ export class Matrix extends Variable {
 			const size = freeIndices.join(Constants.SIZE_SEPARATOR)
 			this._extendedTypename = `${this.typename()} ${size}`;
 		}
+	}
+
+
+	//**************************************************************************
+	public static cleanComplex(value: string): string {
+		return value.replace(/(?:\s+([\+\-])\s+)/g, "$1");
+	}
+
+
+	//**************************************************************************
+	public setValue(val: string, isValid: boolean): void {
+		this._validValue = isValid;
+
+		if(isValid) {
+			// "this cleanup is done really just for displaying."
+			val = val.replace(this._typeRegex, '').replace(/\n\s+/g, '\n').trim();
+
+			if(this.isComplex()) {
+				val = Matrix.cleanComplex(val);
+			}
+		}
+
+		this._value = val;
 	}
 
 
@@ -551,7 +575,7 @@ export class Matrix extends Variable {
 		value = value.trim();
 		if(isComplex) {
 			// Remove spaces in complex numbers
-			value = value.replace(/(?:\s+([\+\-])\s+)/g, "$1");
+			value = Matrix.cleanComplex(value);
 		}
 		// split by spaces, and remove non-empty elements
 		const elements = value.split(' ').filter(line => line);
