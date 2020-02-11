@@ -43,7 +43,9 @@
 		"typescript": "^2.5.3",
 		"vsce": "^1.65.0",
 		"vscode": "^1.1.33",
-		"vscode-debugadapter-testsupport": "^1.24.0"
+		"vscode-debugadapter-testsupport": "^1.24.0",
+		"webpack": "^4.41.5",
+		"webpack-cli": "^3.3.10"
 	},
 	"scripts": {
 		"prepare": "tsc -p ./",
@@ -53,9 +55,13 @@
 		"test": "mocha -u tdd ./out/tests/",
 		"postinstall": "node ./node_modules/vscode/bin/install",
 		"package": "vsce package",
-		"publish": "vsce publish"
+		"publish": "vsce publish",
+		"vscode:prepublish": "webpack --mode production",
+		"webpack": "webpack --mode development",
+		"webpack-dev": "webpack --mode development --watch",
+		"test-compile": "tsc -p ./"
 	},
-	"main": "./out/extension",
+	"main": "./dist/extension",
 	"activationEvents": [
 		"onDebug",
 		"onCommand:extension.vsc-octave-debugger.getProgramName"
@@ -84,7 +90,7 @@
 			{
 				"type": "OctaveDebugger",
 				"label": "Octave Debugger",
-				"program": "./out/OctaveDebugger.js",
+				"program": "./dist/OctaveDebugger.js",
 				"runtime": "node",
 				"languages": [
 					"matlab",

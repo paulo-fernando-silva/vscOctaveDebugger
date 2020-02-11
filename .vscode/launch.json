@@ -37,13 +37,6 @@
 			"outFiles": [ "${workspaceFolder}/out/**/*.js" ],
 			"internalConsoleOptions": "openOnSessionStart",
 			"protocol": "inspector"
-		},
-		{
-			"type": "octave",
-			"request": "launch",
-			"name": "Octave Debugger",
-			"program": "${workspaceFolder}/${command:AskForProgramName}",
-			"stopOnEntry": true
 		}
 	],
 	"compounds": [

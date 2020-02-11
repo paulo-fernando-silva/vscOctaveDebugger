@@ -16,3 +16,6 @@ octave-workspace
 TODO.txt
 vsce
 **/test
+# For webpack
+node_modules
+out/
