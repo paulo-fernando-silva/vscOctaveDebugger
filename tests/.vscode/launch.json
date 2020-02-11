@@ -7,6 +7,15 @@
         {
             "type": "OctaveDebugger",
             "request": "launch",
+            "name": "Launch Program",
+            "program": "${command:AskForProgramName}",
+            "octave": "octave-cli",
+            "sourceFolder": "${workspaceFolder}",
+            "autoTerminate": true
+        },
+        {
+            "type": "OctaveDebugger",
+            "request": "launch",
             "name": "TestOctaveDebugger",
             "program": "TestOctaveDebugger",
             "octave": "octave-cli",

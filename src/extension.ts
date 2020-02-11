@@ -18,7 +18,7 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(vscode.commands.registerCommand(
 		'extension.' + Constants.MODULE_NAME + '.getProgramName', config => {
 		return vscode.window.showInputBox({
-			placeHolder: "Enter the name of a matlab function to debug",
+			placeHolder: "Enter the name of a octave or matlab function to debug",
 		});
 	}));
 
