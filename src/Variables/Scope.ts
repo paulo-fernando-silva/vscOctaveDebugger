@@ -1,6 +1,6 @@
+import { CommandInterface } from '../Runtime';
 import { Variables } from './Variables';
 import { Variable } from './Variable';
-import { Runtime } from '../Runtime';
 
 //**************************************************************************
 // The idea here is that a Scope is a variable that contains other variables.
@@ -34,7 +34,7 @@ export class Scope extends Variable {
 	public loadNew(
 		name: string,
 		type: string,
-		runtime: Runtime,
+		runtime: CommandInterface,
 		callback: (s: Scope) => void
 	): void
 	{}
@@ -42,7 +42,7 @@ export class Scope extends Variable {
 
 	//**************************************************************************
 	public listChildren(
-		runtime: Runtime,
+		runtime: CommandInterface,
 		count: number,
 		start: number,
 		callback: (vars: Array<Variable>) => void

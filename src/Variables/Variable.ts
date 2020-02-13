@@ -1,4 +1,4 @@
-import { Runtime } from '../Runtime';
+import { CommandInterface } from '../Runtime';
 
 
 //******************************************************************************
@@ -22,13 +22,13 @@ export abstract class Variable {
 	public abstract loadNew(
 		name: string,
 		type: string,
-		runtime: Runtime,
+		runtime: CommandInterface,
 		callback: (v: Variable) => void): void;
 
 
 	//**************************************************************************
 	public abstract listChildren(
-		runtime: Runtime,
+		runtime: CommandInterface,
 		count: number,
 		start: number,
 		callback: (vars: Array<Variable>) => void): void;

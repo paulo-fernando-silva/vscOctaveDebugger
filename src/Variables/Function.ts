@@ -1,6 +1,6 @@
+import { CommandInterface } from '../Runtime';
 import { Variables } from './Variables';
 import { Variable } from './Variable';
-import { Runtime } from '../Runtime';
 
 
 export class Function extends Variable {
@@ -52,7 +52,7 @@ export class Function extends Variable {
 	public loadNew(
 		name: string,
 		type: string,
-		runtime: Runtime,
+		runtime: CommandInterface,
 		callback: (s: Function) => void
 	): void
 	{
@@ -64,7 +64,7 @@ export class Function extends Variable {
 
 	//**************************************************************************
 	public listChildren(
-		runtime: Runtime,
+		runtime: CommandInterface,
 		count: number,
 		start: number,
 		callback: (vars: Array<Variable>) => void

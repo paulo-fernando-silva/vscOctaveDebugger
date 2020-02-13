@@ -1,7 +1,7 @@
+import { CommandInterface } from '../Runtime';
 import * as Constants from '../Constants';
 import { Variables } from './Variables';
 import { Variable } from './Variable';
-import { Runtime } from '../Runtime';
 import { Matrix } from './Matrix';
 
 
@@ -55,7 +55,7 @@ export class Cell extends Matrix {
 	public loadNew(
 		name: string,
 		type: string,
-		runtime: Runtime,
+		runtime: CommandInterface,
 		callback: (s: Cell) => void
 	): void
 	{
@@ -69,7 +69,7 @@ export class Cell extends Matrix {
 
 	//**************************************************************************
 	public loacChild(
-		runtime: Runtime,
+		runtime: CommandInterface,
 		freeIndices: Array<number>,
 		fixedIndices: Array<number>,
 		callback: (v: Variable) => void
@@ -89,7 +89,7 @@ export class Cell extends Matrix {
 
 	//**************************************************************************
 	public loadChildrenRange(
-		runtime: Runtime,
+		runtime: CommandInterface,
 		offset: number,
 		count: number,
 		callback: (vars: Array<Variable>) => void

@@ -1,8 +1,8 @@
+import { CommandInterface } from '../Runtime';
 import { ScalarStruct } from './ScalarStruct';
 import * as Constants from '../Constants';
 import { Variables } from './Variables';
 import { Variable } from './Variable';
-import { Runtime } from '../Runtime';
 import { Matrix } from './Matrix';
 
 
@@ -65,7 +65,7 @@ export class Struct extends Matrix {
 	public loadNew(
 		name: string,
 		type: string,
-		runtime: Runtime,
+		runtime: CommandInterface,
 		callback: (s: Struct) => void
 	): void
 	{
@@ -107,7 +107,7 @@ export class Struct extends Matrix {
 
 	//**************************************************************************
 	public loadChildrenRange(
-		runtime: Runtime,
+		runtime: CommandInterface,
 		offset: number,
 		count: number,
 		callback: (vars: Array<Variable>) => void

@@ -1,7 +1,7 @@
+import { CommandInterface } from '../Runtime';
 import * as Constants from '../Constants';
-import { Variable } from './Variable';
 import { Variables } from './Variables';
-import { Runtime } from '../Runtime';
+import { Variable } from './Variable';
 
 
 export class ScalarStruct extends Variable {
@@ -54,7 +54,7 @@ export class ScalarStruct extends Variable {
 	public loadNew(
 		name: string,
 		type: string,
-		runtime: Runtime,
+		runtime: CommandInterface,
 		callback: (ss: ScalarStruct) => void
 	): void
 	{
@@ -67,7 +67,7 @@ export class ScalarStruct extends Variable {
 
 	//**************************************************************************
 	public listChildren(
-		runtime: Runtime,
+		runtime: CommandInterface,
 		count: number,
 		start: number,
 		callback: (vars: Array<Variable>) => void
@@ -89,7 +89,7 @@ export class ScalarStruct extends Variable {
 	//**************************************************************************
 	public static getFields(
 		name: string,
-		runtime: Runtime,
+		runtime: CommandInterface,
 		callback: (f: Array<string>) => void
 	): void
 	{

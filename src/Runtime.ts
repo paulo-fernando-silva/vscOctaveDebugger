@@ -34,7 +34,19 @@ enum MatchIndex {
 };
 
 
-export class Runtime extends EventEmitter {
+export interface CommandInterface {
+	//**************************************************************************
+	evaluateAsLine(expression: string, callback: (line: string) => void): void;
+
+	//**************************************************************************
+	evaluate(expression: string, callback: (lines: string[]) => void): void;
+
+	//**************************************************************************
+	execute(expression: string):void;
+}
+
+
+export class Runtime extends EventEmitter implements CommandInterface {
 	//**************************************************************************
 	//#region private
 	//**************************************************************************

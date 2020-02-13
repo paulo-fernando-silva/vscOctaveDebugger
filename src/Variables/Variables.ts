@@ -1,7 +1,7 @@
 import { OctaveLogger } from '../OctaveLogger';
-import { Runtime } from '../Runtime';
-import { Variable } from './Variable';
+import { CommandInterface } from '../Runtime';
 import * as Constants from '../Constants';
+import { Variable } from './Variable';
 
 
 export class Variables {
@@ -78,7 +78,7 @@ export class Variables {
 	//**************************************************************************
 	public static listByReference(
 		ref: number,
-		runtime: Runtime,
+		runtime: CommandInterface,
 		count: number,
 		start: number,
 		callback: (variables: Array<Variable>) => void
@@ -103,7 +103,7 @@ export class Variables {
 	//**************************************************************************
 	public static listVariables(
 		names: Array<string>,
-		runtime: Runtime,
+		runtime: CommandInterface,
 		callback: (variables: Array<Variable>) => void
 	): void
 	{
@@ -132,7 +132,7 @@ export class Variables {
 	//**************************************************************************
 	public static loadVariable(
 		name: string,
-		runtime: Runtime,
+		runtime: CommandInterface,
 		callback: (v: Variable | null) => void
 	): void
 	{
@@ -163,7 +163,7 @@ export class Variables {
 	public static setVariable(
 		name: string,
 		value: string,
-		runtime: Runtime,
+		runtime: CommandInterface,
 		callback: (newValue: string) => void
 	): void
 	{
@@ -183,7 +183,7 @@ export class Variables {
 	//**************************************************************************
 	public static getType(
 		variable: string,
-		runtime: Runtime,
+		runtime: CommandInterface,
 		callback: (type: string) => void
 	): void
 	{
@@ -196,7 +196,7 @@ export class Variables {
 	//**************************************************************************
 	public static getValue(
 		variable: string,
-		runtime: Runtime,
+		runtime: CommandInterface,
 		callback: (value: string) => void
 	): void
 	{
@@ -209,7 +209,7 @@ export class Variables {
 	//**************************************************************************
 	public static getSize(
 		variable: string,
-		runtime: Runtime,
+		runtime: CommandInterface,
 		callback: (s: Array<number>) => void
 	): void
 	{
@@ -224,7 +224,7 @@ export class Variables {
 	//**************************************************************************
 	public static getNonZero(
 		variable: string,
-		runtime: Runtime,
+		runtime: CommandInterface,
 		callback: (n: number) => void
 	): void
 	{

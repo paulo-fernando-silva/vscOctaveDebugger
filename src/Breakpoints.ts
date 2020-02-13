@@ -1,7 +1,7 @@
 //******************************************************************************
 import { DebugProtocol } from 'vscode-debugprotocol';
 import { Breakpoint } from 'vscode-debugadapter';
-import { Runtime } from './Runtime';
+import { CommandInterface } from './Runtime';
 import { functionFromPath } from './Utils/fsutils';
 
 type ConditionalBreakpoint = DebugProtocol.SourceBreakpoint;
@@ -16,7 +16,7 @@ export class Breakpoints {
 	public static set(
 		breakpoints: Array<ConditionalBreakpoint>,
 		path: string,
-		runtime: Runtime,
+		runtime: CommandInterface,
 		callback: (breakpoints: Array<Breakpoint>) => void
 	): void
 	{
@@ -54,7 +54,7 @@ export class Breakpoints {
 	//**************************************************************************
 	public static clearAllBreakpointsIn(
 		path: string,
-		runtime: Runtime,
+		runtime: CommandInterface,
 		callback: () => void
 	): void
 	{
@@ -69,7 +69,7 @@ export class Breakpoints {
 	public static clearBreakpoints(
 		path: string,
 		lines: string,
-		runtime: Runtime
+		runtime: CommandInterface
 	): void
 	{
 		const func = functionFromPath(path);
@@ -94,7 +94,7 @@ export class Breakpoints {
 	// breakpoint in TestOctaveDebugger>testNestedFunctionLevel2 at line 37
 	public static listBreakpointsIn(
 		path: string,
-		runtime: Runtime,
+		runtime: CommandInterface,
 		callback: (lines: string) => void
 	): void
 	{

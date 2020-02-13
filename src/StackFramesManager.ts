@@ -1,6 +1,6 @@
 import { OctaveLogger } from './OctaveLogger';
 import { StackFrame, Source } from 'vscode-debugadapter';
-import { Runtime } from './Runtime';
+import { CommandInterface } from './Runtime';
 
 
 export class StackFramesManager {
@@ -20,7 +20,7 @@ export class StackFramesManager {
 	//**************************************************************************
 	public selectStackFrame(
 		i: number,
-		runtime: Runtime,
+		runtime: CommandInterface,
 		callback: () => void
 	): void
 	{
@@ -37,7 +37,7 @@ export class StackFramesManager {
 	//**************************************************************************
 	private up(
 		n: number,
-		runtime: Runtime,
+		runtime: CommandInterface,
 		callback: () => void
 	): void
 	{
@@ -52,7 +52,7 @@ export class StackFramesManager {
 	//**************************************************************************
 	private down(
 		n: number,
-		runtime: Runtime,
+		runtime: CommandInterface,
 		callback: () => void
 	): void
 	{
@@ -76,7 +76,7 @@ debug>
 	public get(
 		startFrame: number,
 		endFrame: number,
-		runtime: Runtime,
+		runtime: CommandInterface,
 		callback: (frames: Array<StackFrame>) => void
 	): void
 	{

@@ -1,6 +1,6 @@
-import { Runtime } from './Runtime';
 import { Variables } from './Variables/Variables';
 import { Variable } from './Variables/Variable';
+import { CommandInterface } from './Runtime';
 import * as Constants from './Constants';
 
 
@@ -19,7 +19,7 @@ export class Expression {
 	//**************************************************************************
 	public static evaluate(
 		expression: string,
-		runtime: Runtime,
+		runtime: CommandInterface,
 		ctx: string | undefined,
 		callback: (info: string | undefined) => void
 	): void
@@ -52,7 +52,7 @@ export class Expression {
 	//**************************************************************************
 	public static handleHover(
 		expression: string,
-		runtime: Runtime,
+		runtime: CommandInterface,
 		val: string | undefined,
 		type: string | undefined,
 		callback: (info: string | undefined) => void
@@ -70,7 +70,7 @@ export class Expression {
 	//**************************************************************************
 	public static loadAsVariable(
 		expression: string,
-		runtime: Runtime,
+		runtime: CommandInterface,
 		callback: (info: string | undefined) => void
 	): void
 	{
@@ -93,7 +93,7 @@ export class Expression {
 	//**************************************************************************
 	public static forceEvaluate(
 		expression: string,
-		runtime: Runtime,
+		runtime: CommandInterface,
 		callback: (info: string | undefined) => void
 	): void
 	{
@@ -106,7 +106,7 @@ export class Expression {
 	//**************************************************************************
 	public static type(
 		expression: string,
-		runtime: Runtime,
+		runtime: CommandInterface,
 		callback: (val: string | undefined, type: string | undefined) => void
 	): void
 	{

@@ -1,8 +1,8 @@
 import { Variable } from './Variable';
 import { Variables } from './Variables';
-import { Runtime } from '../Runtime';
-import { Interval } from '../Utils/Interval';
 import * as Constants from '../Constants';
+import { Interval } from '../Utils/Interval';
+import { CommandInterface } from '../Runtime';
 
 
 /*
@@ -164,7 +164,7 @@ export class Matrix extends Variable {
 	public loadNew(
 		name: string,
 		type: string,
-		runtime: Runtime,
+		runtime: CommandInterface,
 		callback: (m: Matrix) => void)
 	{
 		Variables.getSize(name, runtime, (size: Array<number>) => {
@@ -186,7 +186,7 @@ export class Matrix extends Variable {
 
 	//**************************************************************************
 	public listChildren(
-		runtime: Runtime,
+		runtime: CommandInterface,
 		count: number,
 		start: number,
 		callback: (vars: Array<Variable>) => void
@@ -219,7 +219,7 @@ export class Matrix extends Variable {
 
 	//**************************************************************************
 	public makeChildrenAvailable(
-		runtime: Runtime,
+		runtime: CommandInterface,
 		interval: Interval,
 		callback: () => void
 	): void
@@ -249,7 +249,7 @@ export class Matrix extends Variable {
 	//**************************************************************************
 	public fetchRanges(
 		ranges: Array<Interval>,
-		runtime: Runtime,
+		runtime: CommandInterface,
 		callback: () => void
 	): void
 	{
@@ -333,7 +333,7 @@ export class Matrix extends Variable {
 	//**************************************************************************
 	public fetchChildrenRange(
 		interval: Interval,
-		runtime: Runtime,
+		runtime: CommandInterface,
 		callback: (vars: Array<Variable>) => void
 	): void
 	{
@@ -468,7 +468,7 @@ export class Matrix extends Variable {
 
 	//**************************************************************************
 	public fetchChildren(
-		runtime: Runtime,
+		runtime: CommandInterface,
 		offset: number,
 		count: number,
 		callback: (vars: Array<Variable>) => void
@@ -497,7 +497,7 @@ export class Matrix extends Variable {
 
 	//**************************************************************************
 	public loadChildrenRange(
-		runtime: Runtime,
+		runtime: CommandInterface,
 		offset: number,
 		count: number,
 		callback: (vars: Array<Variable>) => void
@@ -515,7 +515,7 @@ export class Matrix extends Variable {
 
 	//**************************************************************************
 	public fetchAllChildren(
-		runtime: Runtime,
+		runtime: CommandInterface,
 		callback: (vars: Array<Variable>) => void
 	): void
 	{

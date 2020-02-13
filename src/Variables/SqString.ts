@@ -1,6 +1,6 @@
+import { CommandInterface } from '../Runtime';
 import { Variables } from './Variables';
 import { Variable } from './Variable';
-import { Runtime } from '../Runtime';
 
 
 export class SqString extends Variable {
@@ -42,7 +42,7 @@ export class SqString extends Variable {
 	public loadNew(
 		name: string,
 		type: string,
-		runtime: Runtime,
+		runtime: CommandInterface,
 		callback: (s: SqString) => void
 	): void
 	{
@@ -54,7 +54,7 @@ export class SqString extends Variable {
 
 	//**************************************************************************
 	public listChildren(
-		runtime: Runtime,
+		runtime: CommandInterface,
 		count: number,
 		start: number,
 		callback: (vars: Array<Variable>) => void

@@ -1,7 +1,7 @@
+import { CommandInterface } from '../Runtime';
 import * as Constants from '../Constants';
 import { Variables } from './Variables';
 import { Variable } from './Variable';
-import { Runtime } from '../Runtime';
 import { Matrix } from './Matrix';
 
 /*
@@ -66,7 +66,7 @@ export class SparseMatrix extends Matrix {
 	public loadNew(
 		name: string,
 		type: string,
-		runtime: Runtime,
+		runtime: CommandInterface,
 		callback: (sm: SparseMatrix) => void)
 	{
 		Variables.getNonZero(name, runtime, (n: number) => {
@@ -93,7 +93,7 @@ export class SparseMatrix extends Matrix {
 
 	//**************************************************************************
 	public fetchChildren(
-		runtime: Runtime,
+		runtime: CommandInterface,
 		offset: number,
 		count: number,
 		callback: (vars: Array<Variable>) => void
@@ -115,7 +115,7 @@ export class SparseMatrix extends Matrix {
 
 	//**************************************************************************
 	public fetchIndices(
-		runtime: Runtime,
+		runtime: CommandInterface,
 		offset: number,
 		count: number,
 		callback: (fetchedIndices: Array<number>) => void
