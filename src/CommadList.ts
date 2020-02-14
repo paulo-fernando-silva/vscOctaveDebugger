@@ -130,7 +130,9 @@ export class CommandList implements CommandInterface {
 	public executeCommandList(runtime: Runtime, callback: (cl: CommandList) => void) {
 		this.close();
 
-		runtime.evaluateAsLine(this.commands(), (output: string) => {
+		const cmds = this.commands();
+
+		runtime.evaluateAsLine(cmds, (output: string) => {
 			this.process(output);
 			callback(this);
 		});
@@ -144,7 +146,7 @@ export class CommandList implements CommandInterface {
 		this._executing.forEach(cmd =>
 			// TODO: command id
 			// cmds += Runtime.echo(`${cmd.command}\n${cmd.id}${CommandList.SYNC}`)
-			cmds += Runtime.echo(`${cmd.command}\n${CommandList.SYNC}`)
+			cmds += `${cmd.command}\n${Runtime.echo(CommandList.SYNC)}`
 		);
 
 		return cmds;

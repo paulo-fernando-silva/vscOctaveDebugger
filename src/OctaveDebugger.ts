@@ -37,6 +37,7 @@ import { Cell } from './Variables/Cell';
 import { Scope as OctaveScope } from './Variables/Scope';
 import { isMatlabFile, validDirectory } from './Utils/fsutils';
 import { dirname } from 'path';
+import { CommandList } from './CommadList';
 
 
 //******************************************************************************
@@ -64,7 +65,7 @@ interface LaunchRequestArguments extends DebugProtocol.LaunchRequestArguments {
 
 //******************************************************************************
 class OctaveDebugSession extends LoggingDebugSession {
-	private static THREAD_ID = 1;
+	private static readonly THREAD_ID = 1;
 	private _stepCount = 0;
 	private _runtime: Runtime;
 	private _stackManager: StackFramesManager;
@@ -429,11 +430,10 @@ class OctaveDebugSession extends LoggingDebugSession {
 
 		const count = args.count || 0;
 		const start = args.start || 0;
-		Variables.listByReference(	args.variablesReference,
-									this._runtime,
-									count,
-									start,
-									callback);
+		const cl = new CommandList(currStep);
+		// const cl = this._runtime;
+		Variables.listByReference(args.variablesReference, cl, count, start, callback);
+		this.executeCommandList(cl);
 	}
 
 
@@ -558,6 +558,20 @@ class OctaveDebugSession extends LoggingDebugSession {
 	private clear(): void {
 		Variables.clearReferences();
 		this._stackManager.clear();
+	}
+
+
+	//**************************************************************************
+	private executeCommandList(cl: CommandList) {
+		const self = this;
+
+		const execute = (cl: CommandList) => {
+			if(!cl.empty() && cl.id() === self._stepCount) {
+				cl.executeCommandList(self._runtime, execute);
+			}
+		}
+
+		execute(cl);
 	}
 }
 
