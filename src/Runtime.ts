@@ -47,7 +47,7 @@ export class Runtime extends EventEmitter implements CommandInterface {
 		new RegExp(`${Runtime.SYNC}${Runtime.SEP}(\\d+)${Runtime.SEP}(\\d+)`);
 	//**************************************************************************
 	private static readonly TERMINATOR = `end::${Runtime.SYNC}`;
-	private static readonly TERMINATOR_REGEX = new RegExp(`^${Runtime.TERMINATOR}$`);
+	private static readonly TERMINATOR_REGEX = new RegExp(Runtime.TERMINATOR);
 
 	//**************************************************************************
 	private _inputHandler = new Array<(str: string) => number>();

@@ -7,8 +7,9 @@ import * as Constants from './Constants';
 //******************************************************************************
 export class Expression {
 	//**************************************************************************
+	private static readonly CLEAN_REGEX = /^'[^']*$/;
 	private static clean(expression: string): string {
-		if(expression.match(/^'[^']*$/) !== null) {
+		if(expression.match(Expression.CLEAN_REGEX) !== null) {
 			expression = expression.replace('\'', '');
 		}
 

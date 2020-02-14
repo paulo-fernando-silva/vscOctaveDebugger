@@ -575,17 +575,21 @@ export class Matrix extends Variable {
 		return `${name}(${freeIndicesStr}${fixedIndicesStr})`;
 	}
 
+
 	//**************************************************************************
 	// Splits "123 456 789 0" or "123 + 456i 789 + 0i" into its elements
 	// i.e. ["123", "456", "789", "0"] and ["123+456i", "789+0i"] respectively
 	public static split(value: string, isComplex: boolean): Array<string> {
 		value = value.trim();
+
 		if(isComplex) {
 			// Remove spaces in complex numbers
 			value = Matrix.cleanComplex(value);
 		}
+
 		// split by spaces, and remove non-empty elements
 		const elements = value.split(' ').filter(line => line);
+
 		return elements;
 	}
 
@@ -620,10 +624,11 @@ export class Matrix extends Variable {
 
 
 	//**************************************************************************
+	private static readonly GROUPS_REGEX = /Columns? \d+(?: ((?:through)|(?:and)?) \d+)?:/;
 	// Skips lines like "Columns \d+ through \d+" or "Columns \d+ and \d+"
 	// All the other lines are pushed onto the elements array.
 	public static extractArrayElements(value: string, isComplex: boolean): Array<Array<string>> {
-		const mutipleColumnsGroup = /Columns? \d+(?: ((?:through)|(?:and)?) \d+)?:/;
+		const mutipleColumnsGroup = Matrix.GROUPS_REGEX;
 		const inLines = value.trim().split('\n').filter(line => line); // non-empty lines
 		const N_lines = inLines.length;
 		let elements = new Array<Array<string>>();

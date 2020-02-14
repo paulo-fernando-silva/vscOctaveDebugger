@@ -115,6 +115,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 
 
 	//**************************************************************************
+	private static readonly STOP_REGEX = /^stopped in .*? at line \d+$/;
 	private setupRuntime(
 		octave: string,
 		sourceFolder: string,
@@ -137,7 +138,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 		this._runtime.on(Constants.eEND, () => this.sendTerminatedEvent());
 		this._runtime.on(Constants.eERROR, () => this.sendTerminatedEvent());
 		this._runtime.addStderrHandler((line: string) => {
-			if(line.match(/^stopped in .*? at line \d+$/) !== null) {
+			if(line.match(OctaveDebugSession.STOP_REGEX) !== null) {
 				const currStep = this._stepCount;
 				OctaveLogger.debug(`Sending breakpoint: '${currStep}'`);
 				this.sendEvent(new StoppedEvent('breakpoint', OctaveDebugSession.THREAD_ID));

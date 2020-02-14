@@ -175,8 +175,9 @@ export class Variables {
 
 
 	//**************************************************************************
+	private static readonly CLEAN_REGEX = /^\s*ans =\s*/;
 	public static clean(value: string): string {
-		return value.replace(/^ans =\s*/, '').trim();
+		return value.replace(Variables.CLEAN_REGEX, '').trim();
 	}
 
 
@@ -235,16 +236,17 @@ export class Variables {
 
 
 	//**************************************************************************
+	private static readonly ESCAPE_REGEX = /[.*+?^${}()|[\]\\]/g;
 	public static escape(str: string): string {
 		// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions
-		return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+		return str.replace(Variables.ESCAPE_REGEX, '\\$&'); // $& means the whole matched string
 	}
 
 
 	//**************************************************************************
 	public static removeName(name: string, value: string): string {
-		name = Variables.escape(name);
-		value = value.replace(new RegExp(`^(?:ans|${name}) =(?:\n\n)?\\s*`), '');
+		name = Variables.escape(name.trim());
+		value = value.replace(new RegExp(`^\\s*(?:ans|${name}) =(?:\n\n)?\\s*`), '');
 		return value.trim();
 	}
 

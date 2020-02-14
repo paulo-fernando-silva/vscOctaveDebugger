@@ -171,6 +171,7 @@ export class SparseMatrix extends Matrix {
 
 
 	//**************************************************************************
+	private static readonly VALUES_REGEX = /^\s*\(\d+,\s+\d+\)\s+->\s+(.+)$/;
 	// Compressed Column Sparse (rows = 3, cols = 1, nnz = 3 [100%])
 	//
 	//   (1, 1) -> -10.200
@@ -182,7 +183,7 @@ export class SparseMatrix extends Matrix {
 		const values = new Array<string>();
 
 		lines.forEach(line => {
-			const match = line.match(/^\s*\(\d+,\s+\d+\)\s+->\s+(.+)$/);
+			const match = line.match(SparseMatrix.VALUES_REGEX);
 			if(match !== null && match.length === 2) {
 				const value = match[1];
 				values.push(value);

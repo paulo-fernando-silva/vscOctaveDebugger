@@ -6,10 +6,6 @@ import { Variable } from './Variable';
 // The idea here is that a Scope is a variable that contains other variables.
 export class Scope extends Variable {
 	//**************************************************************************
-	private static readonly HEADER_REGEX = new RegExp(`^Variables in the current scope:$`);
-
-
-	//**************************************************************************
 	constructor(name: string) {
 		super();
 		this._name = name;
@@ -41,6 +37,9 @@ export class Scope extends Variable {
 
 
 	//**************************************************************************
+	private static readonly HEADER_REGEX = /^\s*Variables in the current scope:$/;
+	private static readonly SPACE_REGEX = /\s+/;
+	//**************************************************************************
 	public listChildren(
 		runtime: CommandInterface,
 		count: number,
@@ -61,7 +60,7 @@ export class Scope extends Variable {
 			});
 
 			if(vars.length !== 0) {
-				const names = vars.trim().split(/\s+/).sort();
+				const names = vars.trim().split(Scope.SPACE_REGEX).sort();
 				Variables.listVariables(names, runtime, callback);
 			} else {
 				callback(new Array<Variable>());

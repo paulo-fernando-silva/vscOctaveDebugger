@@ -65,6 +65,7 @@ export class StackFramesManager {
 
 
 	//**************************************************************************
+	private static readonly STACK_REGEX = /^\s*(?:-->)?\s*(\w+)(?:>(\w+))*? at line (\d+) \[(.*)\]$/;
 	/* Example of the expected stack output:
 stopped in:
 
@@ -83,7 +84,7 @@ debug>
 		const stackframes = new Array<StackFrame>();
 		runtime.evaluate('dbstack;', (output: string[]) => {
 			output.forEach(line => {
-				const match = line.match(/^\s*(?:-->)?\s*(\w+)(?:>(\w+))*? at line (\d+) \[(.*)\]$/);
+				const match = line.match(StackFramesManager.STACK_REGEX);
 
 				if(match !== null && match.length > 1) {
 					const functionName = match[match.length - 3];

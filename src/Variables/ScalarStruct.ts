@@ -87,6 +87,7 @@ export class ScalarStruct extends Variable {
 
 
 	//**************************************************************************
+	private static readonly FIELDS_REGEX = /^(?:\s*\[\d+,1\] = )(\w+)$/;
 	public static getFields(
 		name: string,
 		runtime: CommandInterface,
@@ -96,7 +97,7 @@ export class ScalarStruct extends Variable {
 		let fieldnames = new Array<string>();
 		runtime.evaluate(`fieldnames(${name})`, (output: string[]) => {
 			output.forEach(line => {
-				const match = line.match(/^(?:\s*\[\d+,1\] = )(\w+)$/);
+				const match = line.match(ScalarStruct.FIELDS_REGEX);
 
 				if(match !== null && match.length > 1) {
 					fieldnames.push(`${name}.${match[match.length - 1]}`);

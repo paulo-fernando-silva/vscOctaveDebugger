@@ -13,6 +13,7 @@ export class Breakpoints {
 
 
 	//**************************************************************************
+	private static readonly BP_REGEX = /^\s*(?:ans =)?\s*((?:\d+\s*)+)$/;
 	public static set(
 		breakpoints: Array<ConditionalBreakpoint>,
 		path: string,
@@ -35,7 +36,7 @@ export class Breakpoints {
 
 			runtime.evaluate(`dbstop ${fname} ${lines}`, (output: string[]) => {
 				output.forEach(line => {
-					const match = line.match(/^(?:ans =)?\s*((?:\d+\s*)+)$/);
+					const match = line.match(Breakpoints.BP_REGEX);
 
 					if(match !== null && match.length === 2) {
 						const lines = match[1].split(' ').filter((val) => val);
@@ -100,7 +101,7 @@ export class Breakpoints {
 	{
 		const fname = functionFromPath(path);
 		const breakpointRegEx =
-			new RegExp(`^breakpoint[s]? in ${fname}(?:>\\w+)*? at line[s]? ((?:\\d+ ?)+)$`);
+			new RegExp(`^\\s*breakpoint[s]? in ${fname}(?:>\\w+)*? at line[s]? ((?:\\d+ ?)+)$`);
 		let lines = '';
 
 		runtime.evaluate(`dbstatus ${fname}`, (output: string[]) => {
