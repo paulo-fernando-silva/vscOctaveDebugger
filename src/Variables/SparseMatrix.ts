@@ -9,10 +9,13 @@ import { Matrix } from './Matrix';
  */
 export class SparseMatrix extends Matrix {
 	//**************************************************************************
-	private static SPARSE_MATRIX_TYPENAME_PREFIX: string = 'sparse';
-	private static SPARSE_MATRIX_TYPENAME_SUFFIX: string = 'matrix';
-	private static SPARSE_MATRIX_TYPENAME: string = `${SparseMatrix.SPARSE_MATRIX_TYPENAME_PREFIX} ${SparseMatrix.SPARSE_MATRIX_TYPENAME_SUFFIX}`;
-	private static TYPENAME_REGEX = new RegExp(`${SparseMatrix.SPARSE_MATRIX_TYPENAME_PREFIX} (?:\\w+ )?${SparseMatrix.SPARSE_MATRIX_TYPENAME_SUFFIX}`);
+	private static readonly TYPENAME_PREFIX: string = 'sparse';
+	private static readonly TYPENAME_SUFFIX: string = 'matrix';
+	private static readonly TYPENAME: string =
+		`${SparseMatrix.TYPENAME_PREFIX} ${SparseMatrix.TYPENAME_SUFFIX}`;
+	private static readonly TYPENAME_REGEX =
+		new RegExp(`${SparseMatrix.TYPENAME_PREFIX} (?:\\w+ )?${SparseMatrix.TYPENAME_SUFFIX}`);
+	//**************************************************************************
 	private _indices: Array<number>;
 
 
@@ -30,7 +33,7 @@ export class SparseMatrix extends Matrix {
 		freeIndices: Array<number> = [],
 		fixedIndices: Array<number> = [],
 		validValue: boolean = true,
-		type: string = SparseMatrix.SPARSE_MATRIX_TYPENAME
+		type: string = SparseMatrix.TYPENAME
 	)
 	{
 		super(name, value, freeIndices, fixedIndices, validValue, type);

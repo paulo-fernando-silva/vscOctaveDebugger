@@ -6,11 +6,11 @@ import { Variable } from './Variable';
 
 export class Variables {
 	//**************************************************************************
-	private static _FACTORIES = new Array<Variable>();
-	private static _FALLBACK: Variable;
-	private static _REFS = new Array<Variable>();
+	private static readonly _EMPTY_ARRAY = new Array<Variable>();
+	private static readonly _FACTORIES = new Array<Variable>();
+	private static readonly _REFS = new Array<Variable>();
 	private static _CHUNKS_PREFETCH = Constants.CHUNKS_PREFETCH;
-	private static _EMPTY_ARRAY = new Array<Variable>();
+	private static _FALLBACK: Variable;
 
 	public static evaluateAns = false;
 

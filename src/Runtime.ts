@@ -298,10 +298,10 @@ export class Runtime extends EventEmitter implements CommandInterface {
 		let commandNumber: number = this._commandNumber; // cache the current command #
 		let lines: string[] = [];
 		let status = Status.NOT_CONSUMING;
-		const prefix = `cmd:${commandNumber}> '${expression}'`;
+		// const prefix = `cmd:${commandNumber}> '${expression}'`; // DEBUG
 
 		this._inputHandler.push((line: string) => {
-			OctaveLogger.debug(`${prefix} output: ${line}`);
+			// OctaveLogger.debug(`${prefix} output: ${line}`); // DEBUG
 			const match = line.match(Runtime.SYNC_REGEX);
 			// pause, input, errors, etc... can consume sync commands
 			if(match !== null && match.length === MatchIndex.LENGTH) {
