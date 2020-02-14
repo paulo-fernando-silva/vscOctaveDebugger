@@ -475,18 +475,20 @@ class OctaveDebugSession extends LoggingDebugSession {
 
 
 	//**************************************************************************
+	private static readonly WHERE_REGEX = /stopped at top level/;
 	protected stepWith(cmd: string): void {
 		// TODO: flush ongoing commands
 		this._stepping = this._runtime.autoTerminate();
 		const currStep = ++this._stepCount;
 		OctaveLogger.debug(`stepRequest: request '${currStep}'`);
-
+		// TODO: use cl?
 		this._runtime.evaluateAsLine(cmd, (output: string) => {
 			OctaveLogger.log(output);
 			if(this._stepping) {
 				this._stepping = false;
+				// TODO: use cl?
 				this._runtime.evaluateAsLine('dbwhere', (output: string) => {
-					if(output.match(/stopped at top level/)) {
+					if(output.match(OctaveDebugSession.WHERE_REGEX)) {
 						this.sendTerminatedEvent();
 					}
 				});

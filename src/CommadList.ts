@@ -60,8 +60,7 @@ export class CommandList implements CommandInterface {
 	//**************************************************************************
 	//#region private
 	//**************************************************************************
-	private static readonly SYNC = `cl::vsc::${Constants.MODULE_NAME}::`;
-	// private static readonly SYNC_REGEX = new RegExp(`(.*)${CommandList.SYNC}(\\d+)(.*)`);
+	private static readonly SYNC = `${Constants.MODULE_NAME}::cl`;
 
 	//**************************************************************************
 	private _recording = new Array<ExecuteCommand>();
@@ -81,7 +80,7 @@ export class CommandList implements CommandInterface {
 		const lines = output.split(CommandList.SYNC);
 		const cl = this._executing;
 
-		// TODO: command id...
+		// In practice we should always have at least as many syncs as commands.
 		const N = Math.min(cl.length, lines.length);
 
 		for(let i = 0; i !== N; ++i) {
@@ -144,8 +143,6 @@ export class CommandList implements CommandInterface {
 		let cmds = '';
 
 		this._executing.forEach(cmd =>
-			// TODO: command id
-			// cmds += Runtime.echo(`${cmd.command}\n${cmd.id}${CommandList.SYNC}`)
 			cmds += `${cmd.command}\n${Runtime.echo(CommandList.SYNC)}`
 		);
 

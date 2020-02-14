@@ -39,14 +39,12 @@ export class Runtime extends EventEmitter implements CommandInterface {
 	//**************************************************************************
 	//#region private
 	//**************************************************************************
-	public static readonly DBG_PROMPT = 'debug> ';
-	//**************************************************************************
+	private static readonly DBG_PROMPT = 'debug> ';
 	private static readonly SEP = '::';
-	private static readonly SYNC = `vsc${Runtime.SEP}${Constants.MODULE_NAME}`;
+	private static readonly SYNC = Constants.MODULE_NAME;
 	private static readonly SYNC_REGEX =
 		new RegExp(`${Runtime.SYNC}${Runtime.SEP}(\\d+)${Runtime.SEP}(\\d+)`);
-	//**************************************************************************
-	private static readonly TERMINATOR = `end::${Runtime.SYNC}`;
+	private static readonly TERMINATOR = `${Runtime.SYNC}${Runtime.SEP}end`;
 	private static readonly TERMINATOR_REGEX = new RegExp(Runtime.TERMINATOR);
 
 	//**************************************************************************
