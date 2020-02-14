@@ -8,17 +8,6 @@ import { dirname } from 'path';
 
 
 //**************************************************************************
-class InputHandler {
-	public fn: (str: string) => number;
-	public name: string;
-
-	public constructor(fn: (str: string) => number, name: string) {
-		this.fn = fn;
-		this.name = name;
-	}
-};
-
-//**************************************************************************
 enum Status {
 	NOT_CONSUMING = 0x00000000,
 	BEGUN_CONSUMING = 0x00000001,
@@ -52,16 +41,16 @@ export class Runtime extends EventEmitter implements CommandInterface {
 	//**************************************************************************
 	public static readonly DBG_PROMPT = 'debug> ';
 	//**************************************************************************
-	private static readonly SYNC = `vsc::${Constants.MODULE_NAME}`;
 	private static readonly SEP = '::';
+	private static readonly SYNC = `vsc${Runtime.SEP}${Constants.MODULE_NAME}`;
 	private static readonly SYNC_REGEX =
-		new RegExp(`(\\d+)${Runtime.SEP}(\\d+)${Runtime.SEP}${Runtime.SYNC}`);
+		new RegExp(`${Runtime.SYNC}${Runtime.SEP}(\\d+)${Runtime.SEP}(\\d+)`);
 	//**************************************************************************
 	private static readonly TERMINATOR = `end::${Runtime.SYNC}`;
 	private static readonly TERMINATOR_REGEX = new RegExp(`^${Runtime.TERMINATOR}$`);
 
 	//**************************************************************************
-	private _inputHandler = new Array<InputHandler>();
+	private _inputHandler = new Array<(str: string) => number>();
 	private _stderrHandler = new Array<(str: string) => boolean>();
 	private _commandNumber = 0;
 	private _processName: string;
@@ -70,6 +59,20 @@ export class Runtime extends EventEmitter implements CommandInterface {
 	private _processStderr: ReadLine;
 	private _program: string;
 	private _autoTerminate: boolean;
+
+
+	//**************************************************************************
+	private static createCommand(expression: string, command: number): string {
+		const vars = new Array<string>(MatchIndex.LENGTH);
+		// This sequence needs to match the Runtime.SYNC_REGEX pattern above.
+		vars[MatchIndex.CMD_NUMBER] = `${Runtime.SEP}${command}`;
+		vars[MatchIndex.STATUS] = `${Runtime.SEP}${Status.BEGUN_CONSUMING}`;
+		const syncBeginCmd = Runtime.echo(`${Runtime.SYNC}${vars.join('')}`);
+		vars[MatchIndex.STATUS] = `${Runtime.SEP}${Status.ENDED_CONSUMING}`;
+		const syncEndCmd = Runtime.echo(`${Runtime.SYNC}${vars.join('')}`);
+
+		return `${syncBeginCmd}${expression}\n${syncEndCmd}`;
+	}
 
 
 	//**************************************************************************
@@ -101,8 +104,7 @@ export class Runtime extends EventEmitter implements CommandInterface {
 		let consumeCallbackResult = Status.NOT_CONSUMING;
 
 		while(this._inputHandler.length !== 0) {
-			const handler = this._inputHandler[0];
-			consumeCallbackResult = handler.fn(data);
+			consumeCallbackResult = this._inputHandler[0](data);
 
 			if(consumeCallbackResult === Status.ENDED_CONSUMING) {
 				this._inputHandler.shift(); // Done consuming input, remove handler.
@@ -189,15 +191,6 @@ export class Runtime extends EventEmitter implements CommandInterface {
 
 
 	//**************************************************************************
-	private echo(str: string): string {
-		// The ' ' space at the beginning unpauses octave when stepping.
-		// TODO: this shouldn't be needed. User should be able to used pause, etc...
-		// The \\n put this output in a new line
-		return ` printf("\\n${str}\\n");`;
-	}
-
-
-	//**************************************************************************
 	private terminated(data: string): boolean {
 		if(this.autoTerminate() && data.match(Runtime.TERMINATOR_REGEX) !== null) {
 			OctaveLogger.debug(`Runtime: program ${this._program} exited normally.`);
@@ -279,7 +272,7 @@ export class Runtime extends EventEmitter implements CommandInterface {
 
 		// This is just like a deferred sync command.
 		// The program executes and then echoes the terminator tag.
-		const terminator = this.echo(Runtime.TERMINATOR);
+		const terminator = Runtime.echo(Runtime.TERMINATOR);
 		this.execute(`${functionFromPath(program)};${terminator}`);
 	}
 
@@ -305,44 +298,37 @@ export class Runtime extends EventEmitter implements CommandInterface {
 		let commandNumber: number = this._commandNumber; // cache the current command #
 		let lines: string[] = [];
 		let status = Status.NOT_CONSUMING;
+		const prefix = `cmd:${commandNumber}> '${expression}'`;
 
-		this._inputHandler.push(new InputHandler(
-			(line: string) => {
-				const match = line.match(Runtime.SYNC_REGEX);
-				// pause, input, errors, etc... can consume sync commands
-				if(match !== null && match.length === MatchIndex.LENGTH) {
-					const cmdNum = parseInt(match[MatchIndex.CMD_NUMBER]);
-					// check if sync cmd# >= the current cmd#
-					if(cmdNum > commandNumber) {
-						return Status.ENDED_CONSUMING;
-					} else if(cmdNum < commandNumber) {
-						return Status.NOT_CONSUMING;
-					}
-					// cmdNum === commandNumber so update status
-					status = parseInt(match[MatchIndex.STATUS]);
-					// If we hit the end sync we skip this line on the output
-					if(status === Status.ENDED_CONSUMING) {
-						callback(lines);
-						OctaveLogger.debug(lines.join('\n'));
-					}
-				} else if(status === Status.BEGUN_CONSUMING) {
-					lines.push(line);
+		this._inputHandler.push((line: string) => {
+			OctaveLogger.debug(`${prefix} output: ${line}`);
+			const match = line.match(Runtime.SYNC_REGEX);
+			// pause, input, errors, etc... can consume sync commands
+			if(match !== null && match.length === MatchIndex.LENGTH) {
+				const cmdNum = parseInt(match[MatchIndex.CMD_NUMBER]);
+				// check if sync cmd# >= the current cmd#
+				if(cmdNum > commandNumber) {
+					return Status.ENDED_CONSUMING;
+				} else if(cmdNum < commandNumber) {
+					return Status.NOT_CONSUMING;
 				}
+				// cmdNum === commandNumber so update status
+				status = parseInt(match[MatchIndex.STATUS]);
+				// If we hit the end sync we skip this line on the output
+				if(status === Status.ENDED_CONSUMING) {
+					callback(lines);
+					OctaveLogger.debug(lines.join('\n'));
+				}
+			} else if(status === Status.BEGUN_CONSUMING) {
+				lines.push(line);
+			}
 
-				return status;
-			},
-			`${commandNumber}> ${expression}`
-		));
+			return status;
+		});
 
-		const vars = new Array<string>(MatchIndex.LENGTH);
-		vars[MatchIndex.CMD_NUMBER] = `${commandNumber}${Runtime.SEP}`;
-		vars[MatchIndex.STATUS] = `${Status.BEGUN_CONSUMING}${Runtime.SEP}`;
-		const syncBeginCmd = this.echo(`${vars.join('')}${Runtime.SYNC}`);
-		vars[MatchIndex.STATUS] = `${Status.ENDED_CONSUMING}${Runtime.SEP}`;
-		const syncEndCmd = this.echo(`${vars.join('')}${Runtime.SYNC}`);
 		// The 1st & 3rd cmds don't need \n, as it's included in the echo.
 		// The user expression needs it as it might not have ;
-		this.execute(`${syncBeginCmd}${expression}\n${syncEndCmd}`);
+		this.execute(Runtime.createCommand(expression, commandNumber));
 	}
 
 
@@ -363,6 +349,14 @@ export class Runtime extends EventEmitter implements CommandInterface {
 		return this._autoTerminate;
 	}
 
+
+	//**************************************************************************
+	public static echo(str: string): string {
+		// The ' ' space at the beginning unpauses octave when stepping.
+		// TODO: this shouldn't be needed. User should be able to used pause, etc...
+		// The \\n put this output in a new line
+		return ` printf("\\n${str}\\n");`;
+	}
 
 	//**************************************************************************
 	//#endregion
