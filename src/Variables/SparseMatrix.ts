@@ -132,9 +132,9 @@ export class SparseMatrix extends Matrix {
 		const begin = 1 + offset;
 		const end = begin + count - 1;
 		const idxExp = `find(${this.name()})(${begin}:${end})`;
-		runtime.evaluate(idxExp, (output: string[]) => {
-			output[0] = Variables.clean(output[0]);
-			const values = output.filter((val) => val);
+		runtime.evaluateAsLine(idxExp, (output: string) => {
+			output = Variables.clean(output);
+			const values = output.split('\n');
 			const indices = values.map(i => parseInt(i));
 
 			for(let i = 0; i !== indices.length; ++i) {
