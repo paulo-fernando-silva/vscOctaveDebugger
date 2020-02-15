@@ -140,8 +140,6 @@ class OctaveDebugSession extends LoggingDebugSession {
 		this._runtime.on(Constants.eERROR, () => this.sendTerminatedEvent());
 		this._runtime.addStderrHandler((line: string) => {
 			if(line.match(OctaveDebugSession.STOP_REGEX) !== null) {
-				const currStep = this._stepCount;
-				OctaveLogger.debug(`Sending breakpoint: '${currStep}'`);
 				this.sendEvent(new StoppedEvent('breakpoint', OctaveDebugSession.THREAD_ID));
 				this._stepping = false;
 				return true; // Event handled. Stop processing.
@@ -303,8 +301,6 @@ class OctaveDebugSession extends LoggingDebugSession {
 		args: DebugProtocol.SetBreakpointsArguments
 	): void
 	{
-		const currStep = this._stepCount;
-		OctaveLogger.debug(`setBreakpoints: request '${currStep}'`);
 		if(!isMatlabFile(args.source)) {
 			return this.handleInvalidBreakpoints(response, args);
 		}
@@ -319,18 +315,16 @@ class OctaveDebugSession extends LoggingDebugSession {
 						(breakpoints: Array<Breakpoint>) => {
 							response.body = { breakpoints: breakpoints };
 							this.sendResponse(response);
-							OctaveLogger.debug(`setBreakpoints: response '${currStep}'`);
 						}
 					);
 				});
 			} else {
 				this.sendResponse(response);
-				OctaveLogger.debug(`setBreakpoints: response '${currStep}'`);
 			}
 		};
 
 		if(this._runtime) {
-			const cl = new CommandList(currStep);
+			const cl = new CommandList(this._stepCount);
 			callback(cl);
 			this.executeCommandList(cl, () => {});
 		} else {
@@ -363,11 +357,8 @@ class OctaveDebugSession extends LoggingDebugSession {
 
 		// Each time the program reaches any new instruction it requests the stack.
 		// Since it'll recreate the scopes and variables, we clear them here.
-		const currStep = this._stepCount;
-		OctaveLogger.debug(`stackTrace: clear '${currStep}'`);
 		this.clear();
 
-		OctaveLogger.debug(`stackTrace: request '${currStep}'`);
 		const callback = (stackFrames: Array<StackFrame>) => {
 			response.body = {
 				stackFrames: stackFrames,
@@ -375,7 +366,6 @@ class OctaveDebugSession extends LoggingDebugSession {
 			};
 
 			this.sendResponse(response);
-			OctaveLogger.debug(`stackTrace: response '${currStep}'`);
 		};
 
 		this._stackManager.get(startFrame, endFrame, this._runtime, callback);
@@ -388,9 +378,6 @@ class OctaveDebugSession extends LoggingDebugSession {
 		args: DebugProtocol.ScopesArguments
 	): void
 	{
-		const currStep = this._stepCount;
-		OctaveLogger.debug(`scopeRequest: request '${currStep}'`);
-
 		const callback = () => {
 			// All stack frames have local and global scopes.
 			const localScope = new OctaveScope(''); // local scope has no name.
@@ -402,7 +389,6 @@ class OctaveDebugSession extends LoggingDebugSession {
 			]};
 
 			this.sendResponse(response);
-			OctaveLogger.debug(`scopeRequest: response '${currStep}'`);
 		};
 
 		this._stackManager.selectStackFrame(args.frameId, this._runtime, callback);
@@ -416,8 +402,6 @@ class OctaveDebugSession extends LoggingDebugSession {
 		args: DebugProtocol.VariablesArguments
 	): void
 	{
-		const currStep = this._stepCount;
-		OctaveLogger.debug(`variablesRequest: request '${currStep}'`);
 		const callback = (variables: Array<OctaveVariable>) => {
 			response.body = {
 				variables: variables.map(v => <Variable>{
@@ -430,12 +414,12 @@ class OctaveDebugSession extends LoggingDebugSession {
 				})
 			};
 			this.sendResponse(response);
-			OctaveLogger.debug(`variablesRequest: response '${currStep}'`);
 		};
 
 		const count = args.count || 0;
 		const start = args.start || 0;
-		const cl = new CommandList(currStep);
+
+		const cl = new CommandList(this._stepCount);
 		Variables.listByReference(args.variablesReference, cl, count, start, callback);
 		this.executeCommandList(cl, () => { callback(OctaveDebugSession.EMPTY_VARS); });
 	}
@@ -463,16 +447,12 @@ class OctaveDebugSession extends LoggingDebugSession {
 		args: DebugProtocol.EvaluateArguments
 	): void
 	{
-		const currStep = this._stepCount;
-		OctaveLogger.debug(`evaluateRequest: request '${currStep}'`);
-
 		const sendResponse = (val: string) => {
 			response.body = {
 				result: val,
 				variablesReference: 0
 			};
 			this.sendResponse(response);
-			OctaveLogger.debug(`evaluateRequest: request '${currStep}'`);
 		};
 
 		Expression.evaluate(args.expression, this._runtime, args.context, sendResponse);
@@ -483,11 +463,12 @@ class OctaveDebugSession extends LoggingDebugSession {
 	private static readonly WHERE_REGEX = /stopped at top level/;
 	protected stepWith(cmd: string): void {
 		this._stepping = this._runtime.autoTerminate();
-		const currStep = ++this._stepCount;
-		OctaveLogger.debug(`stepRequest: request '${currStep}'`);
+		++this._stepCount;
 
 		this._runtime.evaluateAsLine(cmd, (output: string) => {
+			// Prints output from program done during step
 			OctaveLogger.log(output);
+
 			if(this._stepping) {
 				this._stepping = false;
 				this._runtime.evaluateAsLine('dbwhere', (output: string) => {
@@ -497,8 +478,6 @@ class OctaveDebugSession extends LoggingDebugSession {
 				});
 			}
 		});
-
-		OctaveLogger.debug(`stepRequest: response '${currStep}'`);
 	}
 
 

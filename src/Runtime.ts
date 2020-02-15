@@ -156,10 +156,10 @@ export class Runtime extends EventEmitter implements CommandInterface {
 	private onExit(code: number) {
 		const msg = `Runtime: ${this._processName} exited with code: ${code}`;
 
-		if(code !== 0) {
-			OctaveLogger.debug(msg);
+		if(code !== 0 && code != null) {
+			OctaveLogger.error(msg); // exited with non-zero code.
 		} else {
-			OctaveLogger.error(msg);
+			OctaveLogger.debug(msg);
 		}
 
 		this.emit(Constants.eEXIT);

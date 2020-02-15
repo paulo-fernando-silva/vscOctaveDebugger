@@ -168,7 +168,7 @@ export class Variables {
 	): void
 	{
 		runtime.evaluateAsLine(`${name} = ${value}`, (result: string) => {
-			OctaveLogger.debug(`setVariable operation result: ${result}`);
+			// We could use 'result' here, but for consistency we get the value.
 			Variables.getValue(name, runtime, callback);
 		});
 	}
