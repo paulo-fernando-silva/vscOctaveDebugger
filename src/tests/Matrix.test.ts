@@ -176,7 +176,7 @@ const value =
 		const name = 'mND';
 		const freeIndices = [1, 2, 2, 2];
 		const fixedIndices = [];
-		OctaveLogger.logToConsole = true;
+		OctaveLogger.logToConsole = false;
 		const runtime = new Runtime(Constants.DEFAULT_EXECUTABLE, '.');
 
 		const matrix = new Matrix(name, '', freeIndices, fixedIndices, false);
@@ -233,7 +233,7 @@ const value =
 		let grandchildren: Array<Array<Variable>> = [];
 
 		before((done) => {
-			OctaveLogger.logToConsole = true;
+			OctaveLogger.logToConsole = false;
 			runtime = new Runtime(Constants.DEFAULT_EXECUTABLE, '.');
 			const cmd = `${name} = [${vectors[0]},${vectors[1]}];`;
 			runtime.evaluateAsLine(cmd, (output: string) => {
@@ -308,7 +308,7 @@ const value =
 		let children: Array<SparseMatrix>;
 
 		before((done) => {
-			OctaveLogger.logToConsole = true;
+			OctaveLogger.logToConsole = false;
 			runtime = new Runtime(Constants.DEFAULT_EXECUTABLE, '.');
 			const cmd = `${name} = sparse([${rows.join(' ')}], [${columns.join(' ')}], [${values.join(' ')}]);`;
 			runtime.evaluateAsLine(cmd, (output: string) => {
