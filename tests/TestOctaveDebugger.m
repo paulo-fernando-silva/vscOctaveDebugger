@@ -13,6 +13,9 @@ function TestOctaveDebugger()
 % Todo:
 % - Currently struct fieldnames can't contain either the fieldname pattern when in octave style
 %
+	% Octave supports two types of strings. https://octave.org/doc/v5.1.0/Strings.html
+	sq_str = 'foo''bar''foo''bar'
+	str = "foo\nbar"
 	% this will only work when launch contains "splitFieldnamesOctaveStyle": true 
 	% https://octave.org/doc/v5.1.0/Creating-Structures.html
 	% otherwise fieldnames are expected in matlab style, i.e. only \w\d or _

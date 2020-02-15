@@ -3,25 +3,41 @@ import { Variables } from './Variables';
 import { Variable } from './Variable';
 
 
-export class SqString extends Variable {
+export class String extends Variable {
+	private static readonly STR_TYPE = 'string';
+	private static readonly ESC_STR_TYPE = 'sq_string';
+	private _typename: string;
+
+
 	//**************************************************************************
 	constructor(
 		name: string = '',
-		value: string = ''
+		value: string = '',
+		type: string = String.STR_TYPE
 	)
 	{
 		super();
 		this._name = name;
 		this._value = value;
+		this._typename = type;
+
+		if(this._value.length > 1) {
+			this._numberOfChildren = this._value.length;
+			Variables.addReferenceTo(this);
+		} else {
+			this._numberOfChildren = 0;
+		}
 	}
 
 
 	//**************************************************************************
-	public typename(): string { return 'sq_string'; }
+	public typename(): string { return this._typename; }
 
 
 	//**************************************************************************
-	public loads(type: string): boolean { return type === this.typename(); }
+	public loads(type: string): boolean {
+		return type === String.STR_TYPE || type === String.ESC_STR_TYPE;
+	}
 
 
 	//**************************************************************************
@@ -31,10 +47,11 @@ export class SqString extends Variable {
 	//**************************************************************************
 	public createConcreteType(
 		name: string,
-		value: string
-	): SqString
+		value: string,
+		type: string
+	): String
 	{
-		return new SqString(name, value);
+		return new String(name, value, type);
 	}
 
 
@@ -43,11 +60,12 @@ export class SqString extends Variable {
 		name: string,
 		type: string,
 		runtime: CommandInterface,
-		callback: (s: SqString) => void
+		callback: (s: String) => void
 	): void
 	{
 		Variables.getValue(name, runtime, (value: string) => {
-			callback(this.createConcreteType(name, value));
+			const v = this.createConcreteType(name, value, type);
+			callback(v);
 		});
 	}
 
@@ -59,5 +77,18 @@ export class SqString extends Variable {
 		start: number,
 		callback: (vars: Array<Variable>) => void
 	): void
-	{} // SqString have no children.
+	{
+		// TODO: Handle lazy loading
+		const values = this._value.split('');
+		const vars = new Array<Variable>();
+		const name = this.name();
+		const type = this._typename;
+
+		for(let i = 0; i != values.length; ++i) {
+			const v = this.createConcreteType(`${name}(${i})`, values[i], type);
+			vars.push(v);
+		}
+
+		callback(vars);
+	}
 }
