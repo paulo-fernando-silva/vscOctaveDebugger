@@ -22,8 +22,9 @@ The following types are currently supported:
  * [ScalarStruct/Struct](https://octave.org/doc/v5.1.0/Structures.html)
  * [Inline functions](https://octave.org/doc/v5.1.0/Inline-Functions.html) and [function handles](https://octave.org/doc/v5.1.0/Function-Handles.html)
  * [Cell Arrays](https://octave.org/doc/v5.1.0/Cell-Arrays.html)
- * LazyIndex
- * SqString
+ * LazyIndex (No docs. This might be an internal type only.)
+ * [SqString](https://octave.org/doc/v5.1.0/Escape-Sequences-in-String-Constants.html#Escape-Sequences-in-String-Constants)
+ * [Strings](https://octave.org/doc/v5.1.0/Strings.html)
  * UnknownType: represents unknown types as strings.
 
 If a type isn't supported request it on the [project repository](https://github.com/paulo-fernando-silva/vscOctaveDebugger.git).
@@ -94,6 +95,7 @@ is equivalent to
 
 * `"program"` can be anything that can be evaluated, e.g. a `"path/to/file.m"`, or `"functionName(value)"`.
 * `"autoTerminate"` Setting this to false will allow the program to continue executing after the last line of code is executed. This is useful if you're running for example UI elements with callbacks and you want to continue debugging after the end of the program code. You'll need to stop the debug session manually by pressing the □ button.
+* `"splitFieldnamesOctaveStyle"` this allows struct field names to be almost arbitrary [Octave](https://octave.org/doc/v5.1.0/Creating-Structures.html). This option is not compatible with matlab and so it's off by default [Matlab](https://www.mathworks.com/help/matlab/matlab_prog/generate-field-names-from-variables.html).
 
 ## Project Homepage
 Source available [here](https://github.com/paulo-fernando-silva/vscOctaveDebugger.git).
@@ -104,6 +106,7 @@ Please submit bugs there too.
 
 * ans: Is not displayed in the variables view by default. You can still output it in the console of watch view.
 * stdinput: Currently if you're stepping you can't rely on stdinput from your matlab/octave code. You can use pause, as long as it's not during a `step over`, `step into` and `step out`. That is, if you press F5 (continue) the pause will wait for your input in the `DEBUG CONSOLE`. Same for `input()`, `keyboard()`, etc. You can also step over/into/out using the `DEBUG CONSOLE`, by typing `dbstep` and `RETURN`. Then each new enter should work as a step directly. This is the way `octave-cli` works by default. Since the `DEBUG CONSOLE` just forwards your commands to `octave-cli` you can interact with it as if it was a normal terminal.
+* Octave will accept arbitrary strings as struct field names. When octave field names are enabled using `"splitFieldnamesOctaveStyle": true` in the launch options, the only strings that can't be used are strings of the type `/\n?  \[\d+,1\] = /`. Enabling this is not recommended.
 
 
 ## History :)
