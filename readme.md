@@ -14,14 +14,14 @@ This extension supports actions:
  * expression evaluation, via console input, watch UI, or mouse hover
 
 The following types are currently supported:
- * Scalar: [floats](https://octave.org/doc/v4.0.0/Single-Precision-Data-Types.html) and [ints](https://octave.org/doc/v4.0.0/Integer-Data-Types.html), the default type being double
- * [Matrix](https://octave.org/doc/v4.0.0/Matrices.html) of all basic types, includes ComplexMatrix/BoolMatrix
- * [DiagonalMatrix/ComplexDiagonalMatrix/PermutationMatrix](https://octave.org/doc/v4.2.1/Diagonal-and-Permutation-Matrices.html)
- * [SparseMatrix/SparseComplexMatrix](https://octave.org/doc/v4.0.3/Sparse-Matrices.html)
- * [Range](https://octave.org/doc/v4.0.0/Ranges.html)
- * [ScalarStruct/Struct](https://octave.org/doc/v4.0.0/Structures.html)
- * [Inline functions](https://octave.org/doc/v4.0.0/Inline-Functions.html) and [function handles](https://octave.org/doc/v4.4.0/Function-Handles.html)
- * [Cell Arrays](https://octave.org/doc/v4.0.3/Cell-Arrays.html)
+ * Scalar: [floats](https://octave.org/doc/v5.1.0/Single-Precision-Data-Types.html) and [ints](https://octave.org/doc/v5.1.0/Integer-Data-Types.html), the default type being double
+ * [Matrix](https://octave.org/doc/v5.1.0/Matrices.html) of all basic types, includes ComplexMatrix/BoolMatrix
+ * [DiagonalMatrix/ComplexDiagonalMatrix/PermutationMatrix](https://octave.org/doc/v5.1.0/Diagonal-and-Permutation-Matrices.html)
+ * [SparseMatrix/SparseComplexMatrix](https://octave.org/doc/v5.1.0/Sparse-Matrices.html)
+ * [Range](https://octave.org/doc/v5.1.0/Ranges.html)
+ * [ScalarStruct/Struct](https://octave.org/doc/v5.1.0/Structures.html)
+ * [Inline functions](https://octave.org/doc/v5.1.0/Inline-Functions.html) and [function handles](https://octave.org/doc/v5.1.0/Function-Handles.html)
+ * [Cell Arrays](https://octave.org/doc/v5.1.0/Cell-Arrays.html)
  * LazyIndex
  * SqString
  * UnknownType: represents unknown types as strings.
