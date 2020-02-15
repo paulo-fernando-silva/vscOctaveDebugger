@@ -1,3 +1,15 @@
+## 0.4.0
+* Added CommandLists which allow to buffers commands before sending them to octave. This costs more than immediate mode for small commands, but for scopes with lots of variables provides gains of about 40~50% in variable fetching. Tested with scopes of about 30 variables.
+* Removed log messages that I believe aren't necessary.
+* Tweaked I/O between Octave and vsc.
+* Fixed "which" called without parameters bug when evaluating expressions.
+* Added confirmation for conditional breakpoints.
+* Improved struct field name parsing. Now it supports Matlab and Octave styles. Matlab is used by default because Octave allows for arbitrary strings which is more generic so less compatible. Also, completely arbitrary strings are not supported.
+* Updated readme, and fixed typos.
+* Improved String support. Before only sq_strings were supported, now both string and sq_string are supported. Still needs support for lazy loading of large strings.
+* Made UnknownType load when possible.
+* Extension changed enough to deserve a minor version bump. Completely arbitrary. :)
+
 ## 0.3.19
 * Removed the theme color. Doesn't look as I imagined. Have to figure out how to use it.
 * Webpacked the project. Should load faster, and maybe be a bit snappier.
@@ -60,7 +72,7 @@
 * Fixed loading large structs.
 
 ## 0.3.6
-* Added suport for function handles.
+* Added support for function handles.
 * Added a variable workingDirectory to the program arguments. If not set defaults to program directory, if no program directory is given defaults to sourceDirectory, otherwise defaults to the filesystem root.
 * Fixed scalar struct loading children. Now children are loaded as variables which avoids loading very large matrices. Struct has the same issue but will require more work to fix. Next release.
 
@@ -104,7 +116,7 @@
 
 ## 0.2.19
 * Extra fix for the terminator string when the last command is a print with no new line.
-* Added a separator between the sync command and previous matlab commands.
+* Added a separator between the sync command and previous Matlab commands.
 * Added filtering for 'debug> ' prompt.
 
 ## 0.2.18
@@ -137,7 +149,7 @@
 * Reverted a change that blocks the extension on the new vsc update.
 
 ## 0.2.11
-* Improved feeback on error. Now a message will be displayed in the console if the extension fails to connect to the octave executable. Syntax errors are also shown in the console.
+* Improved feedback on error. Now a message will be displayed in the console if the extension fails to connect to the octave executable. Syntax errors are also shown in the console.
 
 ## 0.2.10
 * Made mouse hover expression evaluation always on.
@@ -160,7 +172,7 @@
 * Fixed bug that was preventing parsing or matrices with negative values.
 
 ## 0.2.5
-* Addded support for both matlab and octave languages.
+* Added support for both Matlab and octave languages.
 * Made arbitrary expression evaluation on by default. Everything is evaluated except functions because of potential side effects.
 * Added a new icon.
 * Other misc code changes.
@@ -181,7 +193,7 @@
 * Implemented variable fetching in chunks of 100 elements, e.g. 10x10 matrix will be completely fetched. while a 1000x1 will be fetched for selected ranges of elements. Matrices 2D or less with more than 100 elements can still be fetched in a single operation by setting prefetchCount in launch.json. A prefetchCount of 10 would load any 2D matrix up to 1000 elements (10 chunks of 100). The default is 1.
 
 ## 0.1.7
-* Refactored the matrix code. Now it retrives the value once, and then parses the children from that value. This is only done for two (#indices) dimensional matrices, independent of their size in each dimension.
+* Refactored the matrix code. Now it retrieves the value once, and then parses the children from that value. This is only done for two (#indices) dimensional matrices, independent of their size in each dimension.
 * struct has also been separated from matrix. Now it uses the old matrix code. I'm assuming it'll never have as many elements as a matrix.
 
 
@@ -205,4 +217,3 @@
 
 ## 0.1.0
 * Created project.
-
