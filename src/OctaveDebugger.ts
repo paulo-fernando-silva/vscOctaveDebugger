@@ -15,7 +15,7 @@ import {
 import { OctaveLogger } from './OctaveLogger';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import * as Constants from './Constants';
-import { Runtime } from './Runtime';
+import { Runtime, CommandInterface } from './Runtime';
 import { Breakpoints } from './Breakpoints';
 import { Expression } from './Expression';
 import { StackFramesManager } from './StackFramesManager';
@@ -69,7 +69,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 	private _stepCount = 0;
 	private _runtime: Runtime;
 	private _stackManager: StackFramesManager;
-	private _breakpointsCallbacks = new Array<(r: Runtime) => void>();
+	private _breakpointsCallbacks = new Array<(ci: CommandInterface) => void>();
 	private _stepping: boolean;
 	private _runCallback: () => void;
 	private _configurationDone = false;
@@ -272,10 +272,12 @@ class OctaveDebugSession extends LoggingDebugSession {
 	//**************************************************************************
 	private runSetBreakpoints() {
 		if(this._runtime && this._breakpointsCallbacks.length !== 0) {
+			const cl = new CommandList(this._stepCount);
 			this._breakpointsCallbacks.forEach(callback => {
-				callback(this._runtime);
+				callback(cl);
 			});
 			this._breakpointsCallbacks.length = 0;
+			this.executeCommandList(cl, () => {});
 		}
 	}
 
@@ -307,13 +309,13 @@ class OctaveDebugSession extends LoggingDebugSession {
 			return this.handleInvalidBreakpoints(response, args);
 		}
 
-		const callback = (runtime: Runtime) => {
+		const callback = (ci: CommandInterface) => {
 			const vscBreakpoints = args.breakpoints;
 			if(vscBreakpoints !== undefined && args.source.path !== undefined) {
 				const path = <string>args.source.path;
 
-				Breakpoints.clearAllBreakpointsIn(path, runtime, () => {
-					Breakpoints.set(vscBreakpoints, path, runtime,
+				Breakpoints.clearAllBreakpointsIn(path, ci, () => {
+					Breakpoints.set(vscBreakpoints, path, ci,
 						(breakpoints: Array<Breakpoint>) => {
 							response.body = { breakpoints: breakpoints };
 							this.sendResponse(response);
@@ -328,7 +330,9 @@ class OctaveDebugSession extends LoggingDebugSession {
 		};
 
 		if(this._runtime) {
-			callback(this._runtime);
+			const cl = new CommandList(currStep);
+			callback(cl);
+			this.executeCommandList(cl, () => {});
 		} else {
 			this._breakpointsCallbacks.push(callback);
 		}
@@ -364,7 +368,6 @@ class OctaveDebugSession extends LoggingDebugSession {
 		this.clear();
 
 		OctaveLogger.debug(`stackTrace: request '${currStep}'`);
-
 		const callback = (stackFrames: Array<StackFrame>) => {
 			response.body = {
 				stackFrames: stackFrames,
@@ -387,6 +390,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 	{
 		const currStep = this._stepCount;
 		OctaveLogger.debug(`scopeRequest: request '${currStep}'`);
+
 		const callback = () => {
 			// All stack frames have local and global scopes.
 			const localScope = new OctaveScope(''); // local scope has no name.
@@ -406,6 +410,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 
 
 	//**************************************************************************
+	private static readonly EMPTY_VARS = new Array<OctaveVariable>();
 	protected variablesRequest(
 		response: DebugProtocol.VariablesResponse,
 		args: DebugProtocol.VariablesArguments
@@ -431,9 +436,8 @@ class OctaveDebugSession extends LoggingDebugSession {
 		const count = args.count || 0;
 		const start = args.start || 0;
 		const cl = new CommandList(currStep);
-		// const cl = this._runtime;
 		Variables.listByReference(args.variablesReference, cl, count, start, callback);
-		this.executeCommandList(cl);
+		this.executeCommandList(cl, () => { callback(OctaveDebugSession.EMPTY_VARS); });
 	}
 
 
@@ -461,8 +465,9 @@ class OctaveDebugSession extends LoggingDebugSession {
 	{
 		const currStep = this._stepCount;
 		OctaveLogger.debug(`evaluateRequest: request '${currStep}'`);
+
 		const sendResponse = (val: string) => {
-				response.body = {
+			response.body = {
 				result: val,
 				variablesReference: 0
 			};
@@ -477,16 +482,14 @@ class OctaveDebugSession extends LoggingDebugSession {
 	//**************************************************************************
 	private static readonly WHERE_REGEX = /stopped at top level/;
 	protected stepWith(cmd: string): void {
-		// TODO: flush ongoing commands
 		this._stepping = this._runtime.autoTerminate();
 		const currStep = ++this._stepCount;
 		OctaveLogger.debug(`stepRequest: request '${currStep}'`);
-		// TODO: use cl?
+
 		this._runtime.evaluateAsLine(cmd, (output: string) => {
 			OctaveLogger.log(output);
 			if(this._stepping) {
 				this._stepping = false;
-				// TODO: use cl?
 				this._runtime.evaluateAsLine('dbwhere', (output: string) => {
 					if(output.match(OctaveDebugSession.WHERE_REGEX)) {
 						this.sendTerminatedEvent();
@@ -564,12 +567,17 @@ class OctaveDebugSession extends LoggingDebugSession {
 
 
 	//**************************************************************************
-	private executeCommandList(cl: CommandList) {
+	private executeCommandList(cl: CommandList, canceled: () => void) {
 		const self = this;
 
 		const execute = (cl: CommandList) => {
-			if(!cl.empty() && cl.id() === self._stepCount) {
-				cl.executeCommandList(self._runtime, execute);
+			if(!cl.empty()) {
+				if(cl.id() === self._stepCount) {
+					cl.executeCommandList(self._runtime, execute);
+				} else {
+					// I believe this branch is never taken because of how node.js executes.
+					canceled();
+				}
 			}
 		}
 
