@@ -37,6 +37,16 @@
             "octave": "octave-cli",
             "sourceFolder": "${workspaceFolder}",
             "debugServer": 4711
+        },
+        {
+            "type": "OctaveDebugger",
+            "request": "launch",
+            "name": "Debug octave fieldnames",
+            "program": "TestOctaveDebugger",
+            "splitFieldnamesOctaveStyle": true,
+            "octave": "octave-cli",
+            "sourceFolder": "${workspaceFolder}",
+            "debugServer": 4711
         }
     ]
 }

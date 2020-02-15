@@ -60,6 +60,8 @@ interface LaunchRequestArguments extends DebugProtocol.LaunchRequestArguments {
 	evaluateAns?: boolean;
 	/** Terminates Octave process when debug runs beyond the end of the program. */
 	autoTerminate?: boolean;
+	/** Enable fieldnames containing an almost arbitrary format. */
+	splitFieldnamesOctaveStyle?: boolean;
 }
 
 
@@ -240,6 +242,10 @@ class OctaveDebugSession extends LoggingDebugSession {
 	{
 		OctaveLogger.setup(args.verbose, args.logFilename);
 		Variables.evaluateAns = this.val(args.evaluateAns, false);
+
+		if(args.splitFieldnamesOctaveStyle !== undefined) {
+			ScalarStruct.setSplitStyle(args.splitFieldnamesOctaveStyle);
+		}
 
 		if(args.prefetchCount !== undefined) {
 			Variables.setChunkPrefetch(args.prefetchCount);

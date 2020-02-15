@@ -87,7 +87,18 @@ export class ScalarStruct extends Variable {
 
 
 	//**************************************************************************
-	private static readonly FIELDS_REGEX = /^(?:\s*\[\d+,1\] = )(\w+)$/;
+	public static setSplitStyle(splitFieldnamesOctaveStyle: boolean): void {
+		if(splitFieldnamesOctaveStyle) {
+			ScalarStruct.split = ScalarStruct.splitOctaveStyle;
+		} else {
+			ScalarStruct.split = ScalarStruct.splitMatlabStyle;
+		}
+	}
+
+
+	//**************************************************************************
+	private static split: (value: string) => string[] = ScalarStruct.splitMatlabStyle;
+	//**************************************************************************
 	public static getFields(
 		name: string,
 		runtime: CommandInterface,
@@ -95,16 +106,75 @@ export class ScalarStruct extends Variable {
 	): void
 	{
 		let fieldnames = new Array<string>();
-		runtime.evaluate(`fieldnames(${name})`, (output: string[]) => {
-			output.forEach(line => {
-				const match = line.match(ScalarStruct.FIELDS_REGEX);
+		runtime.evaluateAsLine(`fieldnames(${name})`, (output: string) => {
+			const fields = ScalarStruct.split(output);
 
-				if(match !== null && match.length > 1) {
-					fieldnames.push(`${name}.${match[match.length - 1]}`);
-				}
+			fields.forEach(field => {
+				fieldnames.push(`${name}.${field}`);
 			});
 
 			callback(fieldnames);
 		});
+	}
+
+
+	//**************************************************************************
+	private static readonly CLEAN_REGEX = /^\{\n((?:.*|\s*)*)\n\}$/;
+	private static readonly FIELDS_REGEX = /\n?  \[\d+,1\] = /;
+	private static readonly NON_WORD_REGEX = /\W/;
+	//**************************************************************************
+	// e.g. value =
+	//ans = {
+	// 	[1,1] =
+	// 	[2,1] = b
+	// 	[3,1] =
+	// 	[4,1] =
+	// 	[5,1] = \n
+	//}
+	private static splitOctaveStyle(value: string): string[] {
+		value = Variables.clean(value); // remove ans =
+
+		const match = value.match(ScalarStruct.CLEAN_REGEX);
+
+		if(match !== null && match.length === 2) {
+			value = match[1]; // remove {\n and }\n
+		}
+
+		const fields = value.split(ScalarStruct.FIELDS_REGEX);
+		// Remove the first field because it's empty as there's nothing before [1,1].
+		fields.shift();
+
+		for(let i = 0; i !== fields.length; ++i) {
+			const field = fields[i];
+
+			if(field.length === 0 || ScalarStruct.NON_WORD_REGEX.test(field)) {
+				fields[i] = `('${field}')`; // escape fieldname
+			}
+		}
+
+		return fields;
+	}
+
+
+	//**************************************************************************
+	// Matlab is more restrictive, only \w\d and _ are valid in fieldnames.
+	private static splitMatlabStyle(value: string): string[] {
+		value = Variables.clean(value); // remove ans =
+
+		const match = value.match(ScalarStruct.CLEAN_REGEX);
+
+		if(match !== null && match.length === 2) {
+			value = match[1]; // remove {\n and }\n
+		}
+
+		let fields = value.split(ScalarStruct.FIELDS_REGEX);
+		// Remove the first field because it's empty as there's nothing before [1,1].
+		fields.shift();
+
+		fields = fields.filter(field =>
+			field.length !== 0 && !ScalarStruct.NON_WORD_REGEX.test(field)
+		);
+
+		return fields;
 	}
 }

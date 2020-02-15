@@ -11,7 +11,13 @@ function TestOctaveDebugger()
 % - functions defined in other files
 % - conditional breakpoints
 % Todo:
+% - Currently struct fieldnames can't contain either the fieldname pattern when in octave style
 %
+	% this will only work when launch contains "splitFieldnamesOctaveStyle": true 
+	% https://octave.org/doc/v5.1.0/Creating-Structures.html
+	% otherwise fieldnames are expected in matlab style, i.e. only \w\d or _
+	% https://www.mathworks.com/help/matlab/matlab_prog/generate-field-names-from-variables.html
+	st = struct('', 1, 'b', 2, ' ', 3, '	', 4, '\n', 5, '  [2,1] = ', 6);
 	cm = 100 * magic(2) + i;
 	cdm = diag([1:10]+i);
 	dg_mt = diag([1:20]);
@@ -20,7 +26,7 @@ function TestOctaveDebugger()
 
 	s = struct('f', zeros(101,1));
 	ss = [ s s; s s ];
-	
+
 	int8_ = int8(1); uint8_ = uint8(1);
 	int16_ = int16(1); uint16_ = uint16(1);
 	int32_ = int32(1); uint32_ = uint32(1);
@@ -36,7 +42,7 @@ function TestOctaveDebugger()
 	yy = [y y];
 	sm = sparse([1 2 3], [4 5 6], [-10.2, 5.0, 101])
 	csm = sparse([1 2 3], [4 5 6], [-10.2 + i, 5.0, 101])
-	lsm = sparse(1:400, 201:600, magic(20)(:)); 
+	lsm = sparse(1:400, 201:600, magic(20)(:));
 	manyRowsMatrix = rand(1000, 1);
 	manyColumnsMatrix = rand(3,9,1) * (1 + i);
 	testNestedFunction();
