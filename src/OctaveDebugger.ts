@@ -37,7 +37,7 @@ import { Cell } from './Variables/Cell';
 import { Scope as OctaveScope } from './Variables/Scope';
 import { isMatlabFile, validDirectory } from './Utils/fsutils';
 import { dirname } from 'path';
-import { CommandList } from './CommadList';
+import { CommandList } from './CommandList';
 
 
 //******************************************************************************
