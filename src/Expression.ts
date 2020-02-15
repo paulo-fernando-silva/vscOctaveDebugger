@@ -7,17 +7,7 @@ import * as Constants from './Constants';
 //******************************************************************************
 export class Expression {
 	//**************************************************************************
-	private static readonly CLEAN_REGEX = /^'[^']*$/;
-	private static clean(expression: string): string {
-		if(expression.match(Expression.CLEAN_REGEX) !== null) {
-			expression = expression.replace('\'', '');
-		}
-
-		return expression;
-	}
-
-
-	//**************************************************************************
+	private static readonly CLEAN_REGEX = /\s*'\s*/g;
 	public static evaluate(
 		expression: string,
 		runtime: CommandInterface,
@@ -33,19 +23,24 @@ export class Expression {
 			callback('');
 		} else {
 			// fixes an issue with vsc not knowing how to parse octave code.
-			// i.e. if you hover 'var', expression will equal 'var
-			const hoverExpression = Expression.clean(expression);
-			Expression.type(hoverExpression, runtime,
-				(value: string | undefined, type: string | undefined) => {
-					if(value === undefined && type === undefined) {
-						callback(Constants.EVAL_UNDEF);
-					} else if(ctx === Constants.CTX_HOVER || ctx === Constants.CTX_WATCH) {
-						Expression.handleHover(hoverExpression, runtime, value, type, callback);
-					} else { // and all the rest
-						Expression.forceEvaluate(expression, runtime, callback);
+			// i.e. if you hover 'var', expression will equal 'var or '' if empty
+			const hoverExpression = expression.replace(Expression.CLEAN_REGEX, '');
+
+			if(hoverExpression !== '') {
+				Expression.type(hoverExpression, runtime,
+					(value: string | undefined, type: string | undefined) => {
+						if(value === undefined && type === undefined) {
+							callback(Constants.EVAL_UNDEF);
+						} else if(ctx === Constants.CTX_HOVER || ctx === Constants.CTX_WATCH) {
+							Expression.handleHover(hoverExpression, runtime, value, type, callback);
+						} else { // and all the rest
+							Expression.forceEvaluate(expression, runtime, callback);
+						}
 					}
-				}
-			);
+				);
+			} else {
+				callback(Constants.EVAL_UNDEF);
+			}
 		}
 	}
 
