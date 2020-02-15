@@ -22,8 +22,10 @@ export class UnknownType extends Variable {
 		super();
 		this._name = name;
 		this._value = value;
+		// Use original typename before changing it.
+		this._extendedTypename =
+			`${this._typename}: ${type} ${size.join(Constants.SIZE_SEPARATOR)}`;
 		this._typename = type;
-		this._extendedTypename = `UnknownType: ${type} ${size.join(Constants.SIZE_SEPARATOR)}`;
 		this._size = size;
 	}
 
@@ -67,9 +69,18 @@ export class UnknownType extends Variable {
 	): void
 	{
 		Variables.getSize(name, runtime, (size: Array<number>) => {
-			// Can't get value. Might be too large.
-			const value = size.join(Constants.SIZE_SEPARATOR);
-			callback(this.createConcreteType(name, value, type, size));
+			const loadable = Variables.loadable(size);
+
+			const buildWith = (value: string) => {
+				const v = this.createConcreteType(name, value, type, size);
+				callback(v);
+			};
+
+			if(loadable) {
+				Variables.getValue(name, runtime, buildWith);
+			} else {
+				buildWith(size.join(Constants.SIZE_SEPARATOR));
+			}
 		});
 	}
 
