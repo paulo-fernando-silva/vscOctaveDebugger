@@ -55,7 +55,7 @@ More information about debugging with Octave can be found
 
 * Set breakpoints as needed.
 * Press the `DEBUG` '▷' button or F5 to start debugging.
-* Open the `DEBUG CONSOLE` to view any output from your program or to interact with it. Commands will be sent directly to octave.
+* Open the `DEBUG CONSOLE` to view any output from your program or to interact with it. Commands will be sent directly to Octave.
 Note that `octave-cli` must be installed on your system. You can download it [here](https://www.gnu.org/software/octave/download.html).
 
 ## Understanding the Debug Session Configuration
@@ -93,9 +93,9 @@ is equivalent to
     "sourceFolder": "${workspaceFolder}"
     "workingDirectory": "${workspaceFolder}/A/B/C/"
 
-* `"program"` can be anything that can be evaluated, e.g. a `"path/to/file.m"`, or `"functionName(value)"`.
+* `"program"` can be anything that can be evaluated, e.g. `"path/to/file.m"`, or `"functionName(value)"`.
 * `"autoTerminate"` Setting this to false will allow the program to continue executing after the last line of code is executed. This is useful if you're running for example UI elements with callbacks and you want to continue debugging after the end of the program code. You'll need to stop the debug session manually by pressing the □ button.
-* `"splitFieldnamesOctaveStyle"` this allows struct field names to be almost arbitrary [Octave](https://octave.org/doc/v5.1.0/Creating-Structures.html). This option is not compatible with matlab and so it's off by default [Matlab](https://www.mathworks.com/help/matlab/matlab_prog/generate-field-names-from-variables.html).
+* `"splitFieldnamesOctaveStyle"` this allows struct field names to be almost arbitrary ([details](https://octave.org/doc/v5.1.0/Creating-Structures.html)). This option is not compatible with matlab and so it's off by default ([details](https://www.mathworks.com/help/matlab/matlab_prog/generate-field-names-from-variables.html)).
 
 ## Project Homepage
 Source available [here](https://github.com/paulo-fernando-silva/vscOctaveDebugger.git).
@@ -104,9 +104,11 @@ Please submit bugs there too.
 
 ## Known Issues
 
-* ans: Is not displayed in the variables view by default. You can still output it in the console of watch view.
-* stdinput: Currently if you're stepping you can't rely on stdinput from your matlab/octave code. You can use pause, as long as it's not during a `step over`, `step into` and `step out`. That is, if you press F5 (continue) the pause will wait for your input in the `DEBUG CONSOLE`. Same for `input()`, `keyboard()`, etc. You can also step over/into/out using the `DEBUG CONSOLE`, by typing `dbstep` and `RETURN`. Then each new enter should work as a step directly. This is the way `octave-cli` works by default. Since the `DEBUG CONSOLE` just forwards your commands to `octave-cli` you can interact with it as if it was a normal terminal.
-* Octave will accept arbitrary strings as struct field names. When octave field names are enabled using `"splitFieldnamesOctaveStyle": true` in the launch options, the only strings that can't be used are strings of the type `/\n?  \[\d+,1\] = /`. Enabling this is not recommended.
+The following issues will likely not be fixed. For other open issues see [here](https://github.com/paulo-fernando-silva/vscOctaveDebugger/issues).
+
+* ans: Is not displayed in the variables view by default. You can still output it in the console or watch view.
+* stdinput: Currently if you're stepping you can't rely on stdinput from your Matlab/Octave code. For example, you can use functions like `pause()`, `input()`, `keyboard()`, etc, as long as it's not during a step over, step into, or step out. To work around this you can press F5 (continue), and `pause()` will wait for your input in the `DEBUG CONSOLE`. The issue comes from the communication that the plugin does with Octave in order to control execution. When using the console or continuing the execution no such communication exists. So you can step over/into/out using the `DEBUG CONSOLE`, by typing `dbstep` and pressing the `RETURN` key (see [here](https://octave.org/doc/v5.1.0/Debug-Mode.html) for details). Then each new `RETURN` should work as a step directly. This is the way `octave-cli` works by default. Since the `DEBUG CONSOLE` just forwards your commands to `octave-cli` you can interact with it as if it was a normal terminal.
+* Octave will accept arbitrary strings as struct field names. When Octave field names are enabled using `"splitFieldnamesOctaveStyle": true` in the launch options, the only strings that can't be used are strings of the type `/\n?  \[\d+,1\] = /`. Enabling this is not recommended.
 
 
 ## History :)
