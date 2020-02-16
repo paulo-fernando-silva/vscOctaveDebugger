@@ -16,7 +16,9 @@ function TestOctaveDebugger()
 	% Octave supports two types of strings. https://octave.org/doc/v5.1.0/Strings.html
 	sq_str = 'foo''bar''foo''bar'
 	str = "foo\nbar"
-	% this will only work when launch contains "splitFieldnamesOctaveStyle": true 
+	mds = char ("an apple", "two pears")
+	long_str = repmat(str, 1, 100);
+	% this will only work when launch contains "splitFieldnamesOctaveStyle": true
 	% https://octave.org/doc/v5.1.0/Creating-Structures.html
 	% otherwise fieldnames are expected in matlab style, i.e. only \w\d or _
 	% https://www.mathworks.com/help/matlab/matlab_prog/generate-field-names-from-variables.html

@@ -7,6 +7,7 @@ export class String extends Variable {
 	private static readonly STR_TYPE = 'string';
 	private static readonly ESC_STR_TYPE = 'sq_string';
 	private _typename: string;
+	private _children: Array<Variable>;
 
 
 	//**************************************************************************
@@ -78,17 +79,19 @@ export class String extends Variable {
 		callback: (vars: Array<Variable>) => void
 	): void
 	{
-		// TODO: Handle lazy loading
-		const values = this._value.split('');
-		const vars = new Array<Variable>();
-		const name = this.name();
-		const type = this._typename;
+		if(this._children === undefined) {
+			this._children = new Array<Variable>();
+			// TODO: Handle chunk/range loading
+			const values = this._value.split('');
+			const name = this.name();
+			const type = this._typename;
 
-		for(let i = 0; i != values.length; ++i) {
-			const v = this.createConcreteType(`${name}(${i})`, values[i], type);
-			vars.push(v);
+			for(let i = 0; i != values.length; ++i) {
+				const v = this.createConcreteType(`${name}(${i})`, values[i], type);
+				this._children.push(v);
+			}
 		}
 
-		callback(vars);
+		callback(this._children.slice(start, start+count));
 	}
 }
