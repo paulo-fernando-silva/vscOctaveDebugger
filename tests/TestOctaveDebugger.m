@@ -22,7 +22,7 @@ function TestOctaveDebugger()
 	% https://octave.org/doc/v5.1.0/Creating-Structures.html
 	% otherwise fieldnames are expected in Matlab style, i.e. only \w\d or _
 	% https://www.mathworks.com/help/matlab/matlab_prog/generate-field-names-from-variables.html
-	st = struct('', 1, 'b', 2, ' ', 3, '	', 4, '\n', 5, '  [2,1] = ', 6);
+	st = struct('', 1, 'b', 2, ' ', 3, '	', 4, '\n', 5, '  [2,1] = ', 6, '1ab_2', 7, 'ab_2', 8);
 	cm = 100 * magic(2) + i;
 	cdm = diag([1:10]+i);
 	dg_mt = diag([1:20]);

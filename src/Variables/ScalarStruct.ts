@@ -157,7 +157,10 @@ export class ScalarStruct extends Variable {
 
 
 	//**************************************************************************
-	// Matlab is more restrictive, only \w\d and _ are valid in fieldnames.
+	private static readonly FIELD_REGEX = /^[a-zA-Z]\w*$/;
+	// Matlab is more restrictive, only \w are valid in fieldnames.
+	// Furthermore, field names must begin with a letter.
+	// https://www.mathworks.com/help/matlab/matlab_prog/generate-field-names-from-variables.html
 	private static splitMatlabStyle(value: string): string[] {
 		value = Variables.clean(value); // remove ans =
 
@@ -172,7 +175,7 @@ export class ScalarStruct extends Variable {
 		fields.shift();
 
 		fields = fields.filter(field =>
-			field.length !== 0 && !ScalarStruct.NON_WORD_REGEX.test(field)
+			field.length !== 0 && ScalarStruct.FIELD_REGEX.test(field)
 		);
 
 		return fields;
