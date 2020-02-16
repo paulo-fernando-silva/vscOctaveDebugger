@@ -139,7 +139,7 @@
 							},
 							"autoTerminate": {
 								"type": "boolean",
-								"description": "Defaults to true, i.e. octave process will be terminated after the last program line is executed. Setting this to false will allow the program to continue executing. This is useful if you're running UI elements with callbacks and you want to continue debugging after the end of the program code. (Optional)",
+								"description": "Defaults to true, i.e. Octave process will be terminated after the last program line is executed. Setting this to false will allow the program to continue executing. This is useful if you're running UI elements with callbacks and you want to continue debugging after the end of the program code. (Optional)",
 								"default": true
 							}
 						}
@@ -159,7 +159,7 @@
 				"configurationSnippets": [
 					{
 						"label": "Octave Debugger: Launch",
-						"description": "A new configuration for launching octave.",
+						"description": "A new configuration for launching Octave.",
 						"body": {
 							"type": "OctaveDebugger",
 							"request": "launch",

@@ -1,8 +1,8 @@
 # VS Code Octave Debugger
 
-This extension provides debugging support for Octave code (might include Matlab code).
-This is done by interfacing with `octave-cli` via stdin/stdout. Do read the changelog to know what's new in this version.
-Though this is not necessary to use the extension, I still recommend the following language extension for Octave syntax highlighting, snippets, and most cool code outline [Octave Hacking](https://marketplace.visualstudio.com/items?itemName=apjanke.octave-hacking). If you want Matlab language support you can use [matlab](https://marketplace.visualstudio.com/items?itemName=Gimly81.matlab), though you don't get the outline. The only thing we're missing is F12 "jump to definition" code navigation.
+This extension provides debugging support for Octave code. This is done by interfacing with `octave-cli` via stdin/stdout. Support for running Matlab code is done through `octave-cli`.
+Do read the changelog to know what's new in this version.
+Though this is not necessary to use the extension, I still recommend the following language extension for Octave syntax highlighting, snippets, and most cool code outline [Octave Hacking](https://marketplace.visualstudio.com/items?itemName=apjanke.octave-hacking). If you want Matlab language support you can use [Matlab](https://marketplace.visualstudio.com/items?itemName=Gimly81.matlab), though you don't get the outline. The only thing we're missing is F12 "jump to definition" code navigation.
 
 
 **Octave Debugger**
@@ -95,7 +95,7 @@ is equivalent to
 
 * `"program"` can be anything that can be evaluated, e.g. `"path/to/file.m"`, or `"functionName(value)"`.
 * `"autoTerminate"` Setting this to false will allow the program to continue executing after the last line of code is executed. This is useful if you're running for example UI elements with callbacks and you want to continue debugging after the end of the program code. You'll need to stop the debug session manually by pressing the □ button.
-* `"splitFieldnamesOctaveStyle"` this allows struct field names to be almost arbitrary ([details](https://octave.org/doc/v5.1.0/Creating-Structures.html)). This option is not compatible with matlab and so it's off by default ([details](https://www.mathworks.com/help/matlab/matlab_prog/generate-field-names-from-variables.html)).
+* `"splitFieldnamesOctaveStyle"` this allows struct field names to be almost arbitrary ([details](https://octave.org/doc/v5.1.0/Creating-Structures.html)). This option is not compatible with Matlab and so it's off by default ([details](https://www.mathworks.com/help/matlab/matlab_prog/generate-field-names-from-variables.html)).
 
 ## Project Homepage
 Source available [here](https://github.com/paulo-fernando-silva/vscOctaveDebugger.git).

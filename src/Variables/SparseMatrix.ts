@@ -105,7 +105,7 @@ export class SparseMatrix extends Matrix {
 		this.fetchIndices(runtime, offset, count, (fetchedIndices: Array<number>) => {
 			const begin = 1 + offset;
 			const end = begin + count - 1;
-			// matlab indices start at 1
+			// Matlab indices start at 1
 			const exp = `${this.name()}(find(${this.name()})(${begin}:${end}))`;
 			runtime.evaluateAsLine(exp, (value: string) => {
 				this.parseChildren(value, offset, count, (children: Array<Variable>) => {
@@ -128,7 +128,7 @@ export class SparseMatrix extends Matrix {
 			count = this._numberOfChildren;
 		}
 
-		// matlab indices start at 1
+		// Matlab indices start at 1
 		const begin = 1 + offset;
 		const end = begin + count - 1;
 		const idxExp = `find(${this.name()})(${begin}:${end})`;

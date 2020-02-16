@@ -1,5 +1,5 @@
 function TestOctaveDebugger()
-%TestOctaveDebugger - tests for VSC octave debugger plugin.
+%TestOctaveDebugger - tests for VSC Octave debugger plugin.
 %
 % Syntax: TestOctaveDebugger()
 %
@@ -11,7 +11,7 @@ function TestOctaveDebugger()
 % - functions defined in other files
 % - conditional breakpoints
 % Todo:
-% - Currently struct fieldnames can't contain either the fieldname pattern when in octave style
+% - Currently struct fieldnames can't contain either the fieldname pattern when in Octave style
 %
 	% Octave supports two types of strings. https://octave.org/doc/v5.1.0/Strings.html
 	sq_str = 'foo''bar''foo''bar'
@@ -20,7 +20,7 @@ function TestOctaveDebugger()
 	long_str = repmat(str, 1, 100);
 	% this will only work when launch contains "splitFieldnamesOctaveStyle": true
 	% https://octave.org/doc/v5.1.0/Creating-Structures.html
-	% otherwise fieldnames are expected in matlab style, i.e. only \w\d or _
+	% otherwise fieldnames are expected in Matlab style, i.e. only \w\d or _
 	% https://www.mathworks.com/help/matlab/matlab_prog/generate-field-names-from-variables.html
 	st = struct('', 1, 'b', 2, ' ', 3, '	', 4, '\n', 5, '  [2,1] = ', 6);
 	cm = 100 * magic(2) + i;

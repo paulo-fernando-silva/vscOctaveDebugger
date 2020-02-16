@@ -41,7 +41,7 @@
         {
             "type": "OctaveDebugger",
             "request": "launch",
-            "name": "Debug octave fieldnames",
+            "name": "Debug Octave fieldnames",
             "program": "TestOctaveDebugger",
             "splitFieldnamesOctaveStyle": true,
             "octave": "octave-cli",

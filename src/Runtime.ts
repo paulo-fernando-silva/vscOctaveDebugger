@@ -335,7 +335,7 @@ export class Runtime extends EventEmitter implements CommandInterface {
 	public execute(expression: string) {
 		// And also log them out to the console
 		OctaveLogger.debug(`${this._processName}:${this._commandNumber}> ${expression}`);
-		// This actually sends the command to octave, \n is like pressing enter.
+		// This actually sends the command to Octave, \n is like pressing enter.
 		this._process.stdin.write(`${expression}\n`);
 		// We keep track of the commands sent through
 		++this._commandNumber;
@@ -350,7 +350,7 @@ export class Runtime extends EventEmitter implements CommandInterface {
 
 	//**************************************************************************
 	public static echo(str: string): string {
-		// The ' ' space at the beginning unpauses octave when stepping.
+		// The ' ' space at the beginning unpauses Octave when stepping.
 		// TODO: this shouldn't be needed. User should be able to used pause, etc...
 		// The \\n put this output in a new line
 		return ` printf("\\n${str}\\n");`;

@@ -22,7 +22,7 @@ export class Expression {
 			// This also avoids the issue with the pause, input, etc.
 			callback('');
 		} else {
-			// fixes an issue with vsc not knowing how to parse octave code.
+			// fixes an issue with vsc not knowing how to parse Octave code.
 			// i.e. if you hover 'var', expression will equal 'var or '' if empty
 			const hoverExpression = expression.replace(Expression.CLEAN_REGEX, '');
 

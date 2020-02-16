@@ -15,10 +15,10 @@ export class Matrix extends Variable {
 	private static MATRIX_TYPENAME: string = 'matrix';
 	// _typename caches type passed to the constructor, and is returned by typename()
 	// However, for certain types this might differ from the overriden typename.
-	// This is because mainly because in octave typesnames might come in two formats.
+	// This is because mainly because in Octave typesnames might come in two formats.
 	// e.g. "complex diagonal matrix" uses "diagonal matrix" in certain places...
-	// typename used by octave when printing the value
-	private _typename: string; // typename used by octave when printing the value
+	// typename used by Octave when printing the value
+	private _typename: string; // typename used by Octave when printing the value
 	private _basename: string; // name of the variable without indices
 	private _fixedIndices: Array<number>; // subvariable indices
 	private _freeIndices: Array<number>; // children indices

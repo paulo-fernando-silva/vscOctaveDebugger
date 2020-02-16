@@ -2,7 +2,7 @@
 * Added support for long strings.
 
 ## 0.4.0
-* Added CommandLists which allow to buffers commands before sending them to octave. This costs more than immediate mode for small commands, but for scopes with lots of variables provides gains of about 40~50% in variable fetching. Tested with scopes of about 30 variables.
+* Added CommandLists which allow to buffers commands before sending them to Octave. This costs more than immediate mode for small commands, but for scopes with lots of variables provides gains of about 40~50% in variable fetching. Tested with scopes of about 30 variables.
 * Removed log messages that I believe aren't necessary.
 * Tweaked I/O between Octave and vsc.
 * Fixed "which" called without parameters bug when evaluating expressions.
@@ -34,7 +34,7 @@
 
 ## 0.3.16
 * Updated readme.
-* Added autoTerminate to launch.json to control if octave terminates automatically when the last program instruction is executed. Default value is true, i.e. octave process will be terminated after the last program line is executed. Setting this to false will allow the program to continue executing.
+* Added autoTerminate to launch.json to control if Octave terminates automatically when the last program instruction is executed. Default value is true, i.e. Octave process will be terminated after the last program line is executed. Setting this to false will allow the program to continue executing.
 * Fixes issue #25 basename fails when path is not a path, but includes a path-like structure.
 * Fixes issue with https-proxy-agent.
 
@@ -124,11 +124,11 @@
 
 ## 0.2.18
 * Fixed stopping when no breakpoint is set. The runtime wouldn't catch the termination event.
-* Made console commands pass through directly to octave.
+* Made console commands pass through directly to Octave.
 * Updated extension name in several locations.
 * Other minor aesthetic code changes.
 * Minor readme changes.
-* Set kill to SIGKILL to really kill octave. Just in case...
+* Set kill to SIGKILL to really kill Octave. Just in case...
 
 ## 0.2.17
 * Fixed bug when clearing breakpoints in file. It would set a single breakpoint.
@@ -152,7 +152,7 @@
 * Reverted a change that blocks the extension on the new vsc update.
 
 ## 0.2.11
-* Improved feedback on error. Now a message will be displayed in the console if the extension fails to connect to the octave executable. Syntax errors are also shown in the console.
+* Improved feedback on error. Now a message will be displayed in the console if the extension fails to connect to the Octave executable. Syntax errors are also shown in the console.
 
 ## 0.2.10
 * Made mouse hover expression evaluation always on.
@@ -175,7 +175,7 @@
 * Fixed bug that was preventing parsing or matrices with negative values.
 
 ## 0.2.5
-* Added support for both Matlab and octave languages.
+* Added support for both Matlab and Octave languages.
 * Made arbitrary expression evaluation on by default. Everything is evaluated except functions because of potential side effects.
 * Added a new icon.
 * Other misc code changes.
@@ -188,7 +188,7 @@
 
 ## 0.2.1
 * Added logging for output from the program. I only noticed now that it wasn't supported. Output in orange.
-* Add logging for debug communications with octave. This is output in white. Set "trace": true in your launch.json.
+* Add logging for debug communications with Octave. This is output in white. Set "trace": true in your launch.json.
 * Set server side logging to off by default as this is only useful for development, e.g. unit tests.
 
 
@@ -207,7 +207,7 @@
 * Refactored the matrix fetch to allow only fetching a predefined number of elements. That way the amount of time taken to obtain the contents of a matrix or sub-matrix can be somewhat controlled. A prefetchCount = 1 is the fastest, but also only shows elements when at the leaf level. A prefetchCount = 2 ~ 99 costs about the same as the cost is mainly dependent on the pipe communication.
 
 ## 0.1.4
-* Added a variable to launch.json to set the source directory so to add to octave's path every time you debug. That way the source can be located anywhere on disk. Also added an option to set octave's executable, in case you don't have it on your path. Updated documentation.
+* Added a variable to launch.json to set the source directory so to add to Octave's path every time you debug. That way the source can be located anywhere on disk. Also added an option to set Octave's executable, in case you don't have it on your path. Updated documentation.
 
 ## 0.1.3
 * Updated demo animation.

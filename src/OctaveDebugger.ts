@@ -83,7 +83,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 
 		this._stackManager = new StackFramesManager();
 
-		// In matlab every index starts at 1
+		// In Matlab every index starts at 1
 		this.setDebuggerLinesStartAt1(true);
 		this.setDebuggerColumnsStartAt1(true);
 
