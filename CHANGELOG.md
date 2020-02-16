@@ -1,3 +1,6 @@
+## 0.4.1
+* Added support for long strings.
+
 ## 0.4.0
 * Added CommandLists which allow to buffers commands before sending them to octave. This costs more than immediate mode for small commands, but for scopes with lots of variables provides gains of about 40~50% in variable fetching. Tested with scopes of about 30 variables.
 * Removed log messages that I believe aren't necessary.
