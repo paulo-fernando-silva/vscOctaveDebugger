@@ -6,3 +6,4 @@ OctaveDebugger.txt
 *.vsix
 octave-workspace
 dist/
+.vscode-test/
