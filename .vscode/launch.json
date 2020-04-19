@@ -28,7 +28,7 @@
 			"cwd": "${workspaceFolder}",
 			"program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
 			"args": [
-				"-u", "tdd",
+				"-u", "bdd",
 				"--timeout", "999999",
 				"--colors",
 				"./out/tests/",
