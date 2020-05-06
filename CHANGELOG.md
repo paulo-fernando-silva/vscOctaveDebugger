@@ -1,3 +1,7 @@
+## 0.4.2
+* Fixed security warnings given by the github bot.
+* Updated the octave language suggestions in readme.
+
 ## 0.4.1
 * Added support for long strings.
 
