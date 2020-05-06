@@ -2,7 +2,7 @@
 
 This extension provides debugging support for Octave code. This is done by interfacing with `octave-cli` via stdin/stdout. Support for running Matlab code is done through `octave-cli`.
 Do read the changelog to know what's new in this version.
-Though this is not necessary to use the extension, I still recommend the following language extension for Octave syntax highlighting, snippets, and most cool code outline [Octave Hacking](https://marketplace.visualstudio.com/items?itemName=apjanke.octave-hacking). If you want Matlab language support you can use [Matlab](https://marketplace.visualstudio.com/items?itemName=Gimly81.matlab), though you don't get the outline. The only thing we're missing is F12 "jump to definition" code navigation.
+Though this is not necessary to use this extension, I recommend the [Octave](https://marketplace.visualstudio.com/items?itemName=toasty-technologies.octave) extension for syntax highlighting. I favor it to the [Matlab](https://marketplace.visualstudio.com/items?itemName=Gimly81.matlab). Nicer colors. The following language extension supports code outline for the focused file [Octave Hacking](https://marketplace.visualstudio.com/items?itemName=apjanke.octave-hacking). We're still missing is F12 "jump to definition" code navigation. If someone has time and wants to implement it [here's](https://code.visualstudio.com/docs/editor/editingevolved#_go-to-definition) a place to start.
 
 
 **Octave Debugger**
