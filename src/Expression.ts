@@ -1,6 +1,6 @@
 import { Variables } from './Variables/Variables';
 import { Variable } from './Variables/Variable';
-import { CommandInterface } from './Runtime';
+import { CommandInterface } from './Commands';
 import * as Constants from './Constants';
 
 

@@ -1,5 +1,6 @@
 import * as Constants from './Constants';
-import { Runtime, CommandInterface } from './Runtime';
+import { Runtime } from './Runtime';
+import { CommandInterface } from './Commands';
 
 
 //**************************************************************************

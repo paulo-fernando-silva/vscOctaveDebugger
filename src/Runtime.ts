@@ -3,8 +3,9 @@ import { spawn, ChildProcess } from 'child_process';
 import { ReadLine, createInterface } from 'readline';
 import { EventEmitter } from 'events';
 import * as Constants from './Constants';
-import { functionFromPath, validDirectory } from './Utils/fsutils';
+import { functionFromPath } from './Utils/fsutils';
 import { dirname } from 'path';
+import { Commands, CommandInterface } from './Commands';
 
 
 //**************************************************************************
@@ -21,18 +22,6 @@ enum MatchIndex {
 	CMD_NUMBER,
 	LENGTH
 };
-
-
-export interface CommandInterface {
-	//**************************************************************************
-	evaluateAsLine(expression: string, callback: (line: string) => void): void;
-
-	//**************************************************************************
-	evaluate(expression: string, callback: (lines: string[]) => void): void;
-
-	//**************************************************************************
-	execute(expression: string):void;
-}
 
 
 export class Runtime extends EventEmitter implements CommandInterface {
@@ -220,23 +209,7 @@ export class Runtime extends EventEmitter implements CommandInterface {
 
 		if(this.connected()) {
 			// this.execute('debug_on_error;debug_on_warning;debug_on_interrupt;');
-			this.addFolder(sourceFolder);
-		}
-	}
-
-
-	//**************************************************************************
-	public addFolder(sourceFolder: string): void {
-		// We can pass multiple directories here separated by :
-		// This allows us to run code from anywhere on our HD.
-		this.execute(`addpath('${sourceFolder}')`);
-	}
-
-
-	//**************************************************************************
-	public cwd(newWorkingDirectory: string): void {
-		if(validDirectory(newWorkingDirectory)) {
-			this.execute(`cd '${newWorkingDirectory}'`);
+			Commands.addFolder(this, sourceFolder);
 		}
 	}
 
@@ -265,8 +238,8 @@ export class Runtime extends EventEmitter implements CommandInterface {
 	//**************************************************************************
 	public start(program: string, workingDirectory: string) {
 		this._program = program;
-		this.addFolder(dirname(program));
-		this.cwd(workingDirectory);
+		Commands.addFolder(this, dirname(program));
+		Commands.cwd(this, workingDirectory);
 
 		// This is just like a deferred sync command.
 		// The program executes and then echoes the terminator tag.

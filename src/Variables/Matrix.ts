@@ -2,7 +2,7 @@ import { Variable } from './Variable';
 import { Variables } from './Variables';
 import * as Constants from '../Constants';
 import { Interval } from '../Utils/Interval';
-import { CommandInterface } from '../Runtime';
+import { CommandInterface } from '../Commands';
 
 
 /*

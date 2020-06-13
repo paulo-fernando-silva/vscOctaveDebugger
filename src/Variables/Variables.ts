@@ -1,5 +1,5 @@
 import { OctaveLogger } from '../OctaveLogger';
-import { CommandInterface } from '../Runtime';
+import { CommandInterface } from '../Commands';
 import * as Constants from '../Constants';
 import { Variable } from './Variable';
 

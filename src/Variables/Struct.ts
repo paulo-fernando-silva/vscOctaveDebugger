@@ -1,4 +1,4 @@
-import { CommandInterface } from '../Runtime';
+import { CommandInterface } from '../Commands';
 import { ScalarStruct } from './ScalarStruct';
 import * as Constants from '../Constants';
 import { Variables } from './Variables';

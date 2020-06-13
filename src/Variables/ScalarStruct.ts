@@ -1,4 +1,4 @@
-import { CommandInterface } from '../Runtime';
+import { CommandInterface } from '../Commands';
 import * as Constants from '../Constants';
 import { Variables } from './Variables';
 import { Variable } from './Variable';

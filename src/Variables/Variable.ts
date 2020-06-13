@@ -1,4 +1,4 @@
-import { CommandInterface } from '../Runtime';
+import { CommandInterface } from '../Commands';
 
 
 //******************************************************************************

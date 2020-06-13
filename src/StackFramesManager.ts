@@ -1,6 +1,6 @@
 import { OctaveLogger } from './OctaveLogger';
 import { StackFrame, Source } from 'vscode-debugadapter';
-import { CommandInterface } from './Runtime';
+import { CommandInterface } from './Commands';
 
 
 export class StackFramesManager {
