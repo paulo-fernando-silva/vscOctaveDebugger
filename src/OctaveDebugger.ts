@@ -317,14 +317,12 @@ class OctaveDebugSession extends LoggingDebugSession {
 			if(vscBreakpoints !== undefined && args.source.path !== undefined) {
 				const path = <string>args.source.path;
 
-				Breakpoints.clearAllBreakpointsIn(path, ci, () => {
-					Breakpoints.set(vscBreakpoints, path, ci,
-						(breakpoints: Array<Breakpoint>) => {
-							response.body = { breakpoints: breakpoints };
-							this.sendResponse(response);
-						}
-					);
-				});
+				Breakpoints.replaceBreakpoints(vscBreakpoints, path, ci,
+					(breakpoints: Array<Breakpoint>) => {
+						response.body = { breakpoints: breakpoints };
+						this.sendResponse(response);
+					}
+				);
 			} else {
 				this.sendResponse(response);
 			}

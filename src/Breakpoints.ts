@@ -82,6 +82,49 @@ export class Breakpoints {
 
 
 	//**************************************************************************
+	private static set(
+		breakpoints: Array<ConditionalBreakpoint>,
+		path: string,
+		runtime: CommandInterface,
+		cb: (breakpoints: Array<Breakpoint>) => void
+	): void
+	{
+		const confirmed = new Array<Breakpoint>();
+		if(breakpoints.length !== 0) {
+			const conditional = new Array<ConditionalBreakpoint>();
+			const unconditional = new Array<ConditionalBreakpoint>();
+			// Split breakpoints between conditional and unconditional
+			breakpoints.forEach(b => {
+				b.column = confirmed.length;
+				// Breakpoints start unconfirmed, and the column is their index
+				confirmed.push(new Breakpoint(false, b.line));
+				if(b.condition !== undefined && b.condition.length !== 0) {
+					conditional.push(b);
+				} else {
+					unconditional.push(b);
+				}
+			});
+			// Set breakpoints by type:
+			const fname = functionFromPath(path);
+			if(unconditional.length !== 0) { // any unconditional breakpoints?
+				if(conditional.length !== 0) { // both breakpoint types?
+					Breakpoints.setUnconditional(unconditional, confirmed, fname, runtime,
+						(confirmed: Array<Breakpoint>) => {
+							Breakpoints.setConditional(conditional, confirmed, fname, runtime, cb);
+						});
+				} else { // only unconditional breakpoints
+					Breakpoints.setUnconditional(unconditional, confirmed, fname, runtime, cb);
+				}
+			} else { // only conditional breakpoints
+				Breakpoints.setConditional(conditional, confirmed, fname, runtime, cb);
+			}
+		} else {
+			cb(confirmed);
+		}
+	}
+
+
+	//**************************************************************************
 	// e.g.
 	// debug> dbstatus TestOctaveDebugger
 	// breakpoints in TestOctaveDebugger at lines 23 27
@@ -109,6 +152,22 @@ export class Breakpoints {
 			callback(lines.trim());
 		});
 	}
+
+
+	//**************************************************************************
+	private static clearAllBreakpointsIn(
+		path: string,
+		ci: CommandInterface,
+		callback: () => void
+	): void
+	{
+		Breakpoints.listBreakpointsIn(path, ci, (lines: string) => {
+			const func = functionFromPath(path);
+			ci.execute(`dbclear ${func} ${lines}`);
+			callback();
+		});
+	}
+
 	//**************************************************************************
 	//#endregion
 	//**************************************************************************
@@ -116,70 +175,22 @@ export class Breakpoints {
 	//**************************************************************************
 	//#region public
 	//**************************************************************************
-	public static set(
+	public static replaceBreakpoints(
 		breakpoints: Array<ConditionalBreakpoint>,
 		path: string,
 		runtime: CommandInterface,
 		callback: (breakpoints: Array<Breakpoint>) => void
 	): void
 	{
-		const confirmed = new Array<Breakpoint>();
-		if(breakpoints.length !== 0) {
-			const conditional = new Array<ConditionalBreakpoint>();
-			const unconditional = new Array<ConditionalBreakpoint>();
-			// Split breakpoints between conditional and unconditional
-			breakpoints.forEach(b => {
-				b.column = confirmed.length;
-				// Breakpoints start unconfirmed, and the column is their index
-				confirmed.push(new Breakpoint(false, b.line));
-				if(b.condition !== undefined && b.condition.length !== 0) {
-					conditional.push(b);
-				} else {
-					unconditional.push(b);
-				}
-			});
-			// We set the breakpoints by moving first to the file directory:
-			Commands.pushd(runtime, dirname(path),
-				(ci: CommandInterface, popd: (ci: CommandInterface) => void) => {
-					const cb = (breakpoints: Array<Breakpoint>) => {
-						popd(ci);
-						callback(breakpoints);
-					};
-					const fname = functionFromPath(path);
-					if(unconditional.length !== 0) { // any unconditional breakpoints?
-						if(conditional.length !== 0) { // both breakpoint types?
-							Breakpoints.setUnconditional(unconditional, confirmed, fname, runtime,
-								(confirmed: Array<Breakpoint>) => {
-									Breakpoints.setConditional(conditional, confirmed, fname, runtime, cb);
-								});
-						} else { // only unconditional breakpoints
-							Breakpoints.setUnconditional(unconditional, confirmed, fname, runtime, cb);
-						}
-					} else { // only conditional breakpoints
-						Breakpoints.setConditional(conditional, confirmed, fname, runtime, cb);
-					}
-				}
-			);
-		} else {
-			callback(confirmed);
-		}
-	}
-
-
-	//**************************************************************************
-	public static clearAllBreakpointsIn(
-		path: string,
-		runtime: CommandInterface,
-		callback: () => void
-	): void
-	{
 		Commands.pushd(runtime, dirname(path),
 			(ci: CommandInterface, popd: (ci: CommandInterface) => void) => {
-				Breakpoints.listBreakpointsIn(path, ci, (lines: string) => {
-					const func = functionFromPath(path);
-					ci.execute(`dbclear ${func} ${lines}`);
-					popd(ci);
-					callback();
+				Breakpoints.clearAllBreakpointsIn(path, ci, () => {
+					Breakpoints.set(breakpoints, path, ci,
+						(confirmedBreakpoints: Array<Breakpoint>) => {
+							popd(ci);
+							callback(confirmedBreakpoints);
+						}
+					);
 				});
 			}
 		);
