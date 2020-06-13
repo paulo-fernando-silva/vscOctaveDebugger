@@ -1,3 +1,6 @@
+## 0.4.3
+* Fix remove_all_breakpoint_in_file: unable to find function ex1 #33
+
 ## 0.4.2
 * Fixed security warnings given by the github bot.
 * Updated the octave language suggestions in readme.
