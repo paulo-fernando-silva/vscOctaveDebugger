@@ -1,3 +1,6 @@
+## 0.4.4
+* Bump lodash from 4.17.14 to 4.17.19.
+
 ## 0.4.3
 * Fix remove_all_breakpoint_in_file: unable to find function ex1 #33
 

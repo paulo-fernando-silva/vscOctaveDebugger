@@ -1,7 +1,7 @@
 {
 	"name": "vsc-octave-debugger",
 	"displayName": "Octave Debugger",
-	"version": "0.4.3",
+	"version": "0.4.4",
 	"publisher": "paulosilva",
 	"description": "Debug Octave and Matlab code in Visual Studio Code.",
 	"author": {
@@ -32,11 +32,10 @@
 		"vscode-debugprotocol": "^1.25.0-pre.0"
 	},
 	"devDependencies": {
-		"@types/vscode": "^1.17.0",
+		"@types/glob": "^7.1.1",
 		"@types/mocha": "^7.0.2",
 		"@types/node": "^6.14.9",
-		"@types/glob": "^7.1.1",
-		"glob": "^7.1.6",
+		"@types/vscode": "^1.17.0",
 		"acorn": ">=6.4.1",
 		"braces": ">=2.3.1",
 		"lodash": ">=4.17.19",
@@ -47,8 +46,8 @@
 		"tslint": "^5.20.1",
 		"typescript": "^2.5.3",
 		"vsce": "^1.65.0",
-		"vscode-test": "^1.3.0",
 		"vscode-debugadapter-testsupport": "^1.24.0",
+		"vscode-test": "^1.3.0",
 		"webpack": "^4.42.1",
 		"webpack-cli": "^3.3.10"
 	},
