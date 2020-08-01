@@ -1,3 +1,6 @@
+## 0.4.5
+* Update elliptic package to 6.5.3 (indirect dependency)
+
 ## 0.4.4
 * Bump lodash from 4.17.14 to 4.17.19.
 
