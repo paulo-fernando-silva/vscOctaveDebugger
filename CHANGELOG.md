@@ -1,3 +1,6 @@
+## 0.4.6
+* Update "serialize-javascript": ">=3.1.0"
+
 ## 0.4.5
 * Update elliptic package to 6.5.3 (indirect dependency)
 
