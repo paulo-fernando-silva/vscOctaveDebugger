@@ -16,17 +16,23 @@ export interface CommandInterface {
 // Implements common runtime commands, so they can be used with CommandInterface:
 export class Commands {
 	//**************************************************************************
+	private static escape(path: string): string {
+		return path.replace(/"/g, '\\"');
+	}
+
+
+	//**************************************************************************
 	public static addFolder(ci: CommandInterface, sourceFolder: string): void {
 		// We can pass multiple directories here separated by :
 		// This allows us to run code from anywhere on our HD.
-		ci.execute(`addpath('${sourceFolder}')`);
+		ci.execute(`addpath("${Commands.escape(sourceFolder)}")`);
 	}
 
 
 	//**************************************************************************
 	public static cwd(ci: CommandInterface, newWorkingDirectory: string): void {
 		if(validDirectory(newWorkingDirectory)) {
-			ci.execute(`cd '${newWorkingDirectory}'`);
+			ci.execute(`cd "${Commands.escape(newWorkingDirectory)}"`);
 		}
 	}
 
