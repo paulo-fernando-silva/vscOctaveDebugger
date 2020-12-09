@@ -17,7 +17,7 @@ export interface CommandInterface {
 export class Commands {
 	//**************************************************************************
 	private static escape(path: string): string {
-		return path.replace(/"/g, '\\"');
+		return path.replace(/([\\"])/g, "\\$1");
 	}
 
 
