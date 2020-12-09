@@ -1,3 +1,9 @@
+## 0.4.8
+* Fix for issue #37 gave origin to issue #38, hopefully, this fixes it. ^^
+
+## 0.4.7
+* Fixed issue #37, escaped paths.
+
 ## 0.4.6
 * Update "serialize-javascript": ">=3.1.0"
 
