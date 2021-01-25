@@ -58,6 +58,8 @@ More information about debugging with Octave can be found
 * Open the `DEBUG CONSOLE` to view any output from your program or to interact with it. Commands will be sent directly to Octave.
 Note that `octave-cli` must be installed on your system. You can download it [here](https://www.gnu.org/software/octave/download.html).
 
+Note: On MacOS, Octave 6.1.0 does not seem to be compatible with the debugger. Octave 5.1.0 does work, and it can be downloaded [here](https://github.com/octave-app/octave-app/releases/tag/v5.1.0-beta4). 
+
 ## Understanding the Debug Session Configuration
 
 * Example configuration:
