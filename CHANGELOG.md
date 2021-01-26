@@ -1,3 +1,6 @@
+## 0.4.9
+* Fix issue #40, i.e. now the plugin works with octave >5.1. Though pause() and kbhit() is still issues.
+
 ## 0.4.8
 * Fix for issue #37 gave origin to issue #38, hopefully, this fixes it. ^^
 
