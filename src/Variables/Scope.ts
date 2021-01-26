@@ -37,7 +37,7 @@ export class Scope extends Variable {
 
 
 	//**************************************************************************
-	private static readonly HEADER_REGEX = /^\s*Variables in the current scope:$/;
+	private static readonly HEADER_REGEX = /^\s*Variables .* the current scope:$/;
 	private static readonly SPACE_REGEX = /\s+/;
 	//**************************************************************************
 	public listChildren(

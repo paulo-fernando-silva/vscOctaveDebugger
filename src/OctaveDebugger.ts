@@ -119,7 +119,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 
 
 	//**************************************************************************
-	private static readonly STOP_REGEX = /^stopped in .*? at line \d+$/;
+	private static readonly STOP_REGEX = /^stopped in .*? at line \d+.*$/;
 	private setupRuntime(
 		octave: string,
 		sourceFolder: string,
@@ -465,7 +465,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 
 
 	//**************************************************************************
-	private static readonly WHERE_REGEX = /stopped at top level/;
+	private static readonly WHERE_REGEX = /at top level/;
 	protected stepWith(cmd: string): void {
 		this._stepping = this._runtime.autoTerminate();
 		++this._stepCount;

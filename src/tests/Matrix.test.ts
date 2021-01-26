@@ -214,6 +214,7 @@ const value =
 		const freeIndices = [2, 2];
 		const fixedIndices = [];
 		const values = [['0.71780', '0.62359'], ['0.57914', '0.98442']];
+		const precision = values[0][0].length - 1;
 		const vectors = [
 			`[${values[0].join(Constants.ROW_ELEMENTS_SEPARATOR)}]'`,
 			`[${values[1].join(Constants.ROW_ELEMENTS_SEPARATOR)}]'`];
@@ -236,6 +237,7 @@ const value =
 			OctaveLogger.logToConsole = false;
 			runtime = new Runtime(Constants.DEFAULT_EXECUTABLE, '.');
 			const cmd = `${name} = [${vectors[0]},${vectors[1]}];`;
+			runtime.execute(`output_precision(${precision});`);
 			runtime.evaluateAsLine(cmd, (output: string) => {
 				const matrix = new Matrix(name, '', freeIndices, fixedIndices);
 				matrix.fetchAllChildren(runtime, (parsedChildren: Array<Matrix>) => {
