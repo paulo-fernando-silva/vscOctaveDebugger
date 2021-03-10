@@ -1,7 +1,7 @@
 {
 	"name": "vsc-octave-debugger",
 	"displayName": "Octave Debugger",
-	"version": "0.4.9",
+	"version": "0.4.10",
 	"publisher": "paulosilva",
 	"description": "Debug Octave and Matlab code in Visual Studio Code.",
 	"author": {
@@ -49,7 +49,8 @@
 		"vscode-debugadapter-testsupport": "^1.24.0",
 		"vscode-test": "^1.3.0",
 		"webpack": "^4.42.1",
-		"webpack-cli": "^3.3.10"
+		"webpack-cli": "^3.3.10",
+		"elliptic": ">=6.5.4"
 	},
 	"scripts": {
 		"prepare": "tsc -p ./",
