@@ -1,3 +1,6 @@
+## 0.4.11
+* Updated y18n dependency.
+
 ## 0.4.10
 * Updated "elliptic": ">=6.5.4"
 * Updated readme.
