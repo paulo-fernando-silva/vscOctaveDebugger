@@ -72,7 +72,7 @@ export class Runtime extends EventEmitter implements CommandInterface {
 	private connect() {
 		OctaveLogger.debug(`Runtime: connecting to '${this._processName}'.`);
 
-		this._process = spawn(this._processName, undefined, { shell: true });
+		this._process = spawn(this._processName);
 
 		if(this.connected()) {
 			this._processStdout = createInterface(

@@ -1,3 +1,6 @@
+## 0.4.12
+* Tested octave 6.2.0 and updated the readme file with some more information on how to properly run the plugin when using plots.
+
 ## 0.4.11
 * Updated y18n dependency.
 
