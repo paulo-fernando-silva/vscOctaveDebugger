@@ -1,3 +1,7 @@
+## 0.4.13
+* Small readme tweak.
+* Bump ssri from 6.0.1 to 6.0.2
+
 ## 0.4.12
 * Tested octave 6.2.0 and updated the readme file with some more information on how to properly run the plugin when using plots.
 

@@ -49,11 +49,12 @@ More information about debugging with Octave can be found
 * Select `"OctaveDebugger"` from the menu that pops up.
 * The following is an example of a minimal configuration:
 
->
+```json
     "type": "OctaveDebugger",
     "request": "launch",
     "name": "My Hello World",
     "program": "printf('Hello World');"
+```
 
 * Set breakpoints as needed.
 * Press the `DEBUG` '▷' button or F5 to start debugging.
@@ -64,7 +65,7 @@ Note that `octave-cli` must be installed on your system. You can download it [he
 
 * Example configuration:
 
->
+```json
     "type": "OctaveDebugger",
     "request": "launch",
     "name": "My Debug Config - free text",
@@ -73,15 +74,17 @@ Note that `octave-cli` must be installed on your system. You can download it [he
     "sourceFolder": "${workspaceFolder}:/usr/local/matlab/code:/opt/local/matlab/more_code",
     "workingDirectory": "${workspaceFolder}",
     "autoTerminate": true
+```
 
 * `"octave"` must point to the location where `"octave-cli"` is installed. This parameter is optional, and defaults to `"octave-cli"` which assumes that `"octave-cli"` is in your path. If that's not the case make sure to provide the full installation path.
 * `"sourceFolder"` is an optional parameter that defaults to `"${workspaceFolder}"`. Basically it is added using `"addpath()"` before starting the `"program"`. More than one directory can be added by separating them with `pathsep()` which defaults to `:`.
 
 For example:
 
->
-        "program": "foo",
-        "sourceFolder": "${workspaceFolder}/A/B/C/"
+```json
+    "program": "foo",
+    "sourceFolder": "${workspaceFolder}/A/B/C/"
+```
 
 is equivalent to
 
@@ -90,10 +93,11 @@ is equivalent to
 
 * `"workingDirectory"` is another optional parameter. Octave will switch to this directory before running `"program"`. In the following example  program `"foo"` can exist anywhere under `"${workspaceFolder}"`, but will be executed from `"${workspaceFolder}/A/B/C/"`:
 
->
+```json
     "program": "foo",
     "sourceFolder": "${workspaceFolder}"
     "workingDirectory": "${workspaceFolder}/A/B/C/"
+```
 
 * `"program"` can be anything that can be evaluated, e.g. `"path/to/file.m"`, or `"functionName(value)"`.
 * `"autoTerminate"` Setting this to false will allow the program to continue executing after the last line of code is executed. This is useful if you're running for example UI elements with callbacks and you want to continue debugging after the end of the program code. You'll need to stop the debug session manually by pressing the □ button.
