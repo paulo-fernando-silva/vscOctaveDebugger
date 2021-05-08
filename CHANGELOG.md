@@ -1,3 +1,6 @@
+## 0.4.14
+* Bumped "elliptic": ">=6.5.4", "lodash": "^4.17.21", "vsce": "^1.88.0", "webpack-cli": "^3.3.10"
+
 ## 0.4.13
 * Small readme tweak.
 * Bump ssri from 6.0.1 to 6.0.2
