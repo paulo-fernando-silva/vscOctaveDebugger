@@ -1,3 +1,6 @@
+## 0.4.15
+* Added support for passing environment variables and program arguments to octave.
+
 ## 0.4.14
 * Bumped "elliptic": ">=6.5.4", "lodash": "^4.17.21", "vsce": "^1.88.0", "webpack-cli": "^3.3.10"
 
