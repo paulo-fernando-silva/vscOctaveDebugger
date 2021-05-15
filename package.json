@@ -1,7 +1,7 @@
 {
 	"name": "vsc-octave-debugger",
 	"displayName": "Octave Debugger",
-	"version": "0.4.14",
+	"version": "0.4.15",
 	"publisher": "paulosilva",
 	"description": "Debug Octave and Matlab code in Visual Studio Code.",
 	"author": {
@@ -143,6 +143,21 @@
 							"autoTerminate": {
 								"type": "boolean",
 								"description": "Defaults to true, i.e. Octave process will be terminated after the last program line is executed. Setting this to false will allow the program to continue executing. This is useful if you're running UI elements with callbacks and you want to continue debugging after the end of the program code. (Optional)",
+								"default": true
+							},
+							"octaveArguments": {
+								"type": "array",
+								"description": "Command line arguments to be passed to the octave process. (Optional)",
+								"default": []
+							},
+							"octaveEnvironment": {
+								"type": "object",
+								"description": "Environment to be set when octave runs. Json key:value pair object, e.g. { 'FOO': 'bar' }. (Optional)",
+								"default": {}
+							},
+							"shell": {
+								"type": "boolean",
+								"description": "Run the octave process in a shell. Allows things like 'octave': 'export FOO=bar; octave-cli'. (Optional)",
 								"default": true
 							}
 						}

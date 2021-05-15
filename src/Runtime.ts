@@ -46,7 +46,9 @@ export class Runtime extends EventEmitter implements CommandInterface {
 	private _processStderr: ReadLine;
 	private _program: string;
 	private _autoTerminate: boolean;
-
+	private _arguments: string[];
+	private _environment: any;
+	private _shell: boolean;
 
 	//**************************************************************************
 	private static createCommand(expression: string, command: number): string {
@@ -72,7 +74,11 @@ export class Runtime extends EventEmitter implements CommandInterface {
 	private connect() {
 		OctaveLogger.debug(`Runtime: connecting to '${this._processName}'.`);
 
-		this._process = spawn(this._processName);
+		let options = {
+			env : Object.assign(process.env, this._environment),
+			shell: this._shell
+		};
+		this._process = spawn(this._processName, this._arguments, options);
 
 		if(this.connected()) {
 			this._processStdout = createInterface(
@@ -198,13 +204,19 @@ export class Runtime extends EventEmitter implements CommandInterface {
 	//**************************************************************************
 	public constructor(
 		processName: string,
+		processArguments: string[],
+		processEnvironment: any,
 		sourceFolder: string,
-		autoTerminate = true
+		autoTerminate: boolean,
+		shell: boolean
 	)
 	{
 		super();
 		this._processName = processName;
 		this._autoTerminate = autoTerminate;
+		this._arguments = processArguments;
+		this._environment = processEnvironment;
+		this._shell = shell;
 
 		this.connect();
 

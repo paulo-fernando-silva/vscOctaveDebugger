@@ -103,6 +103,58 @@ is equivalent to
 * `"autoTerminate"` Setting this to false will allow the program to continue executing after the last line of code is executed. This is useful if you're running for example UI elements with callbacks and you want to continue debugging after the end of the program code. You'll need to stop the debug session manually by pressing the □ button.
 * `"splitFieldnamesOctaveStyle"` this allows struct field names to be almost arbitrary ([details](https://octave.org/doc/v5.1.0/Creating-Structures.html)). This option is not compatible with Matlab and so it's off by default ([details](https://www.mathworks.com/help/matlab/matlab_prog/generate-field-names-from-variables.html)).
 
+## Evironment variables and octave arguments
+
+* Consider the following configuration:
+
+```json
+    "type": "OctaveDebugger",
+    "request": "launch",
+    "name": "Environment Check",
+    "program": "env.m",
+    "octave": "octave-cli",
+    "octaveEnvironment": { "FOO": "bar", "VAR": "XPTO" },
+    "workingDirectory": "${workspaceFolder}",
+    "autoTerminate": true
+```
+
+* With `env.m` containing:
+
+```
+    printf('FOO: "%s"\n', getenv('FOO'));
+    printf('VAR: "%s"\n', getenv('VAR'));
+    printf('PATH: "%s"\n', getenv('PATH'));
+```
+
+* `"octaveEnvironment"` will be added to the environment when the octave process is created. The same can be achieved using:
+
+```json
+    "type": "OctaveDebugger",
+    "request": "launch",
+    "name": "Environment Check",
+    "program": "env.m",
+    "octave": "export FOO=bar; octave-cli",
+    "shell": true,
+    "workingDirectory": "${workspaceFolder}",
+    "autoTerminate": true
+```
+
+* `"shell": true,` is this variable's default value, so it can be omitted. If you set it to false, the above configuration will not run as `export FOO=bar; octave-cli` is not a valid process name.
+
+* Another option is `"octaveArguments": [ "FOO", "bar" ],`. This passes `"FOO"` and `"bar"` as parameters to the octave process. For example, here's another way to manipulate paths:
+
+```json
+    "type": "OctaveDebugger",
+    "request": "launch",
+    "name": "Print Help",
+    "program": "foo.m",
+    "octave": "octave-cli",
+    "octaveArguments": [ "--path", "path" ],
+    "workingDirectory": "${workspaceFolder}",
+    "autoTerminate": true
+```
+
+
 ## Project Homepage
 Source available [here](https://github.com/paulo-fernando-silva/vscOctaveDebugger.git).
 Please submit bugs there too.

@@ -63,6 +63,12 @@ interface LaunchRequestArguments extends DebugProtocol.LaunchRequestArguments {
 	autoTerminate?: boolean;
 	/** Enable fieldnames containing an almost arbitrary format. */
 	splitFieldnamesOctaveStyle?: boolean;
+	/** Command line arguments to be passed to the octave process. */
+	octaveArguments?: string[];
+	/** Environment to be set when octave runs. Json key:value pair object. */
+	octaveEnvironment?: any;
+	/** Run the octave process in a shell. Allows things like 'octave': 'export FOO=bar; octave-cli'. */
+	shell?: boolean
 }
 
 
@@ -122,8 +128,11 @@ class OctaveDebugSession extends LoggingDebugSession {
 	private static readonly STOP_REGEX = /^stopped in .*? at line \d+.*$/;
 	private setupRuntime(
 		octave: string,
-		sourceFolder: string,
-		autoTerminate: boolean
+		octaveArgs: string[],
+		environment: any,
+		folder: string,
+		terminate: boolean,
+		shell: boolean
 	)
 	{
 		if(this._runtime) {
@@ -131,7 +140,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 		}
 
 		OctaveLogger.logToConsole = this._isServer;
-		this._runtime = new Runtime(octave, sourceFolder, autoTerminate);
+		this._runtime = new Runtime(octave, octaveArgs, environment, folder, terminate, shell);
 
 		if(!this.runtimeConnected()) {
 			OctaveLogger.warn(`Could not connect to '${octave}'! Check path.`);
@@ -254,8 +263,12 @@ class OctaveDebugSession extends LoggingDebugSession {
 
 		this.setupRuntime(
 			this.val(args.octave, Constants.DEFAULT_EXECUTABLE),
+			this.val(args.octaveArguments, []),
+			this.val(args.octaveEnvironment, {}),
 			this.val(args.sourceFolder, ''),
-			this.val(args.autoTerminate, true));
+			this.val(args.autoTerminate, true),
+			this.val(args.shell, true)
+		);
 		const workingDirectory = OctaveDebugSession.getWorkingDirectory(args);
 
 		if(this.runtimeConnected()) {

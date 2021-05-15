@@ -61,6 +61,9 @@ class OctaveDebuggerConfigurationProvider implements vscode.DebugConfigurationPr
 			if(this.undef(config.octave))			{ config.octave = Constants.DEFAULT_EXECUTABLE; }
 			if(this.undef(config.sourceFolder))		{ config.sourceFolder = '${workspaceFolder}'; }
 			if(this.undef(config.autoTerminate))	{ config.autoTerminate = true; }
+			if(this.undef(config.octaveArguments))	{ config.octaveArguments = []; }
+			if(this.undef(config.octaveEnvironment)){ config.octaveEnvironment = {}; }
+			if(this.undef(config.shell))			{ config.shell = true; }
 		}
 
 		return config;
