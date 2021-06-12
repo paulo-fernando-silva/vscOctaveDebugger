@@ -1,3 +1,6 @@
+## 0.4.16
+* Bump css-what from 5.0.0 to 5.0.1
+
 ## 0.4.15
 * Added support for passing environment variables and program arguments to octave.
 
