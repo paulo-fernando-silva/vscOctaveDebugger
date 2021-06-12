@@ -1,3 +1,6 @@
+## 0.4.17
+* Updated vsce, typescript, ts-loader, webpack, and webpack-cli.
+
 ## 0.4.16
 * Bump css-what from 5.0.0 to 5.0.1
 

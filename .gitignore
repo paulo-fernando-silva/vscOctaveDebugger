@@ -7,3 +7,4 @@ OctaveDebugger.txt
 octave-workspace
 dist/
 .vscode-test/
+/tests/subtests/
