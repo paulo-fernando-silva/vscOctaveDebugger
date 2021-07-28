@@ -53,7 +53,7 @@ More information about debugging with Octave can be found
     "type": "OctaveDebugger",
     "request": "launch",
     "name": "My Hello World",
-    "program": "printf('Hello World');"
+    "program": "${file}"
 ```
 
 * Set breakpoints as needed.
@@ -100,6 +100,7 @@ is equivalent to
 ```
 
 * `"program"` can be anything that can be evaluated, e.g. `"path/to/file.m"`, or `"functionName(value)"`.
+* `"program": "${file}"` will execute code in the page that is currently open.
 * `"autoTerminate"` Setting this to false will allow the program to continue executing after the last line of code is executed. This is useful if you're running for example UI elements with callbacks and you want to continue debugging after the end of the program code. You'll need to stop the debug session manually by pressing the □ button.
 * `"splitFieldnamesOctaveStyle"` this allows struct field names to be almost arbitrary ([details](https://octave.org/doc/v5.1.0/Creating-Structures.html)). This option is not compatible with Matlab and so it's off by default ([details](https://www.mathworks.com/help/matlab/matlab_prog/generate-field-names-from-variables.html)).
 
@@ -190,3 +191,4 @@ A debug session follows these steps
 
 More information about vscode Debug Adapter Protocol can be found here [DAP](https://microsoft.github.io/debug-adapter-protocol/overview) and the [API](https://code.visualstudio.com/docs/extensionAPI/api-debugging), and information on publishing extensions can be found [here](https://code.visualstudio.com/docs/extensions/publish-extension#_publishers-and-personal-access-tokens).
 Funny fact, I noticed too late that the name of the plugin is not only spelled wrong but also it doesn't follow the expected "no caps and words separated by hyphens" pattern. :p
+
