@@ -161,11 +161,10 @@
 					{
 						"type": "OctaveDebugger",
 						"request": "launch",
-						"name": "Function or file to execute.",
-						"program": "${command:AskForProgramName}",
+						"name": "Execute selected file.",
+						"program": "${file}",
 						"octave": "octave-cli",
-						"sourceFolder": "${workspaceFolder}",
-						"autoTerminate": true
+						"sourceFolder": "${workspaceFolder}"
 					}
 				],
 				"configurationSnippets": [
@@ -175,11 +174,10 @@
 						"body": {
 							"type": "OctaveDebugger",
 							"request": "launch",
-							"name": "${2:Launch Program}",
-							"program": "^\"\\${command:AskForProgramName}\"",
+							"name": "Execute selected file.",
+							"program": "^\"\\${file}\"",
 							"octave": "octave-cli",
-							"sourceFolder": "^\"\\${workspaceFolder}\"",
-							"autoTerminate": true
+							"sourceFolder": "^\"\\${workspaceFolder}\""
 						}
 					}
 				],
