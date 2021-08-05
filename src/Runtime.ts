@@ -337,8 +337,8 @@ export class Runtime extends EventEmitter implements CommandInterface {
 	//**************************************************************************
 	public static echo(str: string): string {
 		// The ' ' space at the beginning unpauses Octave when stepping.
-		// TODO: this shouldn't be needed. User should be able to used pause, etc...
-		// The \\n put this output in a new line
+		// TODO: this shouldn't be needed. User should be able to use pause, etc...
+		// The \\n places this output in a new line.
 		return ` printf("\\n${str}\\n");`;
 	}
 
