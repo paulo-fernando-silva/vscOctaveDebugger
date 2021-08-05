@@ -1,3 +1,8 @@
+## 0.4.18
+* Removed tar dependency.
+* Set ${file} as the default program to run.
+* Tweaked the readme a bit.
+
 ## 0.4.17
 * Updated vsce, typescript, ts-loader, webpack, and webpack-cli.
 
