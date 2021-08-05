@@ -1,6 +1,6 @@
 # VS Code Octave Debugger
 
-This extension provides debugging support for Octave code. This is done by interfacing with `octave-cli` via stdin/stdout. Support for running Matlab code is done through `octave-cli`. Make sure `octave-cli` is in your path environment variable. If you're using windows or scripts with UI elements such as plots and widgets, using `octave-gui` is recommended. See known issues for more details on plots or check this [page](https://github.com/paulo-fernando-silva/vscOctaveDebugger/issues/45).
+This extension provides debugging support for Octave code. This is done by interfacing with `octave-cli` via stdin/stdout. Support for running Matlab code is done through `octave-cli`. Make sure `octave-cli` is in your path environment variable. If you're using windows or scripts with UI elements such as plots and widgets, using `octave-gui` is recommended. See known issues for more details on plots or check this [page](https://github.com/paulo-fernando-silva/vscOctaveDebugger/issues/45). Use `while(waitforbuttonpress()==0) pause(1) end` to prevent the script from exiting, allowing continous debugging of plots. See known issues for more details.
 
 Do read the changelog to know what's new in this version. This extension has been tested with octave-5.1 and octave-6.1, so everything in between and perhaps more recent versions should also work. If it doesn't, of if a variable is not shown properly, etc, please do let me know over [here](https://github.com/paulo-fernando-silva/vscOctaveDebugger/issues). Do check the known issues on this page.
 
@@ -52,10 +52,11 @@ More information about debugging with Octave can be found
 ```json
     "type": "OctaveDebugger",
     "request": "launch",
-    "name": "My Hello World",
-    "program": "printf('Hello World');"
+    "name": "Execute selected file.",
+    "program": "${file}"
 ```
 
+* Open the file you wish to debug.
 * Set breakpoints as needed.
 * Press the `DEBUG` '▷' button or F5 to start debugging.
 * Open the `DEBUG CONSOLE` to view any output from your program or to interact with it. Commands will be sent directly to Octave.
@@ -69,13 +70,14 @@ Note that `octave-cli` must be installed on your system. You can download it [he
     "type": "OctaveDebugger",
     "request": "launch",
     "name": "My Debug Config - free text",
-    "program": "file_or_function_name_and_parameters(foo,bar)",
+    "program": "${file}",
     "octave": "/path/to/octave-cli",
     "sourceFolder": "${workspaceFolder}:/usr/local/matlab/code:/opt/local/matlab/more_code",
     "workingDirectory": "${workspaceFolder}",
     "autoTerminate": true
 ```
 
+* `"program"` can be anything that can be evaluated, e.g. `"path/to/file.m"`, or `"functionName(value)"`. It defaults to `${file}` which corresponds to the currently focused file. This is a vscode variable - see [variables-reference](https://code.visualstudio.com/docs/editor/variables-reference).
 * `"octave"` must point to the location where `"octave-cli"` is installed. This parameter is optional, and defaults to `"octave-cli"` which assumes that `"octave-cli"` is in your path. If that's not the case make sure to provide the full installation path.
 * `"sourceFolder"` is an optional parameter that defaults to `"${workspaceFolder}"`. Basically it is added using `"addpath()"` before starting the `"program"`. More than one directory can be added by separating them with `pathsep()` which defaults to `:`.
 
@@ -99,7 +101,6 @@ is equivalent to
     "workingDirectory": "${workspaceFolder}/A/B/C/"
 ```
 
-* `"program"` can be anything that can be evaluated, e.g. `"path/to/file.m"`, or `"functionName(value)"`.
 * `"autoTerminate"` Setting this to false will allow the program to continue executing after the last line of code is executed. This is useful if you're running for example UI elements with callbacks and you want to continue debugging after the end of the program code. You'll need to stop the debug session manually by pressing the □ button.
 * `"splitFieldnamesOctaveStyle"` this allows struct field names to be almost arbitrary ([details](https://octave.org/doc/v5.1.0/Creating-Structures.html)). This option is not compatible with Matlab and so it's off by default ([details](https://www.mathworks.com/help/matlab/matlab_prog/generate-field-names-from-variables.html)).
 
@@ -120,7 +121,7 @@ is equivalent to
 
 * With `env.m` containing:
 
-```
+```matlab
     printf('FOO: "%s"\n', getenv('FOO'));
     printf('VAR: "%s"\n', getenv('VAR'));
     printf('PATH: "%s"\n', getenv('PATH'));
