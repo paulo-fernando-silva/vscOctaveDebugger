@@ -130,8 +130,9 @@ class OctaveDebugSession extends LoggingDebugSession {
 		octave: string,
 		octaveArgs: string[],
 		environment: any,
-		folder: string,
-		terminate: boolean,
+		sourcefolders: string,
+		workingDirectory: string,
+		autoTerminate: boolean,
 		shell: boolean
 	)
 	{
@@ -140,7 +141,15 @@ class OctaveDebugSession extends LoggingDebugSession {
 		}
 
 		OctaveLogger.logToConsole = this._isServer;
-		this._runtime = new Runtime(octave, octaveArgs, environment, folder, terminate, shell);
+		this._runtime = new Runtime(
+			octave,				// The octave binary name, e.g. octave-cli or octave-gui
+			octaveArgs,			// The octave binary arguments, e.g. see --help
+			environment,		// Environment to be set for the octave process
+			sourcefolders,		// The folders to search sources in, e.g. ${workspaceDirectory}
+			workingDirectory,	// The directory to run the script from, e.g. the location of ${file}
+			autoTerminate,		// Auto-terminate the octave process, of let it run
+			shell				// Run process in shell or standalone
+		);
 
 		if(!this.runtimeConnected()) {
 			OctaveLogger.warn(`Could not connect to '${octave}'! Check path.`);
@@ -216,6 +225,28 @@ class OctaveDebugSession extends LoggingDebugSession {
 
 
 	//**************************************************************************
+	private static getSourceFolders(args: LaunchRequestArguments): string {
+		// Grab the sourceFolder(s) if any:
+		let sourceFolders = this.val(args.sourceFolder, '');
+
+		// Get the program folder if any:
+		let programDirectory = dirname(args.program);
+
+		// If programDirectory has some value, concatenate it:
+		if(validDirectory(programDirectory)) {
+			if(sourceFolders !== '') {
+				// This can a problem, as pathsep() might not be ':'
+				sourceFolders = programDirectory + ':' + sourceFolders;
+			} else {
+				sourceFolders = programDirectory;
+			}
+		}
+
+		return sourceFolders;
+	}
+
+
+	//**************************************************************************
 	private static getWorkingDirectory(args: LaunchRequestArguments): string {
 		if(args.workingDirectory !== undefined && validDirectory(args.workingDirectory)) {
 			return args.workingDirectory;
@@ -236,7 +267,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 
 
 	//**************************************************************************
-	private val(value: any, _default: any): any {
+	private static val(value: any, _default: any): any {
 		if(value !== undefined && value !== null) {
 			return value;
 		}
@@ -251,7 +282,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 	)
 	{
 		OctaveLogger.setup(args.verbose, args.logFilename);
-		Variables.evaluateAns = this.val(args.evaluateAns, false);
+		Variables.evaluateAns = OctaveDebugSession.val(args.evaluateAns, false);
 
 		if(args.splitFieldnamesOctaveStyle !== undefined) {
 			ScalarStruct.setSplitStyle(args.splitFieldnamesOctaveStyle);
@@ -261,25 +292,29 @@ class OctaveDebugSession extends LoggingDebugSession {
 			Variables.setChunkPrefetch(args.prefetchCount);
 		}
 
+		// TODO: add program dir directly to sourceFolder?
+		// TODO: set workingDirectory on runtime creation/connect
+		// TODO: if a file has breakpoints, check if it's in the path?
+		// could use the isMatlab file, using a list of the current accessible files.
 		this.setupRuntime(
-			this.val(args.octave, Constants.DEFAULT_EXECUTABLE),
-			this.val(args.octaveArguments, []),
-			this.val(args.octaveEnvironment, {}),
-			this.val(args.sourceFolder, ''),
-			this.val(args.autoTerminate, true),
-			this.val(args.shell, true)
+			OctaveDebugSession.val(args.octave, Constants.DEFAULT_EXECUTABLE),
+			OctaveDebugSession.val(args.octaveArguments, []),
+			OctaveDebugSession.val(args.octaveEnvironment, {}),
+			OctaveDebugSession.getSourceFolders(args),
+			OctaveDebugSession.getWorkingDirectory(args),
+			OctaveDebugSession.val(args.autoTerminate, true),
+			OctaveDebugSession.val(args.shell, true)
 		);
-		const workingDirectory = OctaveDebugSession.getWorkingDirectory(args);
 
 		if(this.runtimeConnected()) {
 			this.runSetBreakpoints();
 
 			if(!this._configurationDone) {
 				this._runCallback = () => {
-					this._runtime.start(args.program, workingDirectory);
+					this._runtime.start(args.program);
 				};
 			} else {
-				this._runtime.start(args.program, workingDirectory);
+				this._runtime.start(args.program);
 			}
 		}
 

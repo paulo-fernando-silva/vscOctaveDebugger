@@ -4,7 +4,6 @@ import { ReadLine, createInterface } from 'readline';
 import { EventEmitter } from 'events';
 import * as Constants from './Constants';
 import { functionFromPath } from './Utils/fsutils';
-import { dirname } from 'path';
 import { Commands, CommandInterface } from './Commands';
 
 
@@ -206,7 +205,8 @@ export class Runtime extends EventEmitter implements CommandInterface {
 		processName: string,
 		processArguments: string[],
 		processEnvironment: any,
-		sourceFolder: string,
+		sourceFolders: string,
+		workingDirectory: string,
 		autoTerminate: boolean,
 		shell: boolean
 	)
@@ -222,7 +222,8 @@ export class Runtime extends EventEmitter implements CommandInterface {
 
 		if(this.connected()) {
 			// this.execute('debug_on_error;debug_on_warning;debug_on_interrupt;');
-			Commands.addFolder(this, sourceFolder);
+			Commands.addFolder(this, sourceFolders);
+			Commands.cwd(this, workingDirectory);
 		}
 	}
 
@@ -249,11 +250,8 @@ export class Runtime extends EventEmitter implements CommandInterface {
 
 
 	//**************************************************************************
-	public start(program: string, workingDirectory: string) {
+	public start(program: string) {
 		this._program = program;
-		Commands.addFolder(this, dirname(program));
-		Commands.cwd(this, workingDirectory);
-
 		// This is just like a deferred sync command.
 		// The program executes and then echoes the terminator tag.
 		const terminator = Runtime.echo(Runtime.TERMINATOR);
