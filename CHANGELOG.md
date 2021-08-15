@@ -1,3 +1,6 @@
+## 0.4.20
+* Fixed readme.md typos.
+
 ## 0.4.19
 * Fixed issue with breakpoints set in files contained in the "workingDirectory".
 * Tweaked the readme.md

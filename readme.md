@@ -9,11 +9,11 @@ This extension provides debugging support for Octave code. This is done by inter
     waitfor(h);
 ```
 
-to prevent the script from exiting, allowing continous debugging of plots. Another option is to put `while(waitforbuttonpress()==0) pause(1) end` at the end of your script. See [here](https://github.com/paulo-fernando-silva/vscOctaveDebugger/issues/52#issuecomment-893771137) for more details.
+to prevent the script from exiting, allowing continuous debugging of plots. Another option is to put `while(waitforbuttonpress()==0) pause(1) end` at the end of your script. See [here](https://github.com/paulo-fernando-silva/vscOctaveDebugger/issues/52#issuecomment-893771137) for more details.
 
-Do read the changelog to know what's new in this version. This extension has been tested with octave-5.1 and octave-6.1, so everything in between and perhaps more recent versions should also work. If it doesn't, of if a variable is not shown properly, etc, please do let me know over [here](https://github.com/paulo-fernando-silva/vscOctaveDebugger/issues). Do check the known issues on this page.
+Do read the changelog to know what's new in this version. This extension has been tested with octave-5.1 and octave-6.1, so everything in between and perhaps more recent versions should also work. If it doesn't, or if a variable is not shown properly, etc, please do let me know over [here](https://github.com/paulo-fernando-silva/vscOctaveDebugger/issues). Do check the known issues on this page.
 
-Though this is not necessary to use this extension, I recommend the [Octave](https://marketplace.visualstudio.com/items?itemName=toasty-technologies.octave) extension for syntax highlighting. I favor it to the [Matlab](https://marketplace.visualstudio.com/items?itemName=Gimly81.matlab). Nicer colors. The following language extension supports code outline for the focused file [Octave Hacking](https://marketplace.visualstudio.com/items?itemName=apjanke.octave-hacking). We're still missing is F12 "jump to definition" code navigation. If someone has time and wants to implement it [here's](https://code.visualstudio.com/docs/editor/editingevolved#_go-to-definition) a place to start.
+Though the following is not necessary to use this extension, I recommend the [Octave](https://marketplace.visualstudio.com/items?itemName=toasty-technologies.octave) extension for syntax highlighting. I prefer it over [Matlab](https://marketplace.visualstudio.com/items?itemName=Gimly81.matlab). Nicer colors. The following language extension supports code outline for the focused file [Octave Hacking](https://marketplace.visualstudio.com/items?itemName=apjanke.octave-hacking). We're still missing is the F12 "jump to definition" code navigation. If someone has time and wants to implement it [here's](https://code.visualstudio.com/docs/editor/editingevolved#_go-to-definition) a place to start.
 
 
 **Octave Debugger**
@@ -38,14 +38,14 @@ The following types are currently supported:
  * [Strings](https://octave.org/doc/v5.1.0/Strings.html)
  * UnknownType: represents unknown types as strings.
 
-If a type isn't supported request it on the [project repository](https://github.com/paulo-fernando-silva/vscOctaveDebugger.git).
+If a type isn't supported, request it on the [project repository](https://github.com/paulo-fernando-silva/vscOctaveDebugger.git).
 
 ![Demo](images/OctaveDebugger.gif)
 
 
 If you want to edit the value of a variable be it scalar, array, or structure, you can double click on it in the `VARIABLES` view, and type in the new value.
 That expression will be evaluated and if successful the variable will be updated with the new value.
-You can also submit any command you like through the debug console as if it you were typing directly into Octave.
+You can also submit any command you like through the debug console as if you were typing directly into Octave.
 
 More information about debugging with Octave can be found
 [here](https://octave.org/doc/v5.1.0/Debugging.html).
@@ -54,7 +54,7 @@ More information about debugging with Octave can be found
 ## Using Octave Debugger
 
 * Open the directory containing the project that you want to debug using everyone's favorite editor, visual studio code.
-* In visual studio code debug view click the `DEBUG` drop-down box and select `"Add configuration..."`. See animation above.
+* In the vsCode debug view click the `DEBUG` drop-down box and select `"Add configuration..."`. See animation above.
 * Select `"OctaveDebugger"` from the menu that pops up.
 * The following the default configuration which will debug the current selected file:
 
@@ -111,7 +111,7 @@ is equivalent to
 
 * `"splitFieldnamesOctaveStyle"` this allows struct field names to be almost arbitrary ([details](https://octave.org/doc/v5.1.0/Creating-Structures.html)). This option is not compatible with Matlab and so it's off by default ([details](https://www.mathworks.com/help/matlab/matlab_prog/generate-field-names-from-variables.html)).
 
-## Evironment variables and octave arguments
+## Environment Variables and Octave Arguments
 
 * Consider the following configuration:
 
@@ -173,10 +173,10 @@ The following issues will likely not be fixed. For other open issues see [here](
 * stdinput when using octave version 5.1 or older: if you're stepping you can't rely on stdinput from your Matlab/Octave code. For example, you can use functions like `pause()`, `input()`, `keyboard()`, etc, as long as it's not during a step over, step into, or step out. To workaround this you can press F5 (continue), and `pause()` will wait for your input in the `DEBUG CONSOLE`. The issue comes from the communication that the plugin does with Octave in order to control execution. When using the console or continuing the execution no such communication exists. So you can step over/into/out using the `DEBUG CONSOLE`, by typing `dbstep` and pressing the `RETURN` key (see [here](https://octave.org/doc/v5.1.0/Debug-Mode.html) for details). Then each new `RETURN` should work as a step directly. This is the way `octave-cli` works by default. Since the `DEBUG CONSOLE` just forwards your commands to `octave-cli` you can interact with it as if it was a normal terminal.
 * stdinput when using octave version 5.2 or newer: in this case `pause()`, `kbhit()`, and friends block octave waiting for direct keyboard input. Unfortunately the plugin can't send keypresses directly to the octave process. The plan is to implement a switch to open a background window to run octave-cli so the user can send direct keyboard input to that window. This is tracked in issue [#34](https://github.com/paulo-fernando-silva/vscOctaveDebugger/issues/34). For now if you're using octave 5.2 or newer you should avoid these keyboard functions.
 * plotting with qt or other plot frameworks might require you to add an infinite loop at the end of the program being debugged. For example, as mentioned at the top of this page, you can use `h = figure(); plot(); waitfor(h);` or `while(waitforbuttonpress()==0) pause(1) end` which hopefully exits when you press a key but not when you press a mouse button. Using either method will prevent the program from terminating, allowing the debug session to stay alive and the plot to update. The first method will exit when you close the plot, the second method will exit on key press. If the plot doesn't require an update, i.e. no interactive elements such as sliders, then setting a breakpoint on the last program instruction might be enough - just make sure that instruction is after the plot command. This seems to be an issue even when running plots from the cli, see [Getting octave to plot when invoking a function from the command line](https://stackoverflow.com/questions/6843014/getting-octave-to-plot-when-invoking-a-function-from-the-command-line/62340602#62340602) and [Octave: How to prevent plot window from closing itself?](https://stackoverflow.com/questions/52569584/octave-how-to-prevent-plot-window-from-closing-itself).
-* Octave will accept arbitrary strings as struct field names. When Octave field names are enabled using `"splitFieldnamesOctaveStyle": true` in the launch options, the only strings that can't be used as struct field names will be strings that match `/\n?  \[\d+,1\] = /`. Using these kind of struct field names with this plugin is not recommended as it might lead to comunication issues between the plugin and octave.
+* Octave will accept arbitrary strings as struct field names. When Octave field names are enabled using `"splitFieldnamesOctaveStyle": true` in the launch options, the only strings that can't be used as struct field names will be strings that match `/\n?  \[\d+,1\] = /`. Using this kind of struct field names with this plugin is not recommended as it might lead to communication issues between the plugin and octave.
 
 
-## History and Aknowledgements :)
+## History and Acknowledgements
 
 I started this project back in December 2017 or January 2018, not quite sure anymore, when I was going through the exercises from the [Andrew Ng's machine learning class](http://openclassroom.stanford.edu/MainFolder/CoursePage.php?course=MachineLearning), and other ML resources such as [Stanford Machine Learning](https://www.youtube.com/watch?v=UzxYlbK2c7E&list=PLA89DCFA6ADACE599), [Caltech Learning from Data](https://www.youtube.com/watch?v=VeKeFIepJBU&list=PLCA2C1469EA777F9A), [Deep Learning tutorial](http://ufldl.stanford.edu/tutorial/), and more from MIT and others.
 
