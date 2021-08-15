@@ -1,6 +1,15 @@
 # VS Code Octave Debugger
 
-This extension provides debugging support for Octave code. This is done by interfacing with `octave-cli` via stdin/stdout. Support for running Matlab code is done through `octave-cli`. Make sure `octave-cli` is in your path environment variable. If you're using windows or scripts with UI elements such as plots and widgets, using `octave-gui` is recommended. See known issues for more details on plots or check this [page](https://github.com/paulo-fernando-silva/vscOctaveDebugger/issues/45). Use `while(waitforbuttonpress()==0) pause(1) end` to prevent the script from exiting, allowing continous debugging of plots. See known issues for more details.
+This extension provides debugging support for Octave code. This is done by interfacing with `octave-cli` via stdin/stdout. Support for running Matlab code is also done through `octave-cli`. Make sure `octave-cli` is in your path environment variable. If you're using windows or scripts with UI elements such as plots and widgets, using `octave-gui` is recommended. See known issues for more details on plots or check this [page](https://github.com/paulo-fernando-silva/vscOctaveDebugger/issues/45). Use
+
+```matlab
+    h = figure();
+    plot();
+    % ...
+    waitfor(h);
+```
+
+to prevent the script from exiting, allowing continous debugging of plots. Another option is to put `while(waitforbuttonpress()==0) pause(1) end` at the end of your script. See [here](https://github.com/paulo-fernando-silva/vscOctaveDebugger/issues/52#issuecomment-893771137) for more details.
 
 Do read the changelog to know what's new in this version. This extension has been tested with octave-5.1 and octave-6.1, so everything in between and perhaps more recent versions should also work. If it doesn't, of if a variable is not shown properly, etc, please do let me know over [here](https://github.com/paulo-fernando-silva/vscOctaveDebugger/issues). Do check the known issues on this page.
 
@@ -44,10 +53,10 @@ More information about debugging with Octave can be found
 
 ## Using Octave Debugger
 
-* Open a directory containing the project that you want to debug.
-* In the debug view click the `DEBUG` drop-down box and select `"Add configuration..."`
+* Open the directory containing the project that you want to debug using everyone's favorite editor, visual studio code.
+* In visual studio code debug view click the `DEBUG` drop-down box and select `"Add configuration..."`. See animation above.
 * Select `"OctaveDebugger"` from the menu that pops up.
-* The following is an example of a minimal configuration:
+* The following the default configuration which will debug the current selected file:
 
 ```json
     "type": "OctaveDebugger",
@@ -62,9 +71,9 @@ More information about debugging with Octave can be found
 * Open the `DEBUG CONSOLE` to view any output from your program or to interact with it. Commands will be sent directly to Octave.
 Note that `octave-cli` must be installed on your system. You can download it [here](https://www.gnu.org/software/octave/download.html).
 
-## Understanding the Debug Session Configuration
+## Debug Session Configuration Variables
 
-* Example configuration:
+* Example:
 
 ```json
     "type": "OctaveDebugger",
@@ -73,12 +82,11 @@ Note that `octave-cli` must be installed on your system. You can download it [he
     "program": "${file}",
     "octave": "/path/to/octave-cli",
     "sourceFolder": "${workspaceFolder}:/usr/local/matlab/code:/opt/local/matlab/more_code",
-    "workingDirectory": "${workspaceFolder}",
-    "autoTerminate": true
+    "workingDirectory": "${workspaceFolder}"
 ```
 
-* `"program"` can be anything that can be evaluated, e.g. `"path/to/file.m"`, or `"functionName(value)"`. It defaults to `${file}` which corresponds to the currently focused file. This is a vscode variable - see [variables-reference](https://code.visualstudio.com/docs/editor/variables-reference).
-* `"octave"` must point to the location where `"octave-cli"` is installed. This parameter is optional, and defaults to `"octave-cli"` which assumes that `"octave-cli"` is in your path. If that's not the case make sure to provide the full installation path.
+* `"program"` can be anything that can be evaluated, e.g. `"path/to/file.m"`, or `"functionName(value)"`. It defaults to `${file}` which corresponds to the currently focused file. This is a vscode variable - see [variables-reference](https://code.visualstudio.com/docs/editor/variables-reference). However, something like `"functionName('/some/path/file.m')"` probably won't work, as the plugin tries to parse the program directory from this value.
+* `"octave"` must point to the location where `"octave-cli"` or `"octave-gui"` is installed. This parameter is optional, and defaults to `"octave-cli"` which assumes that `"octave-cli"` is in your path. If that's not the case make sure to provide the full installation path.
 * `"sourceFolder"` is an optional parameter that defaults to `"${workspaceFolder}"`. Basically it is added using `"addpath()"` before starting the `"program"`. More than one directory can be added by separating them with `pathsep()` which defaults to `:`.
 
 For example:
@@ -101,7 +109,6 @@ is equivalent to
     "workingDirectory": "${workspaceFolder}/A/B/C/"
 ```
 
-* `"autoTerminate"` Setting this to false will allow the program to continue executing after the last line of code is executed. This is useful if you're running for example UI elements with callbacks and you want to continue debugging after the end of the program code. You'll need to stop the debug session manually by pressing the □ button.
 * `"splitFieldnamesOctaveStyle"` this allows struct field names to be almost arbitrary ([details](https://octave.org/doc/v5.1.0/Creating-Structures.html)). This option is not compatible with Matlab and so it's off by default ([details](https://www.mathworks.com/help/matlab/matlab_prog/generate-field-names-from-variables.html)).
 
 ## Evironment variables and octave arguments
@@ -115,11 +122,10 @@ is equivalent to
     "program": "env.m",
     "octave": "octave-cli",
     "octaveEnvironment": { "FOO": "bar", "VAR": "XPTO" },
-    "workingDirectory": "${workspaceFolder}",
-    "autoTerminate": true
+    "workingDirectory": "${workspaceFolder}"
 ```
 
-* With `env.m` containing:
+* `"octaveEnvironment"` is added to the environment when the octave process is created. We can print those environment variables by running the program `env.m` defined as:
 
 ```matlab
     printf('FOO: "%s"\n', getenv('FOO'));
@@ -127,7 +133,7 @@ is equivalent to
     printf('PATH: "%s"\n', getenv('PATH'));
 ```
 
-* `"octaveEnvironment"` will be added to the environment when the octave process is created. The same can be achieved using:
+* The same can be achieved using:
 
 ```json
     "type": "OctaveDebugger",
@@ -136,23 +142,21 @@ is equivalent to
     "program": "env.m",
     "octave": "export FOO=bar; octave-cli",
     "shell": true,
-    "workingDirectory": "${workspaceFolder}",
-    "autoTerminate": true
+    "workingDirectory": "${workspaceFolder}"
 ```
 
-* `"shell": true,` is this variable's default value, so it can be omitted. If you set it to false, the above configuration will not run as `export FOO=bar; octave-cli` is not a valid process name.
+* `"shell": true,` is this variable's default value, so it can be omitted. If you set it to false, the above configuration will not run as `export FOO=bar; octave-cli` is a shell command, and is not a valid process name.
 
 * Another option is `"octaveArguments": [ "FOO", "bar" ],`. This passes `"FOO"` and `"bar"` as parameters to the octave process. For example, here's another way to manipulate paths:
 
 ```json
     "type": "OctaveDebugger",
     "request": "launch",
-    "name": "Print Help",
+    "name": "Execute foo in bar",
     "program": "foo.m",
     "octave": "octave-cli",
-    "octaveArguments": [ "--path", "path" ],
-    "workingDirectory": "${workspaceFolder}",
-    "autoTerminate": true
+    "octaveArguments": [ "--path", "bar" ],
+    "workingDirectory": "${workspaceFolder}"
 ```
 
 
@@ -168,26 +172,13 @@ The following issues will likely not be fixed. For other open issues see [here](
 * ans: Is not displayed in the variables view by default. You can still output it in the console or watch view.
 * stdinput when using octave version 5.1 or older: if you're stepping you can't rely on stdinput from your Matlab/Octave code. For example, you can use functions like `pause()`, `input()`, `keyboard()`, etc, as long as it's not during a step over, step into, or step out. To workaround this you can press F5 (continue), and `pause()` will wait for your input in the `DEBUG CONSOLE`. The issue comes from the communication that the plugin does with Octave in order to control execution. When using the console or continuing the execution no such communication exists. So you can step over/into/out using the `DEBUG CONSOLE`, by typing `dbstep` and pressing the `RETURN` key (see [here](https://octave.org/doc/v5.1.0/Debug-Mode.html) for details). Then each new `RETURN` should work as a step directly. This is the way `octave-cli` works by default. Since the `DEBUG CONSOLE` just forwards your commands to `octave-cli` you can interact with it as if it was a normal terminal.
 * stdinput when using octave version 5.2 or newer: in this case `pause()`, `kbhit()`, and friends block octave waiting for direct keyboard input. Unfortunately the plugin can't send keypresses directly to the octave process. The plan is to implement a switch to open a background window to run octave-cli so the user can send direct keyboard input to that window. This is tracked in issue [#34](https://github.com/paulo-fernando-silva/vscOctaveDebugger/issues/34). For now if you're using octave 5.2 or newer you should avoid these keyboard functions.
-* plotting with qt or other plot frameworks might require you to add an infinite loop at the end of the program being debugged. For example: `while(waitforbuttonpress()==0) pause(1) end` which hopefully exits when you press a key but not when you press a mouse button. Having this loop will prevent the program from terminating, allowing the debug session to stay alive and the plot to update. If the plot doesn't require an update, i.e. no interactive elements such as sliders, then setting a breakpoint on the last instruction might be enough - just make sure that instruction is after the plot command. This seems to be an issue even when running plots from the cli, see [Getting octave to plot when invoking a function from the command line](https://stackoverflow.com/questions/6843014/getting-octave-to-plot-when-invoking-a-function-from-the-command-line/62340602#62340602) and [Octave: How to prevent plot window from closing itself?](https://stackoverflow.com/questions/52569584/octave-how-to-prevent-plot-window-from-closing-itself).
-* Octave will accept arbitrary strings as struct field names. When Octave field names are enabled using `"splitFieldnamesOctaveStyle": true` in the launch options, the only strings that can't be used are strings of the type `/\n?  \[\d+,1\] = /`. Enabling this is not recommended.
+* plotting with qt or other plot frameworks might require you to add an infinite loop at the end of the program being debugged. For example, as mentioned at the top of this page, you can use `h = figure(); plot(); waitfor(h);` or `while(waitforbuttonpress()==0) pause(1) end` which hopefully exits when you press a key but not when you press a mouse button. Using either method will prevent the program from terminating, allowing the debug session to stay alive and the plot to update. The first method will exit when you close the plot, the second method will exit on key press. If the plot doesn't require an update, i.e. no interactive elements such as sliders, then setting a breakpoint on the last program instruction might be enough - just make sure that instruction is after the plot command. This seems to be an issue even when running plots from the cli, see [Getting octave to plot when invoking a function from the command line](https://stackoverflow.com/questions/6843014/getting-octave-to-plot-when-invoking-a-function-from-the-command-line/62340602#62340602) and [Octave: How to prevent plot window from closing itself?](https://stackoverflow.com/questions/52569584/octave-how-to-prevent-plot-window-from-closing-itself).
+* Octave will accept arbitrary strings as struct field names. When Octave field names are enabled using `"splitFieldnamesOctaveStyle": true` in the launch options, the only strings that can't be used as struct field names will be strings that match `/\n?  \[\d+,1\] = /`. Using these kind of struct field names with this plugin is not recommended as it might lead to comunication issues between the plugin and octave.
 
 
-## History :)
+## History and Aknowledgements :)
 
-I started this project back in December 2017 or January 2018, not quite sure anymore, when I was going through the exercises from the [Andrew Ng's machine learning class](http://openclassroom.stanford.edu/MainFolder/CoursePage.php?course=MachineLearning).
-Also check these playlists [Stanford Machine Learning](https://www.youtube.com/watch?v=UzxYlbK2c7E&list=PLA89DCFA6ADACE599), [Caltech Learning from Data](https://www.youtube.com/watch?v=VeKeFIepJBU&list=PLCA2C1469EA777F9A), [Deep Learning tutorial](http://ufldl.stanford.edu/tutorial/), and there's plenty more from MIT and others.
+I started this project back in December 2017 or January 2018, not quite sure anymore, when I was going through the exercises from the [Andrew Ng's machine learning class](http://openclassroom.stanford.edu/MainFolder/CoursePage.php?course=MachineLearning), and other ML resources such as [Stanford Machine Learning](https://www.youtube.com/watch?v=UzxYlbK2c7E&list=PLA89DCFA6ADACE599), [Caltech Learning from Data](https://www.youtube.com/watch?v=VeKeFIepJBU&list=PLCA2C1469EA777F9A), [Deep Learning tutorial](http://ufldl.stanford.edu/tutorial/), and more from MIT and others.
 
-Since I was really into vscode but unfortunately there was no Octave debugger at the time, and since I have a long commute to work, I decided to use that time to develop this adapter.
-It kind of was an on and off development, but I would say that about 80% of it was done on the train while commuting to work. I really would like to thank Andrew and all the openclassroom and other similar projects (e.g. OpenCourseWare), and of course the people behind Octave and vscode.
-
-## High-Level Description of Inner Workings
-
-A debug session follows these steps
- * Debug session begin or step
- * Request stack frames comes in
- * Request scopes for selected frame comes in (usually 0, the top frame, but can go up to n where n is the current stack frames depth).
- * Request variables for current open scopes comes in (scope reference is only fetched if > 0) If scope is different than 0, then we need to do a `dbup` or `dbdown` before fetching the variables.
- * Request child variables as needed (child variable ref > 0)
-
-More information about vscode Debug Adapter Protocol can be found here [DAP](https://microsoft.github.io/debug-adapter-protocol/overview) and the [API](https://code.visualstudio.com/docs/extensionAPI/api-debugging), and information on publishing extensions can be found [here](https://code.visualstudio.com/docs/extensions/publish-extension#_publishers-and-personal-access-tokens).
-Funny fact, I noticed too late that the name of the plugin is not only spelled wrong but also it doesn't follow the expected "no caps and words separated by hyphens" pattern. :p
+Since vscode is the best editor around, but unfortunately there was no Octave debugger at the time, and since I had a long commute to work, I decided to use that time to develop this plugin.
+It was an on and off development process, but I would say that about 80% of it was done on the train while commuting to work or flying around the world. I really would like to thank Andrew and all the openclassroom and other similar projects (e.g. OpenCourseWare), and of course the people behind Octave and vscode.

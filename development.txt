@@ -1,0 +1,14 @@
+
+## High-Level Description of Inner Workings
+
+A debug session follows these steps
+ * Debug session begin or step
+ * Request stack frames comes in
+ * Request scopes for selected frame comes in (usually 0, the top frame, but can go up to n where n is the current stack frames depth).
+ * Request variables for current open scopes comes in (scope reference is only fetched if > 0) If scope is different than 0, then we need to do a `dbup` or `dbdown` before fetching the variables.
+ * Request child variables as needed (child variable ref > 0)
+
+More information about vscode Debug Adapter Protocol can be found here [DAP](https://microsoft.github.io/debug-adapter-protocol/overview) and the [API](https://code.visualstudio.com/docs/extensionAPI/api-debugging), and information on publishing extensions can be found [here](https://code.visualstudio.com/docs/extensions/publish-extension#_publishers-and-personal-access-tokens).
+Funny fact, I noticed too late that the name of the plugin is not only spelled wrong but also it doesn't follow the expected "no caps and words separated by hyphens" pattern. :p
+
+This was removed from the readme, as it's more for plugin developers and might confuse the plugin user.
