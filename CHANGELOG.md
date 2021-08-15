@@ -1,3 +1,8 @@
+## 0.4.19
+* Fixed issue with breakpoints set in files contained in the "workingDirectory".
+* Tweaked the readme.md
+* Updated a couple of packages.
+
 ## 0.4.18
 * Removed tar dependency.
 * Set ${file} as the default program to run.
