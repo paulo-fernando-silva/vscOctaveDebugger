@@ -1,6 +1,6 @@
 # VS Code Octave Debugger
 
-This extension provides debugging support for Octave code. This is done by interfacing with `octave-cli` via stdin/stdout. Support for running Matlab code is also done through `octave-cli`. Make sure `octave-cli` is in your path environment variable. If you're using windows or scripts with UI elements such as plots and widgets, using `octave-gui` is recommended. See known issues for more details on plots or check this [page](https://github.com/paulo-fernando-silva/vscOctaveDebugger/issues/45). Use
+This extension provides debugging support for Octave code. This is done by interfacing with `octave-cli` via stdin/stdout. Support for running Matlab code is also done through `octave-cli`. Make sure `octave-cli` is in your path environment variable. Note that `octave-cli` must be installed on your system. You can download it [here](https://www.gnu.org/software/octave/download.html). If you're using windows or scripts with UI elements such as plots and widgets, using `octave-gui` is recommended. For more details on plots check this [page](https://github.com/paulo-fernando-silva/vscOctaveDebugger/issues/45). You can use
 
 ```matlab
     h = figure();
@@ -11,7 +11,7 @@ This extension provides debugging support for Octave code. This is done by inter
 
 to prevent the script from exiting, allowing continuous debugging of plots. Another option is to put `while(waitforbuttonpress()==0) pause(1) end` at the end of your script. See [here](https://github.com/paulo-fernando-silva/vscOctaveDebugger/issues/52#issuecomment-893771137) for more details.
 
-Do read the changelog to know what's new in this version. This extension has been tested with octave-5.1 and octave-6.1, so everything in between and perhaps more recent versions should also work. If it doesn't, or if a variable is not shown properly, etc, please do let me know over [here](https://github.com/paulo-fernando-silva/vscOctaveDebugger/issues). Do check the known issues on this page.
+Do read the changelog to know what's new in this version. This extension has been tested with octave-5.1 and octave-6.1, so everything in between and perhaps more recent versions should also work. If it doesn't, or if a variable is not shown properly, etc, please do let me know over [here](https://github.com/paulo-fernando-silva/vscOctaveDebugger/issues). Additionally, please check the known issues on this page.
 
 Though the following is not necessary to use this extension, I recommend the [Octave](https://marketplace.visualstudio.com/items?itemName=toasty-technologies.octave) extension for syntax highlighting. I prefer it over [Matlab](https://marketplace.visualstudio.com/items?itemName=Gimly81.matlab). Nicer colors. The following language extension supports code outline for the focused file [Octave Hacking](https://marketplace.visualstudio.com/items?itemName=apjanke.octave-hacking). We're still missing is the F12 "jump to definition" code navigation. If someone has time and wants to implement it [here's](https://code.visualstudio.com/docs/editor/editingevolved#_go-to-definition) a place to start.
 
@@ -56,7 +56,7 @@ More information about debugging with Octave can be found
 * Open the directory containing the project that you want to debug using everyone's favorite editor, visual studio code.
 * In the vsCode debug view click the `DEBUG` drop-down box and select `"Add configuration..."`. See animation above.
 * Select `"OctaveDebugger"` from the menu that pops up.
-* The following the default configuration which will debug the current selected file:
+* The following is the default configuration which will debug the current selected file:
 
 ```json
     "type": "OctaveDebugger",
@@ -69,7 +69,23 @@ More information about debugging with Octave can be found
 * Set breakpoints as needed.
 * Press the `DEBUG` '▷' button or F5 to start debugging.
 * Open the `DEBUG CONSOLE` to view any output from your program or to interact with it. Commands will be sent directly to Octave.
-Note that `octave-cli` must be installed on your system. You can download it [here](https://www.gnu.org/software/octave/download.html).
+
+
+## Interactive Mode
+
+In this mode octave will continue to execute beyond the script execution. Therefore, the `"program"` field can be empty as follows:
+
+```json
+    "type": "OctaveDebugger",
+    "request": "launch",
+    "name": "Interactive Mode",
+    "program": "",
+    "octave": "octave-cli",
+    "autoTerminate": false
+```
+
+In this mode, octave will remain running in the background after the execution of the script. Commands can be sent via the DEBUG CONSOLE. To enter this mode set `"autoTerminate": false` in the launch configuration. Note that octave will terminate only when either the stop □ button is pressed, or when an error occurs. The main point of this mode is that variables will continue to be displayed in the VARIABLES and WATCHES view beyond the end of the script.
+
 
 ## Debug Session Configuration Variables
 

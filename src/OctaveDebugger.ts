@@ -8,9 +8,16 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  ******************************************************************************/
 import {
-	DebugSession, LoggingDebugSession,
-	InitializedEvent, TerminatedEvent, StoppedEvent,
-	Thread, StackFrame, Scope, Breakpoint, Variable
+	DebugSession,
+	LoggingDebugSession,
+	InitializedEvent,
+	TerminatedEvent,
+	StoppedEvent,
+	Thread,
+	StackFrame,
+	Scope,
+	Breakpoint,
+	Variable
 } from 'vscode-debugadapter';
 import { OctaveLogger } from './OctaveLogger';
 import { DebugProtocol } from 'vscode-debugprotocol';
@@ -125,7 +132,15 @@ class OctaveDebugSession extends LoggingDebugSession {
 
 
 	//**************************************************************************
-	private static readonly STOP_REGEX = /^stopped in .*? at line \d+.*$/;
+	public sendBreakEvent() {
+		// TODO: send only when we're in detached mode, after existing the script?
+		// we send a stop event that pulls in octave's state:
+		this.sendEvent(new StoppedEvent('breakpoint', OctaveDebugSession.THREAD_ID));
+		this._stepping = false;
+	}
+
+
+	//**************************************************************************
 	private setupRuntime(
 		octave: string,
 		octaveArgs: string[],
@@ -155,19 +170,11 @@ class OctaveDebugSession extends LoggingDebugSession {
 			OctaveLogger.warn(`Could not connect to '${octave}'! Check path.`);
 			return;
 		}
-
-		this._runtime.on(Constants.eEXIT, () => this.sendTerminatedEvent());
-		this._runtime.on(Constants.eEND, () => this.sendTerminatedEvent());
-		this._runtime.on(Constants.eERROR, () => this.sendTerminatedEvent());
-		this._runtime.addStderrHandler((line: string) => {
-			if(line.match(OctaveDebugSession.STOP_REGEX) !== null) {
-				this.sendEvent(new StoppedEvent('breakpoint', OctaveDebugSession.THREAD_ID));
-				this._stepping = false;
-				return true; // Event handled. Stop processing.
-			}
-
-			return false; // Event not handled. Pass the event to the next handler.
-		});
+		// Connect events between octave runtime and vscode runtime:
+		this._runtime.on(Constants.eEXIT,	() => this.sendTerminatedEvent());
+		this._runtime.on(Constants.eEND,	() => this.sendTerminatedEvent());
+		this._runtime.on(Constants.eERROR,	() => this.sendTerminatedEvent());
+		this._runtime.on(Constants.eBREAK,	() => this.sendBreakEvent());
 	}
 
 
@@ -413,6 +420,13 @@ class OctaveDebugSession extends LoggingDebugSession {
 		this.clear();
 
 		const callback = (stackFrames: Array<StackFrame>) => {
+			// When running in !autoTerminate mode, the stack can come empty
+			// This prevents the runtime from displaying octave state
+			// We insert a fake stack to trick vsc to request the state:
+			if(stackFrames.length == 0 && !this._runtime.autoTerminate()) {
+				stackFrames.push(new StackFrame(1, "at top level"));
+			}
+
 			response.body = {
 				stackFrames: stackFrames,
 				totalFrames: stackFrames.length
@@ -513,7 +527,6 @@ class OctaveDebugSession extends LoggingDebugSession {
 
 
 	//**************************************************************************
-	private static readonly WHERE_REGEX = /at top level/;
 	protected stepWith(cmd: string): void {
 		this._stepping = this._runtime.autoTerminate();
 		++this._stepCount;
@@ -525,7 +538,8 @@ class OctaveDebugSession extends LoggingDebugSession {
 			if(this._stepping) {
 				this._stepping = false;
 				this._runtime.evaluateAsLine('dbwhere', (output: string) => {
-					if(output.match(OctaveDebugSession.WHERE_REGEX)) {
+					const WHERE_REGEX = /at top level/;
+					if(output.match(WHERE_REGEX)) {
 						this.sendTerminatedEvent();
 					}
 				});

@@ -24,3 +24,4 @@ export const CELL_RIGHT = '}';
 export const eEXIT = 'exit';
 export const eEND = 'end';
 export const eERROR = 'error';
+export const eBREAK = 'break';

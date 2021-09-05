@@ -185,14 +185,34 @@ export class Runtime extends EventEmitter implements CommandInterface {
 
 	//**************************************************************************
 	private terminated(data: string): boolean {
-		if(this.autoTerminate() && data.match(Runtime.TERMINATOR_REGEX) !== null) {
+		if(data.match(Runtime.TERMINATOR_REGEX) !== null) {
 			OctaveLogger.debug(`Runtime: program ${this._program} exited normally.`);
-			this.emit(Constants.eEND);
+			// If we're suppose to terminate when the scrip exists:
+			if(this.autoTerminate()) {
+				// We send a end event to exit debug
+				this.emit(Constants.eEND);
+			} else {
+				// Otherwise we send a break event to read octave state
+				this.emit(Constants.eBREAK);
+			}
 			return true;
 		}
 
 		return false;
 	}
+
+
+	//**************************************************************************
+	public checkForBreaks(line: string): boolean {
+		const BREAK_REGEX = /^stopped in .*? at line \d+.*$/;
+		if(line.match(BREAK_REGEX) !== null) {
+			this.emit(Constants.eBREAK);
+			return true; // Event handled. Stop processing.
+		}
+
+		return false; // Event not handled. Pass the event to the next handler.
+	}
+
 
 	//**************************************************************************
 	//#endregion
@@ -225,6 +245,9 @@ export class Runtime extends EventEmitter implements CommandInterface {
 			Commands.addFolder(this, sourceFolders);
 			Commands.cwd(this, workingDirectory);
 		}
+		// we always check for break(point) events.
+		// This call requires an indirection to store the this pointer:
+		this.addStderrHandler((line: string) => this.checkForBreaks(line));
 	}
 
 
@@ -255,7 +278,13 @@ export class Runtime extends EventEmitter implements CommandInterface {
 		// This is just like a deferred sync command.
 		// The program executes and then echoes the terminator tag.
 		const terminator = Runtime.echo(Runtime.TERMINATOR);
-		this.execute(`${functionFromPath(program)};${terminator}`);
+		const command = functionFromPath(program);
+		// if command is empty, this will lead to a parse error, so avoid it:
+		if(command.length != 0)
+			this.execute(`${functionFromPath(program)};${terminator}`);
+		else
+			// Terminates immediately, or enters interactive mode:
+			this.execute(`${terminator}`);
 	}
 
 
