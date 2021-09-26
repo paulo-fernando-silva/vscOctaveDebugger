@@ -67,7 +67,7 @@ More information about debugging with Octave can be found
 
 * Open the file you wish to debug.
 * Set breakpoints as needed.
-* Press the `DEBUG` '▷' button or F5 to start debugging.
+* Press the `DEBUG` ▷ button or F5 to start debugging.
 * Open the `DEBUG CONSOLE` to view any output from your program or to interact with it. Commands will be sent directly to Octave.
 
 
@@ -84,7 +84,7 @@ In this mode octave will continue to execute beyond the script execution. Theref
     "autoTerminate": false
 ```
 
-In this mode, octave will remain running in the background after the execution of the script. Commands can be sent via the DEBUG CONSOLE. To enter this mode set `"autoTerminate": false` in the launch configuration. Note that octave will terminate only when either the stop □ button is pressed, or when an error occurs. The main point of this mode is that variables will continue to be displayed in the VARIABLES and WATCHES view beyond the end of the script.
+Commands can be sent via the `DEBUG CONSOLE`. To enter this mode set `"autoTerminate": false` in the launch configuration. Note that octave will terminate only when either the stop □ button is pressed, or when an error occurs after the end of the script. To continue executing even on error, use the octave option `"octaveArguments": [ "--interactive" ],`. The main point of this mode is that variables will continue to be displayed in the `VARIABLES` and `WATCHES` view beyond the end of the script.
 
 
 ## Debug Session Configuration Variables

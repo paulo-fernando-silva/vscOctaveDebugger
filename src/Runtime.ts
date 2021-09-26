@@ -27,7 +27,7 @@ export class Runtime extends EventEmitter implements CommandInterface {
 	//**************************************************************************
 	//#region private
 	//**************************************************************************
-	private static readonly DBG_PROMPT = 'debug> ';
+	private static readonly PROMPT = /(?:debug|octave:\d+)> /;
 	private static readonly SEP = '::';
 	private static readonly SYNC = Constants.MODULE_NAME;
 	private static readonly SYNC_REGEX =
@@ -65,7 +65,7 @@ export class Runtime extends EventEmitter implements CommandInterface {
 
 	//**************************************************************************
 	private static split(str: string): Array<string> {
-		return str.split(this.DBG_PROMPT).filter((val) => val);
+		return str.split(this.PROMPT).filter((val) => val);
 	}
 
 
@@ -241,7 +241,6 @@ export class Runtime extends EventEmitter implements CommandInterface {
 		this.connect();
 
 		if(this.connected()) {
-			// this.execute('debug_on_error;debug_on_warning;debug_on_interrupt;');
 			Commands.addFolder(this, sourceFolders);
 			Commands.cwd(this, workingDirectory);
 		}

@@ -1,3 +1,7 @@
+## 0.4.22
+* Removed vsce from development dependencies,
+* Added support for --interactive mode. Allows octave to continue executing when the script exited even on error. Rigth now it still needs to be set manually via octave arguments. See readme for details.
+
 ## 0.4.21
 * Extended autoTerminate to support interaction beyond script termination. Now using program:"" and autoTerminate:false enters a sort of interactive mode, where commands can be sent to octave via de DEBUG CONSOLE, and the internal octave state will still show in the VARIABLES, and WATCH views.
 
