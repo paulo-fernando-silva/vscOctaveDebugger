@@ -1,3 +1,6 @@
+## 0.4.23
+* Added some language aliases, to take into consideration other ways of writing octave.
+
 ## 0.4.22
 * Removed vsce from development dependencies,
 * Added support for --interactive mode. Allows octave to continue executing when the script exited even on error. Rigth now it still needs to be set manually via octave arguments. See readme for details.
