@@ -1,3 +1,7 @@
+## 0.4.24
+* Fixed addFolders to use pathsep instead of a hardcoded :.
+* Updated mocha used in unit tests to remove depend-bot warning.
+
 ## 0.4.23
 * Added some language aliases, to take into consideration other ways of writing octave.
 
