@@ -177,7 +177,7 @@ const value =
 		const freeIndices = [1, 2, 2, 2];
 		const fixedIndices = [];
 		OctaveLogger.logToConsole = false;
-		const runtime = new Runtime(Constants.DEFAULT_EXECUTABLE, [], {}, '.', '.', true, false);
+		const runtime = new Runtime(Constants.DEFAULT_EXECUTABLE, [], {}, ['.'], '.', true, false);
 
 		const matrix = new Matrix(name, '', freeIndices, fixedIndices, false);
 		matrix.fetchAllChildren(runtime, (children: Array<Matrix>) => {
@@ -235,7 +235,7 @@ const value =
 
 		before((done) => {
 			OctaveLogger.logToConsole = false;
-			runtime = new Runtime(Constants.DEFAULT_EXECUTABLE, [], {}, '.', '.', true, false);
+			runtime = new Runtime(Constants.DEFAULT_EXECUTABLE, [], {}, ['.'], '.', true, false);
 			const cmd = `${name} = [${vectors[0]},${vectors[1]}];`;
 			runtime.execute(`output_precision(${precision});`);
 			runtime.evaluateAsLine(cmd, (output: string) => {
@@ -311,7 +311,7 @@ const value =
 
 		before((done) => {
 			OctaveLogger.logToConsole = false;
-			runtime = new Runtime(Constants.DEFAULT_EXECUTABLE, [], {}, '.', '.', true, false);
+			runtime = new Runtime(Constants.DEFAULT_EXECUTABLE, [], {}, ['.'], '.', true, false);
 			const cmd = `${name} = sparse([${rows.join(' ')}], [${columns.join(' ')}], [${values.join(' ')}]);`;
 			runtime.evaluateAsLine(cmd, (output: string) => {
 				const factory = new SparseMatrix();

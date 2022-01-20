@@ -145,7 +145,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 		octave: string,
 		octaveArgs: string[],
 		environment: any,
-		sourcefolders: string,
+		sourcefolders: string[],
 		workingDirectory: string,
 		autoTerminate: boolean,
 		shell: boolean
@@ -232,21 +232,24 @@ class OctaveDebugSession extends LoggingDebugSession {
 
 
 	//**************************************************************************
-	private static getSourceFolders(args: LaunchRequestArguments): string {
+	private static getSourceFolders(args: LaunchRequestArguments): string[] {
+		let sourceFolders : string[] = [];
+
 		// Grab the sourceFolder(s) if any:
-		let sourceFolders = this.val(args.sourceFolder, '');
+		let sourceFolder = this.val(args.sourceFolder, '');
+
+		if(sourceFolder !== '') {
+			sourceFolders.push(sourceFolder);
+		}
 
 		// Get the program folder if any:
 		let programDirectory = dirname(args.program);
 
-		// If programDirectory has some value, concatenate it:
-		if(validDirectory(programDirectory)) {
-			if(sourceFolders !== '') {
-				// This can a problem, as pathsep() might not be ':'
-				sourceFolders = programDirectory + ':' + sourceFolders;
-			} else {
-				sourceFolders = programDirectory;
-			}
+		// If programDirectory has some unique value, concatenate it:
+		if(	!sourceFolders.some(x => x === programDirectory) &&
+			validDirectory(programDirectory))
+		{
+			sourceFolders.push(programDirectory);
 		}
 
 		return sourceFolders;

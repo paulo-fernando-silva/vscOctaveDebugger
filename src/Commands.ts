@@ -16,6 +16,10 @@ export interface CommandInterface {
 // Implements common runtime commands, so they can be used with CommandInterface:
 export class Commands {
 	//**************************************************************************
+	private static _pathsep : string;
+
+
+	//**************************************************************************
 	private static escape(path: string): string {
 		return path.replace(/([\\"])/g, "\\$1");
 	}
@@ -23,9 +27,31 @@ export class Commands {
 
 	//**************************************************************************
 	public static addFolder(ci: CommandInterface, sourceFolder: string): void {
-		// We can pass multiple directories here separated by :
+		// We can pass multiple directories here separated by pathsep()
 		// This allows us to run code from anywhere on our HD.
 		ci.execute(`addpath("${Commands.escape(sourceFolder)}")`);
+	}
+
+
+	//**************************************************************************
+	public static addFolders(ci: CommandInterface, sourceFolders: string[]): void {
+		// Grab pathsep, and concatenate source folders with it.
+		this.getPathsep(ci, (pathsep : string) => {
+			this.addFolder(ci, sourceFolders.join(pathsep));
+		});
+	}
+
+
+	//**************************************************************************
+	public static getPathsep(ci: CommandInterface, callback: (pathsep: string) => void): void {
+		if(this._pathsep == undefined) {
+			ci.evaluateAsLine('pathsep', (line: string) => {
+				this._pathsep = Commands.getValue(line);
+				callback(this._pathsep);
+			});
+		} else {
+			callback(this._pathsep);
+		}
 	}
 
 

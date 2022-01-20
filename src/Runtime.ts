@@ -225,7 +225,7 @@ export class Runtime extends EventEmitter implements CommandInterface {
 		processName: string,
 		processArguments: string[],
 		processEnvironment: any,
-		sourceFolders: string,
+		sourceFolders: string[],
 		workingDirectory: string,
 		autoTerminate: boolean,
 		shell: boolean
@@ -241,7 +241,7 @@ export class Runtime extends EventEmitter implements CommandInterface {
 		this.connect();
 
 		if(this.connected()) {
-			Commands.addFolder(this, sourceFolders);
+			Commands.addFolders(this, sourceFolders);
 			Commands.cwd(this, workingDirectory);
 		}
 		// we always check for break(point) events.

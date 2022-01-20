@@ -17,7 +17,7 @@ describe('Test String', function() {
 
 		before((done) => {
 			OctaveLogger.logToConsole = false;
-			runtime = new Runtime(Constants.DEFAULT_EXECUTABLE, [], {}, '.', '.', true, false);
+			runtime = new Runtime(Constants.DEFAULT_EXECUTABLE, [], {}, ['.'], '.', true, false);
 			const cmd = `${name} = "${value}";`;
 			runtime.evaluateAsLine(cmd, (output: string) => {
 				factory.loadNew(name, "string", runtime, (s: String) => {
