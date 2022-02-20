@@ -8,11 +8,13 @@ import * as Constants from './Constants';
 export class Expression {
 	//**************************************************************************
 	private static readonly CLEAN_REGEX = /\s*'\s*/g;
+	private static readonly NAME_REGEX = /^([_A-Za-z]\w*).*$/;
+
 	public static evaluate(
 		expression: string,
 		runtime: CommandInterface,
 		ctx: string | undefined,
-		callback: (info: string | undefined) => void
+		callback: (info: string | undefined, ref: number) => void
 	): void
 	{
 		if(ctx === Constants.CTX_CONSOLE) {
@@ -20,17 +22,19 @@ export class Expression {
 			runtime.execute(expression);
 			// We don't send anything back now as any output will be written on the console anyway.
 			// This also avoids the issue with the pause, input, etc.
-			callback('');
+			callback('', 0);
 		} else {
 			// fixes an issue with vsc not knowing how to parse Octave code.
 			// i.e. if you hover 'var', expression will equal 'var or '' if empty
 			const hoverExpression = expression.replace(Expression.CLEAN_REGEX, '');
+			// some function calls require variable name without indexing
+			const variableName = Expression.parseName(expression);
 
 			if(hoverExpression !== '') {
-				Expression.type(hoverExpression, runtime,
+				Expression.type(variableName, runtime,
 					(value: string | undefined, type: string | undefined) => {
 						if(value === undefined && type === undefined) {
-							callback(Constants.EVAL_UNDEF);
+							callback(Constants.EVAL_UNDEF, 0);
 						} else if(ctx === Constants.CTX_HOVER || ctx === Constants.CTX_WATCH) {
 							Expression.handleHover(hoverExpression, runtime, value, type, callback);
 						} else { // and all the rest
@@ -39,7 +43,7 @@ export class Expression {
 					}
 				);
 			} else {
-				callback(Constants.EVAL_UNDEF);
+				callback(Constants.EVAL_UNDEF, 0);
 			}
 		}
 	}
@@ -51,12 +55,12 @@ export class Expression {
 		runtime: CommandInterface,
 		val: string | undefined,
 		type: string | undefined,
-		callback: (info: string | undefined) => void
+		callback: (info: string | undefined, ref: number) => void
 	): void
 	{
 		// TODO: also skip comments
 		if(type !== undefined && (type === 'file' || type === 'function')) {
-			callback(val); // Don't evaluate further to avoid side effects
+			callback(val, 0); // Don't evaluate further to avoid side effects
 		} else {
 			Expression.loadAsVariable(expression, runtime, callback);
 		}
@@ -67,22 +71,29 @@ export class Expression {
 	public static loadAsVariable(
 		expression: string,
 		runtime: CommandInterface,
-		callback: (info: string | undefined) => void
+		callback: (info: string | undefined, ref: number) => void
 	): void
 	{
-		Variables.loadVariable(expression, runtime, (v: Variable | null) => {
-			if(v === null) {
-				Variables.getSize(expression, runtime, (size: Array<number>) => {
-					if(Variables.loadable(size)) {
-						Expression.forceEvaluate(expression, runtime, callback);
-					} else {
-						callback(size.join(Constants.SIZE_SEPARATOR));
-					}
-				});
-			} else {
-				callback(v.value());
-			}
-		});
+		// Try fetching from cache:
+		const ref = Variables.getReference(expression);
+
+		if(ref == 0) {
+			Variables.loadVariable(expression, runtime, (v: Variable | null) => {
+				if(v === null) {
+					Variables.getSize(expression, runtime, (size: Array<number>) => {
+						if(Variables.loadable(size)) {
+							Expression.forceEvaluate(expression, runtime, callback);
+						} else {
+							callback(size.join(Constants.SIZE_SEPARATOR), 0);
+						}
+					});
+				} else {
+					callback(v.value(), v.indexedVariables() !== 0 ? v.reference() : 0);
+				}
+			});
+		} else {
+			callback(undefined, ref);
+		}
 	}
 
 
@@ -90,14 +101,23 @@ export class Expression {
 	public static forceEvaluate(
 		expression: string,
 		runtime: CommandInterface,
-		callback: (info: string | undefined) => void
+		callback: (info: string | undefined, ref: number) => void
 	): void
 	{
 		runtime.evaluateAsLine(expression, (output: string) => {
-			callback(Variables.removeName(expression, output));
+			callback(Variables.removeName(expression, output), 0);
 		});
 	}
 
+
+	//**************************************************************************
+	private static parseName(expression: string): string {
+		const match = expression.match(Expression.NAME_REGEX);
+		if(match !== null) {
+			return match[1];
+		}
+		return expression;
+	}
 
 	//**************************************************************************
 	public static type(

@@ -44,6 +44,18 @@ export class Variables {
 
 
 	//**************************************************************************
+	public static getReference(name: string): number {
+		for(let i = 0; i != Variables._REFS.length; ++i) {
+			const v = Variables._REFS[i];
+			if(v.name() == name)
+				return v.reference();
+		}
+
+		return 0;
+	}
+
+
+	//**************************************************************************
 	// This is used to retrive variables with children.
 	//**************************************************************************
 	public static addReferenceTo(v: Variable): void {

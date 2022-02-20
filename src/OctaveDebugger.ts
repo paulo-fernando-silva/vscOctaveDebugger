@@ -517,10 +517,10 @@ class OctaveDebugSession extends LoggingDebugSession {
 		args: DebugProtocol.EvaluateArguments
 	): void
 	{
-		const sendResponse = (val: string) => {
+		const sendResponse = (val: string, ref: number) => {
 			response.body = {
 				result: val,
-				variablesReference: 0
+				variablesReference: ref
 			};
 			this.sendResponse(response);
 		};
