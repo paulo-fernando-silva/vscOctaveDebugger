@@ -66,6 +66,19 @@ export class Matrix extends Variable {
 
 	//**************************************************************************
 	public setIndices(free: Array<number>, fixed: Array<number>): void {
+		// For each free index that is 1, fix it until we find a non 1
+		let fixableIndices = 0;
+
+		for(let i = free.length - 1; i != -1 && free[i] === 1;  --i) {
+			++fixableIndices;
+		}
+		// Move the 1's to the fixed indices
+		if(fixableIndices !== 0) {
+			free = free.slice(0, free.length - fixableIndices);
+			fixed = Array(fixableIndices).fill(1).concat(fixed);
+		}
+
+		//
 		this._freeIndices = free;
 		this._fixedIndices = fixed;
 
