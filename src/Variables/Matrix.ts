@@ -91,9 +91,20 @@ export class Matrix extends Variable {
 				Variables.addReferenceTo(this);
 			}
 
-			const size = this._freeIndices.join(Constants.SIZE_SEPARATOR)
+			const size = Matrix.getSizeString(this._freeIndices);
 			this._extendedTypename = `${this.typename()} ${size}`;
 		}
+	}
+
+
+	//**************************************************************************
+	private static getSizeString(size: Array<number>): string {
+		if(size.length === 1) {
+			return `${size}${Constants.SIZE_SEPARATOR}1`;
+
+		}
+
+		return size.join(Constants.SIZE_SEPARATOR);
 	}
 
 
@@ -191,7 +202,7 @@ export class Matrix extends Variable {
 			if(loadable) {
 				Variables.getValue(name, runtime, buildWith);
 			} else {
-				buildWith(size.join(Constants.SIZE_SEPARATOR));
+				buildWith(Matrix.getSizeString(size));
 			}
 		});
 	}
@@ -497,7 +508,7 @@ export class Matrix extends Variable {
 		if(loadable) {
 			this.loadChildrenRange(runtime, offset, count, callback);
 		} else {
-			const value = childrenFreeIndices.join(Constants.SIZE_SEPARATOR);
+			const value = Matrix.getSizeString(childrenFreeIndices);
 			const vars = new Array<Variable>(count);
 			for(let i = 0; i !== count; ++i) {
 				const childrenFixedIndices = [offset + i + 1].concat(this._fixedIndices);
