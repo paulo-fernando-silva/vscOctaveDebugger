@@ -1,3 +1,8 @@
+## 0.4.25
+* Added matrix/array visualization in WATCH view.
+* Fixed free indices that are 1 in matrix types.
+* Changed the vector size visualization to display 1xN or Nx1 instead of just N.
+
 ## 0.4.24
 * Fixed addFolders to use pathsep instead of a hardcoded :.
 * Updated mocha used in unit tests to remove depend-bot warning.
