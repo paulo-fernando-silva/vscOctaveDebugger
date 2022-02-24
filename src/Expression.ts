@@ -7,7 +7,6 @@ import * as Constants from './Constants';
 //******************************************************************************
 export class Expression {
 	//**************************************************************************
-	private static readonly CLEAN_REGEX = /\s*'\s*/g;
 	private static readonly NAME_REGEX = /^([_A-Za-z]\w*).*$/;
 
 	public static evaluate(
@@ -23,20 +22,16 @@ export class Expression {
 			// We don't send anything back now as any output will be written on the console anyway.
 			// This also avoids the issue with the pause, input, etc.
 			callback('', 0);
-		} else {
-			// fixes an issue with vsc not knowing how to parse Octave code.
-			// i.e. if you hover 'var', expression will equal 'var or '' if empty
-			const hoverExpression = expression.replace(Expression.CLEAN_REGEX, '');
-			// some function calls require variable name without indexing
-			const variableName = Expression.parseName(expression);
-
-			if(hoverExpression !== '') {
+		} else if(!expression.startsWith("'")) {
+			if(expression !== '') {
+				// some function calls require variable name without indexing
+				const variableName = Expression.parseName(expression);
 				Expression.type(variableName, runtime,
 					(value: string | undefined, type: string | undefined) => {
 						if(value === undefined && type === undefined) {
 							callback(Constants.EVAL_UNDEF, 0);
 						} else if(ctx === Constants.CTX_HOVER || ctx === Constants.CTX_WATCH) {
-							Expression.handleHover(hoverExpression, runtime, value, type, callback);
+							Expression.handleHover(expression, runtime, value, type, callback);
 						} else { // and all the rest
 							Expression.forceEvaluate(expression, runtime, callback);
 						}
