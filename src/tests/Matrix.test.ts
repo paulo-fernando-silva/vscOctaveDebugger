@@ -35,7 +35,7 @@ describe('Test Matrix', function() {
 
 
 	// ********************************************************************************
-	describe('Matrix.parseAllChildrenOf1DMatrix short', function() {
+	describe('Matrix.parseChildren short', function() {
 		const name = 'm1D';
 		const values = [0.59733, 0.48898, 0.97283];
 const value = `
@@ -44,8 +44,9 @@ const value = `
    ${values[2]}`;
 		const freeIndices = [values.length];
 		const fixedIndices = [2,4,5];
+		const count = freeIndices[freeIndices.length - 1];
 		const matrix = new Matrix(name, '', freeIndices, fixedIndices, false);
-		matrix.parseAllChildrenOf1DMatrix(value, (children: Array<Matrix>) => {
+		matrix.parseChildren(value, 0, count, (children: Array<Matrix>) => {
 				const expectedChildCount = values.length;
 
 				it(`Should create ${expectedChildCount} child variables`, function() {
@@ -69,7 +70,7 @@ const value = `
 
 
 	// ********************************************************************************
-	describe('Matrix.parseAllChildrenOf1DMatrix imaginary', function() {
+	describe('Matrix.parseChildren imaginary', function() {
 		const name = 'm1D';
 		const values = ['0.0720969 + 0.0720969i', '0.8437697 + 0.8437697i', '0.4532340 + 0.4532340i'];
 const value = `
@@ -78,8 +79,9 @@ const value = `
    ${values[2]}`;
 		const freeIndices = [values.length];
 		const fixedIndices = [2,4,5];
+		const count = freeIndices[freeIndices.length - 1];
 		const matrix = new Matrix(name, '', freeIndices, fixedIndices, false, "complex matrix");
-		matrix.parseAllChildrenOf1DMatrix(value, (children: Array<Matrix>) => {
+		matrix.parseChildren(value, 0, count, (children: Array<Matrix>) => {
 				const expectedChildCount = values.length;
 
 				it(`Should create ${expectedChildCount} child variables`, function() {
@@ -103,7 +105,7 @@ const value = `
 
 
 	// ********************************************************************************
-	describe('Matrix.parseAllChildrenOf2DMatrix', function() {
+	describe('Matrix.parseChildren multi-column imaginary', function() {
 		const name = 'm2D';
 		const values = [ // Add some extra spaces to test if those are correctly handled.
 			['0.0720969 +  0.0720969i', '0.8437697 + 0.8437697i', '0.4532340 + 0.4532340i'],
@@ -150,8 +152,8 @@ const value =
 		// freeIndices.size == two free indices
 		const freeIndices = [columns[0].length, columns.length];
 		const fixedIndices = [4,5]; // 4 and 5 are actually 1-based indices
-		const matrix = new Matrix(name, '', freeIndices, fixedIndices, false, "complex matrix");
-		matrix.parseAllChildrenOf2DMatrix(value, (children: Array<Matrix>) => {
+		const matrix = new Matrix(name, value, freeIndices, fixedIndices, true, "complex matrix");
+		matrix.parseAllChildren((children: Array<Matrix>) => {
 				const expectedChildCount = columns.length;
 
 				it(`Should create ${expectedChildCount} child variables`, function() {
@@ -368,7 +370,7 @@ const value =
 
 
 	// ********************************************************************************
-	describe('MatrixParser.parseMatrices2D', function() {
+	describe('MatrixParser.parseMatrices', function() {
 		const values = [
 			[
 				['0.0720969+0.0720969i', '0.8437697+0.8437697i' ],
@@ -412,7 +414,7 @@ ans(:,:,1,2) =
    ${values[1][3][0]}   ${values[1][4][0]}
    ${values[1][3][1]}   ${values[1][4][1]}
 `;
-		const matrices = MatrixParser.parseMatrices2D(value, true);
+		const matrices = MatrixParser.parseMatrices(value, true);
 
 		const expectedChildCount = values.length;
 		const actualChildCount = matrices.length;

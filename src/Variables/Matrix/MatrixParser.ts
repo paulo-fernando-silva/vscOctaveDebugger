@@ -81,7 +81,7 @@ export class MatrixParser {
 	// ans(:,:,2,1) =
 	//
 	// Columns 1 through 9: ...
-	public static parseMatrices2D(value: string, isComplex: boolean): Array<MatrixData> {
+	public static parseMatrices(value: string, isComplex: boolean): Array<MatrixData> {
 		const valRegex = /\s*ans(\([^\)]+\)) =\s+([^]+?)\s+(ans\([^]+)/;
 		const matrices = new Array<MatrixData>();
 		// Split input value by its 2D matrix data:
