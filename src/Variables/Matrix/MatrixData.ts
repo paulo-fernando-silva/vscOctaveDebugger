@@ -6,16 +6,23 @@
 export class MatrixData {
 	// e.g. given ans(:,:,1,1), it becomes (:,:,1,1)
 	private _indices: string;
+	// The original string from where the values were parsed:
+	private _value: string;
 	// The matrix values:
 	private _vectors: Array<Array<string>>;
 
-	public constructor(indices: string, vectors: Array<Array<string>>) {
+	public constructor(indices: string, value: string, vectors: Array<Array<string>>) {
 		this._indices = indices;
+		this._value = value;
 		this._vectors = vectors;
 	}
 
 	public indices(): string {
 		return this._indices;
+	}
+
+	public value(): string {
+		return this._value;
 	}
 
 	public vector(i: number): Array<string> {

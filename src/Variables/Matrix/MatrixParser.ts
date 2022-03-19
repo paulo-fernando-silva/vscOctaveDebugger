@@ -81,7 +81,7 @@ export class MatrixParser {
 	// ans(:,:,2,1) =
 	//
 	// Columns 1 through 9: ...
-	public static parseMatrices(value: string, isComplex: boolean): Array<MatrixData> {
+	private static parseMultipleMatrices(value: string, isComplex: boolean): Array<MatrixData> {
 		const valRegex = /\s*ans(\([^\)]+\)) =\s+([^]+?)\s+(ans\([^]+)/;
 		const matrices = new Array<MatrixData>();
 		// Split input value by its 2D matrix data:
@@ -93,7 +93,7 @@ export class MatrixParser {
 			const indices = match[1];	// match[1] is the indices of the matrix
 			const val = match[2];		// match[2] is the value of that matrix
 			tail = match[3];			// match[3] is the remaining string
-			matrices.push(new MatrixData(indices, MatrixParser.parseMatrixData(val, isComplex)));
+			matrices.push(new MatrixData(indices, val, MatrixParser.parseMatrixData(val, isComplex)));
 			match = tail.match(valRegex);
 		}
 		// The last matrix can't be matched by the above regex
@@ -101,9 +101,21 @@ export class MatrixParser {
 		if(match !== null && match.length === 3) {
 			const indices = match[1];	// match[1] is the indices of the matrix
 			const val = match[2];		// match[2] is the value of that matrix
-			matrices.push(new MatrixData(indices, MatrixParser.parseMatrixData(val, isComplex)));
+			matrices.push(new MatrixData(indices, val, MatrixParser.parseMatrixData(val, isComplex)));
 		}
 
+		return matrices;
+	}
+
+	// Entry point for matrix parsing. Can parse any number of matrices:
+	public static parseMatrices(value: string, isComplex: boolean): Array<MatrixData> {
+		// Do we have a multi-matrix or single matrix:
+		if(value.match(/\s*ans\([^\)]+\) =/)) {
+			return MatrixParser.parseMultipleMatrices(value, isComplex);
+		}
+		// We might have only one matrix:
+		const matrices = new Array<MatrixData>();
+		matrices.push(new MatrixData("", value, MatrixParser.parseMatrixData(value, isComplex)));
 		return matrices;
 	}
 }

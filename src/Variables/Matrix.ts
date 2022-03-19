@@ -3,7 +3,7 @@ import { Variables } from './Variables';
 import * as Constants from '../Constants';
 import { Interval } from '../Utils/Interval';
 import { CommandInterface } from '../Commands';
-
+import { MatrixParser } from './Matrix/MatrixParser';
 
 /*
  * Class that adds support for number based matrices.
@@ -375,13 +375,40 @@ export class Matrix extends Variable {
 		callback: (vars: Array<Variable>) => void
 	): void
 	{
-		const N = this._freeIndices.length;
-
-		switch(N) {
-			case 1: this.parseChildrenOf1DMatrix(value, offset, count, callback); break;
-			case 2: this.parseChildrenOf2DMatrix(value, offset, count, callback); break;
-			default: throw "Parsing of n > 2 dimensional matrices is not supported!";
+		// We only unfold one index each time, the size of that index is "count":
+		const childFreeIndices = this._freeIndices.length <= 1 ? [] :
+			this._freeIndices.slice(0, this._freeIndices.length - 1);
+		// The value must to contain data for offset/count range of children:
+		const matrices = MatrixParser.parseMatrices(value, this.isComplex());
+		// Independent of what the children are, they'll be variables:
+		const vars = new Array<Variable>(count);
+		if(matrices.length > 1) {
+			// If we have many matrices, each child will be a matrix:
+			for(let i = 0; i !== count; ++i) {
+				const childFixedIndices = [i + offset + 1].concat(this._fixedIndices);
+				const value = matrices[i].value();
+				vars[i] = this.createChildType(value, childFreeIndices, childFixedIndices, true);
+			}
+		} else if(matrices.length === 1 && matrices[0].size() > 1) {
+			// If we have only one matrix, but many vectors, each child will be a vector:
+			const matrix = matrices[0];
+			for(let i = 0; i !== count; ++i) {
+				const childFixedIndices = [i + offset + 1].concat(this._fixedIndices);
+				const vector = matrix.vector(i);
+				// TODO: we're converting back the parsed data into string. Seems like a waste.
+				const childValue = vector.join(Constants.COLUMN_ELEMENTS_SEPARATOR);
+				vars[i] = this.createChildType(childValue, childFreeIndices, childFixedIndices, true);
+			}
+		} else if(matrices.length === 1 && matrices[0].size() === 1) {
+			// If we have only one vector, each child will be a vector entry:
+			const vector = matrices[0].vector(0);
+			for(let i = 0; i !== count; ++i) {
+				const childFixedIndices = [i + offset + 1].concat(this._fixedIndices);
+				vars[i] = this.createChildType(vector[i], childFreeIndices, childFixedIndices, true);
+			}
 		}
+		// return the children variables:
+		callback(vars);
 	}
 
 
@@ -389,8 +416,8 @@ export class Matrix extends Variable {
 	public parseAllChildren(callback: (vars: Array<Variable>) => void): void {
 		const value = this._value;
 
-		if(this._freeIndices.length > 2) {
-			throw `freeIndices.length: ${this._freeIndices.length}, expected <= 2!`;
+		if(this._freeIndices.length < 1) {
+			throw `freeIndices.length: ${this._freeIndices.length}, expected >= 1!`;
 		}
 
 		const count = this._freeIndices[this._freeIndices.length - 1];
