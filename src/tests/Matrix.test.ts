@@ -105,7 +105,7 @@ const value = `
 
 
 	// ********************************************************************************
-	describe('Matrix.parseChildren multi-column imaginary', function() {
+	describe('Matrix.parseAllChildren multi-column imaginary', function() {
 		const name = 'm2D';
 		const values = [ // Add some extra spaces to test if those are correctly handled.
 			['0.0720969 +  0.0720969i', '0.8437697 + 0.8437697i', '0.4532340 + 0.4532340i'],
@@ -452,5 +452,91 @@ ans(:,:,1,2) =
 				}
 			}
 		}
+	});
+
+	// ********************************************************************************
+	describe('MatrixParser.parseAllChildren multi-matrix imaginary', function() {
+		const values = [
+			[
+				['0.0720969+0.0720969i', '0.8437697+0.8437697i' ],
+				['0.3728132+0.3728132i', '0.4578918+0.4578918i' ],
+				['0.3595750+0.3595750i', '0.4374822+0.4374822i' ],
+
+				['0.2571942+0.2571942i', '0.8806884+0.8806884i' ],
+				['0.0903121+0.0903121i', '0.0477089+0.0477089i' ]
+			],
+			[
+				['0.0014517+0.0014517i', '0.5637025+0.5637025i' ],
+				['0.8455747+0.8455747i', '0.0913287+0.0913287i' ],
+				['0.3085562+0.3085562i', '0.3474878+0.3474878i' ],
+
+				['0.2173087+0.2173087i', '0.2924523+0.2924523i' ],
+				['0.2173087+0.2173087i', '0.2924523+0.2924523i' ]
+			]
+		];
+const valuesRegexes = [
+	`Columns 1 through 3:
+${values[0][0][0]}   ${values[0][1][0]}   ${values[0][2][0]}
+${values[0][0][1]}   ${values[0][1][1]}   ${values[0][2][1]}
+Columns 4 and 5:
+${values[0][3][0]}   ${values[0][4][0]}
+${values[0][3][1]}   ${values[0][4][1]}`,
+	`Columns 1 through 3:
+${values[1][0][0]}   ${values[1][1][0]}   ${values[1][2][0]}
+${values[1][0][1]}   ${values[1][1][1]}   ${values[1][2][1]}
+Columns 4 and 5:
+${values[1][3][0]}   ${values[1][4][0]}
+${values[1][3][1]}   ${values[1][4][1]}`
+];
+const value =
+`ans(:,:,1,1) =
+
+ Columns 1 through 3:
+
+   ${values[0][0][0]}   ${values[0][1][0]}   ${values[0][2][0]}
+   ${values[0][0][1]}   ${values[0][1][1]}   ${values[0][2][1]}
+
+ Columns 4 and 5:
+
+   ${values[0][3][0]}   ${values[0][4][0]}
+   ${values[0][3][1]}   ${values[0][4][1]}
+
+ ans(:,:,1,2) =
+
+ Columns 1 through 3:
+
+   ${values[1][0][0]}   ${values[1][1][0]}   ${values[1][2][0]}
+   ${values[1][0][1]}   ${values[1][1][1]}   ${values[1][2][1]}
+
+ Columns 4 and 5:
+
+   ${values[1][3][0]}   ${values[1][4][0]}
+   ${values[1][3][1]}   ${values[1][4][1]}
+`;
+
+		const name = "mm";
+		const freeIndices = [values[0][0].length, values[0].length, 1, values.length];
+		const fixedIndices = [];
+		const matrix = new Matrix(name, value, freeIndices, fixedIndices, true, "complex matrix");
+		matrix.parseAllChildren((matrices: Array<Matrix>) => {
+			const expectedChildCount = values.length;
+			const actualChildCount = matrices.length;
+			// Check if we have the expected amount of parsed matrices:
+			it(`Should create ${expectedChildCount} child variables`, function() {
+				assert.equal(actualChildCount, expectedChildCount);
+			});
+			// Check every value to make sure they were parsed correctly:
+			for(let i = 0; i !== expectedChildCount; ++i) {
+				const val = valuesRegexes[i];
+				const child = matrices[i];
+				const expectedName = `${name}(:,:,1,${i+1})`;
+				it(`Should match ${i}-th child value ${val}`, function() {
+					assert.equal(child.value(), val);
+				});
+				it(`Should match name ${expectedName}`, function() {
+					assert.equal(child.name(), expectedName);
+				});
+			}
+		});
 	});
 });
