@@ -1,3 +1,6 @@
+## 0.4.26
+* Added support to load multi-dimensional matrices.
+
 ## 0.4.25
 * Added matrix/array visualization in WATCH view.
 * Fixed free indices that are 1 in matrix types.
