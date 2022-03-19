@@ -269,12 +269,12 @@ export class Variables {
 		count: number = 0
 	): boolean
 	{
-		const N = sizes.reduce((acc, val) => acc *= val, 1);
-
-		if(count !== 0) {
-			return sizes.length <= 1 && N * count <= Variables.getMaximumElementsPrefetch();
+		if(count === 0) {
+			count = 1;
 		}
 
-		return sizes.length <= 2 && N <= Variables.getMaximumElementsPrefetch();
+		const N = sizes.reduce((acc, val) => acc *= val, 1);
+
+		return N * count <= Variables.getMaximumElementsPrefetch();
 	}
 }

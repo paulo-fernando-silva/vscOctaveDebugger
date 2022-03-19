@@ -117,7 +117,7 @@ export class Matrix extends Variable {
 			val = val.replace(this._typeRegex, '').replace(/\n\s+/g, '\n').trim();
 
 			if(this.isComplex()) {
-				val = Matrix.cleanComplex(val);
+				val = MatrixParser.cleanComplex(val);
 			}
 		}
 
@@ -431,93 +431,6 @@ export class Matrix extends Variable {
 
 
 	//**************************************************************************
-	public parseChildrenOf1DMatrix(
-		value: string,
-		offset: number,
-		count: number,
-		callback: (vars: Array<Variable>) => void
-	): void
-	{
-		const childFreeIndices = [];
-		const vars = new Array<Variable>(count);
-		const vectors = Matrix.extractArrayElements(value, this.isComplex());
-
-		if(vectors.length !== 1) {
-			throw `vectors.length: ${vectors.length} != 1!`;
-		}
-
-		const vector = vectors[0];
-
-		if(vector.length !== count) {
-			throw `vector.length: ${vector.length} != ${count}!`;
-		}
-
-		for(let i = 0; i !== count; ++i) {
-			const childFixedIndices = [i + offset + 1].concat(this._fixedIndices);
-			vars[i] = this.createChildType(''+vector[i], childFreeIndices, childFixedIndices, true);
-		}
-
-		callback(vars);
-	}
-
-
-	//**************************************************************************
-	public parseAllChildrenOf1DMatrix(
-		value: string,
-		callback: (vars: Array<Variable>) => void
-	): void
-	{
-		if(this._freeIndices.length !== 1) {
-			throw `freeIndices.length: ${this._freeIndices.length}, expected 1!`;
-		}
-
-		this.parseChildrenOf1DMatrix(value, 0, this._freeIndices[0], callback);
-	}
-
-
-	//**************************************************************************
-	public parseChildrenOf2DMatrix(
-		value: string,
-		offset: number,
-		count: number,
-		callback: (vars: Array<Variable>) => void
-	): void
-	{
-		const childFreeIndices = this._freeIndices.slice(0, this._freeIndices.length - 1);
-		const vars = new Array<Variable>(count);
-		const vectors = Matrix.extractArrayElements(value, this.isComplex());
-
-		if(vectors.length !== count) {
-			throw `vectors.length: ${vectors.length} != ${count}!`;
-		}
-
-		for(let i = 0; i !== count; ++i) {
-			const childFixedIndices = [i + offset + 1].concat(this._fixedIndices);
-			const childValue = vectors[i].join(Constants.COLUMN_ELEMENTS_SEPARATOR);
-			vars[i] = this.createChildType(childValue, childFreeIndices, childFixedIndices, true);
-		}
-
-		callback(vars);
-	}
-
-
-	//**************************************************************************
-	public parseAllChildrenOf2DMatrix(
-		value: string,
-		callback: (vars: Array<Variable>) => void
-	): void
-	{
-		if(this._freeIndices.length !== 2) {
-			throw `freeIndices.length: ${this._freeIndices.length}, expected 2!`;
-		}
-
-		const N = this._freeIndices[this._freeIndices.length - 1];
-
-		this.parseChildrenOf2DMatrix(value, 0, N, callback);
-	}
-
-
-	//**************************************************************************
 	public fetchChildren(
 		runtime: CommandInterface,
 		offset: number,
@@ -624,91 +537,5 @@ export class Matrix extends Variable {
 		}
 
 		return `${name}(${freeIndicesStr}${fixedIndicesStr})`;
-	}
-
-
-	//**************************************************************************
-	// Splits "123 456 789 0" or "123 + 456i 789 + 0i" into its elements
-	// i.e. ["123", "456", "789", "0"] and ["123+456i", "789+0i"] respectively
-	public static split(value: string, isComplex: boolean): Array<string> {
-		value = value.trim();
-
-		if(isComplex) {
-			// Remove spaces in complex numbers
-			value = Matrix.cleanComplex(value);
-		}
-
-		// split by spaces, and remove non-empty elements
-		const elements = value.split(' ').filter(line => line);
-
-		return elements;
-	}
-
-
-	//**************************************************************************
-	public static transpose(matrix: Array<Array<string>>): Array<Array<string>> {
-		const N_rows = matrix.length;
-		let rowValues = matrix[0];
-		const N_cols = rowValues.length;
-		const transposed = new Array<Array<string>>(N_cols);
-
-		for(let col = 0; col !== N_cols; ++col) {
-			transposed[col] = new Array<string>(N_rows);
-			transposed[col][0] = rowValues[col];
-		}
-
-		for(let row = 1; row !== N_rows; ++row) {
-			rowValues = matrix[row];
-
-			if(rowValues.length !== N_cols) {
-				// each row has to have the same number of columns
-				throw `rowValues.length !== Ncols: ${rowValues.length} !== ${N_cols}`;
-			}
-
-			for(let col = 0; col !== N_cols; ++col) {
-				transposed[col][row] = rowValues[col];
-			}
-		}
-
-		return transposed;
-	}
-
-
-	//**************************************************************************
-	private static readonly GROUPS_REGEX = /Columns? \d+(?: ((?:through)|(?:and)?) \d+)?:/;
-	// Skips lines like "Columns \d+ through \d+" or "Columns \d+ and \d+"
-	// All the other lines are pushed onto the elements array.
-	public static extractArrayElements(value: string, isComplex: boolean): Array<Array<string>> {
-		const mutipleColumnsGroup = Matrix.GROUPS_REGEX;
-		const inLines = value.trim().split('\n').filter(line => line); // non-empty lines
-		const N_lines = inLines.length;
-		let elements = new Array<Array<string>>();
-
-		if(inLines[0].match(mutipleColumnsGroup)) {
-			let line = 1; // skip mutipleColumnsGroup
-			// Grab the elements of the first columns group, row by row.
-			for(;line !== N_lines && !inLines[line].match(mutipleColumnsGroup); ++line) {
-				// push a new row of elements
-				elements.push(Matrix.split(inLines[line], isComplex));
-			}
-			if(line !== N_lines) {
-				++line; // skip mutipleColumnsGroup
-			}
-			// If it has more columns groups concatenate row elements with existing rows
-			for(let row = 0; line !== N_lines; ++line) {
-				if(inLines[line].match(mutipleColumnsGroup)) {
-					row = 0; // reached a new column group: reset row index
-				} else {
-					// concatenate current row elements with an existing row
-					Array.prototype.push.apply(elements[row++], Matrix.split(inLines[line], isComplex));
-				}
-			}
-		} else {
-			for(let line = 0; line !== N_lines; ++line) {
-				elements.push(Matrix.split(inLines[line], isComplex));
-			}
-		}
-		// We want to return an array that is indexed by column
-		return Matrix.transpose(elements);
 	}
 }

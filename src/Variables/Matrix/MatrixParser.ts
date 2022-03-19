@@ -5,7 +5,7 @@ import { MatrixData } from './MatrixData';
  */
 export class MatrixParser {
 	//**************************************************************************
-	private static cleanComplex(value: string): string {
+	public static cleanComplex(value: string): string {
 		return value.replace(/(?:\s+([\+\-])\s+)/g, "$1");
 	}
 
