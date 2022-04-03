@@ -29,7 +29,11 @@ export class Expression {
 				Expression.type(variableName, runtime,
 					(value: string | undefined, type: string | undefined) => {
 						if(value === undefined && type === undefined) {
-							callback(Constants.EVAL_UNDEF, 0);
+							if(variableName.includes(":")) { // probably a range
+								Expression.loadAsVariable(expression, runtime, callback);
+							} else {
+								callback(Constants.EVAL_UNDEF, 0);
+							}
 						} else if(ctx === Constants.CTX_HOVER || ctx === Constants.CTX_WATCH) {
 							Expression.handleHover(expression, runtime, value, type, callback);
 						} else { // and all the rest
@@ -75,8 +79,14 @@ export class Expression {
 		if(ref == 0) {
 			Variables.loadVariable(expression, runtime, (v: Variable | null) => {
 				if(v === null) {
+					if(expression.includes(":")) {
+						callback(Constants.EVAL_UNDEF, 0);
+						return; // Probably a range, but if it's null it can't be loaded.
+					}
 					Variables.getSize(expression, runtime, (size: Array<number>) => {
-						if(Variables.loadable(size)) {
+						if(size.length === 0) {
+							callback(Constants.EVAL_UNDEF, 0);
+						} else if(Variables.loadable(size)) {
 							Expression.forceEvaluate(expression, runtime, callback);
 						} else {
 							callback(size.join(Constants.SIZE_SEPARATOR), 0);
@@ -87,7 +97,7 @@ export class Expression {
 				}
 			});
 		} else {
-			callback(undefined, ref);
+			callback(Variables.getByReference(ref)?.value(), ref);
 		}
 	}
 

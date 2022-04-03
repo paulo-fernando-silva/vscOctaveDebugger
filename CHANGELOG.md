@@ -1,3 +1,7 @@
+## 0.4.27
+* Fixed hover over 1:variable, now it'll display the value of the whole expression. Still outputs error to console on evaluation of non defined ranges.
+* Updated packages due to CVE-2021-44906
+
 ## 0.4.26
 * Added support to load multi-dimensional matrices.
 
