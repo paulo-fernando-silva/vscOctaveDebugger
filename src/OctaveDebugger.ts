@@ -518,10 +518,20 @@ class OctaveDebugSession extends LoggingDebugSession {
 	): void
 	{
 		const sendResponse = (val: string, ref: number) => {
-			response.body = {
-				result: val,
-				variablesReference: ref
-			};
+			if(ref !== 0) {
+				const v = Variables.getByReference(ref);
+				response.body = {
+					result: val,
+					variablesReference: ref,
+					namedVariables: v?.namedVariables(),
+					indexedVariables: v?.indexedVariables()
+				};
+			} else {
+				response.body = {
+					result: val,
+					variablesReference: 0
+				};
+			}
 			this.sendResponse(response);
 		};
 

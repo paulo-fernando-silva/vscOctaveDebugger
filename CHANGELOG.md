@@ -1,3 +1,6 @@
+## 0.4.28
+* Fixed performance of HOVER and WATCH variable fetch. Now it'll fetch large variables by chunks.
+
 ## 0.4.27
 * Fixed hover over 1:variable, now it'll display the value of the whole expression. Still outputs error to console on evaluation of non defined ranges.
 * Updated packages due to CVE-2021-44906
