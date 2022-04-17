@@ -1,3 +1,6 @@
+## 0.4.29
+* Fixed Cell loading.
+
 ## 0.4.28
 * Fixed performance of HOVER and WATCH variable fetch. Now it'll fetch large variables by chunks.
 

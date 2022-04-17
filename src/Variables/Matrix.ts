@@ -65,32 +65,50 @@ export class Matrix extends Variable {
 
 
 	//**************************************************************************
-	public setIndices(free: Array<number>, fixed: Array<number>): void {
-		// For each free index that is 1, fix it until we find a non 1
+	public numberOfFixableIndices(indices: Array<number>): number {
 		let fixableIndices = 0;
 
-		for(let i = free.length - 1; i != -1 && free[i] === 1;  --i) {
-			++fixableIndices;
+		if(indices.length !== 0) {
+			for(let i = indices.length - 1; i != -1 && indices[i] === 1;  --i) {
+				++fixableIndices;
+			}
 		}
+
+		return fixableIndices;
+	}
+
+
+	//**************************************************************************
+	public fixIndices(free: Array<number>, fixed: Array<number>):
+		{ free: Array<number>, fixed: Array<number> }
+	{
+		let fixableIndices = this.numberOfFixableIndices(free);
 		// Move the 1's to the fixed indices
 		if(fixableIndices !== 0) {
 			free = free.slice(0, free.length - fixableIndices);
 			fixed = Array(fixableIndices).fill(1).concat(fixed);
 		}
+		return { free: free, fixed: fixed };
+	}
 
-		//
-		this._freeIndices = free;
-		this._fixedIndices = fixed;
 
+	//**************************************************************************
+	public setIndices(free: Array<number>, fixed: Array<number>): void {
+		// Here, only non-1 free indices exist. Other indices are fixed.
+		const idx = this.fixIndices(free, fixed);
+		this._freeIndices = idx.free;
+		this._fixedIndices = idx.fixed;
+		// Variable name may include indices as needed to get its value.
 		this._name = this.makeName(this._basename, this._freeIndices, this._fixedIndices);
-
+		// If we have free indices we have children.
 		if(this._freeIndices.length !== 0) {
 			this._numberOfChildren = this._freeIndices[this._freeIndices.length - 1];
-
+			// Sanity check only. Number of children should never be 0 if we have free indices.
 			if(this._numberOfChildren !== 0) {
+				// If we have children, add a reference to this variable so they can be fetched.
 				Variables.addReferenceTo(this);
 			}
-
+			// Matrices have their size as part of their typename.
 			const size = Matrix.getSizeString(this._freeIndices);
 			this._extendedTypename = `${this.typename()} ${size}`;
 		}

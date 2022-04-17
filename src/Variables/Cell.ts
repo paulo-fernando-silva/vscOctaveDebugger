@@ -22,10 +22,12 @@ export class Cell extends Matrix {
 		name: string = '',
 		value: string = '',
 		freeIndices: Array<number> = [],
-		fixedIndices: Array<number> = []
+		fixedIndices: Array<number> = [],
+		validValue: boolean = false,
+		type: string = Cell.CELL_TYPENAME
 	)
 	{
-		super(name, value, freeIndices, fixedIndices, false, Cell.CELL_TYPENAME);
+		super(name, value, freeIndices, fixedIndices, validValue, type);
 	}
 
 
@@ -47,7 +49,7 @@ export class Cell extends Matrix {
 		type: string
 	): Cell
 	{
-		return new Cell(name, value, freeIndices, fixedIndices);
+		return new Cell(name, value, freeIndices, fixedIndices, validValue, type);
 	}
 
 
@@ -75,13 +77,15 @@ export class Cell extends Matrix {
 		callback: (v: Variable) => void
 	): void
 	{
-		if(freeIndices.length === 0) {
-			// if there are no free indices then the variable is a cell
-			const name = this.makeName(this.basename(), freeIndices, fixedIndices, Constants.CELL_LEFT, Constants.CELL_RIGHT);
+		const idx = this.fixIndices(freeIndices, fixedIndices);
+		if(idx.free.length === 0) {
+			// If there are no free indices then the variable can be laoded directly.
+			const name = this.makeName(this.basename(), idx.free, idx.fixed, Constants.CELL_LEFT, Constants.CELL_RIGHT);
 			Variables.loadVariable(name, runtime, callback);
 		} else {
-			// whem we have a free indices, the variable is still a cell
-			const cell = this.createConcreteType(this.basename(), '', freeIndices, fixedIndices, false, Cell.CELL_TYPENAME);
+			// When we have a free indices, the variable is still a cell
+			const value = idx.free.join(Constants.SIZE_SEPARATOR);
+			const cell = this.createConcreteType(this.basename(), value, idx.free, idx.fixed, false, Cell.CELL_TYPENAME);
 			callback(cell);
 		}
 	}
