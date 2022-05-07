@@ -1,3 +1,6 @@
+## 0.5.0
+* Added support for classdef types (breakpoints are not supported yet in octave)
+
 ## 0.4.29
 * Fixed Cell loading.
 
