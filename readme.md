@@ -31,6 +31,7 @@ The following types are currently supported:
  * [SparseMatrix/SparseComplexMatrix](https://octave.org/doc/v5.1.0/Sparse-Matrices.html)
  * [Range](https://octave.org/doc/v5.1.0/Ranges.html)
  * [ScalarStruct/Struct](https://octave.org/doc/v5.1.0/Structures.html)
+ * [ClassDef](https://octave.org/doc/v7.1.0/classdef-Classes.html)
  * [Inline functions](https://octave.org/doc/v5.1.0/Inline-Functions.html) and [function handles](https://octave.org/doc/v5.1.0/Function-Handles.html)
  * [Cell Arrays](https://octave.org/doc/v5.1.0/Cell-Arrays.html)
  * LazyIndex (No docs. This might be an internal type only.)
@@ -190,6 +191,8 @@ The following issues will likely not be fixed. For other open issues see [here](
 * stdinput when using octave version 5.2 or newer: in this case `pause()`, `kbhit()`, and friends block octave waiting for direct keyboard input. Unfortunately the plugin can't send keypresses directly to the octave process. The plan is to implement a switch to open a background window to run octave-cli so the user can send direct keyboard input to that window. This is tracked in issue [#34](https://github.com/paulo-fernando-silva/vscOctaveDebugger/issues/34). For now if you're using octave 5.2 or newer you should avoid these keyboard functions.
 * plotting with qt or other plot frameworks might require you to add an infinite loop at the end of the program being debugged. For example, as mentioned at the top of this page, you can use `h = figure(); plot(); waitfor(h);` or `while(waitforbuttonpress()==0) pause(1) end` which hopefully exits when you press a key but not when you press a mouse button. Using either method will prevent the program from terminating, allowing the debug session to stay alive and the plot to update. The first method will exit when you close the plot, the second method will exit on key press. If the plot doesn't require an update, i.e. no interactive elements such as sliders, then setting a breakpoint on the last program instruction might be enough - just make sure that instruction is after the plot command. This seems to be an issue even when running plots from the cli, see [Getting octave to plot when invoking a function from the command line](https://stackoverflow.com/questions/6843014/getting-octave-to-plot-when-invoking-a-function-from-the-command-line/62340602#62340602) and [Octave: How to prevent plot window from closing itself?](https://stackoverflow.com/questions/52569584/octave-how-to-prevent-plot-window-from-closing-itself).
 * Octave will accept arbitrary strings as struct field names. When Octave field names are enabled using `"splitFieldnamesOctaveStyle": true` in the launch options, the only strings that can't be used as struct field names will be strings that match `/\n?  \[\d+,1\] = /`. Using this kind of struct field names with this plugin is not recommended as it might lead to communication issues between the plugin and octave.
+* Unfortunately, breakpoints in classdefs are not fully supported in octave. Right now octave will exit if you try to set one such breakpoint. So for the time being don't set breakpoints in classdefs.
+
 
 
 ## History and Acknowledgements

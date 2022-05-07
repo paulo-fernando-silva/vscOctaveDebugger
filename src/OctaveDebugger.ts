@@ -40,6 +40,7 @@ import { LazyIndex } from './Variables/LazyIndex';
 import { Range } from './Variables/Range';
 import { Struct } from './Variables/Struct';
 import { ScalarStruct } from './Variables/ScalarStruct';
+import { ClassDef } from './Variables/ClassDef';
 import { Function } from './Variables/Function'
 import { Cell } from './Variables/Cell';
 import { Scope as OctaveScope } from './Variables/Scope';
@@ -116,6 +117,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 		Variables.register(new LazyIndex());
 		Variables.register(new Struct());
 		Variables.register(new ScalarStruct());
+		Variables.register(new ClassDef());
 		Variables.register(new String());
 		Variables.register(new Bool());
 		Variables.register(new Function());
