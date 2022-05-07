@@ -7,36 +7,30 @@
         {
             "type": "OctaveDebugger",
             "request": "launch",
-            "name": "Launch Program",
-            "program": "${command:AskForProgramName}",
-            "octave": "octave-cli",
-            "sourceFolder": "${workspaceFolder}",
-            "autoTerminate": true
-        },
-        {
-            "type": "OctaveDebugger",
-            "request": "launch",
-            "name": "TestOctaveDebugger",
-            "program": "TestOctaveDebugger",
-            "octave": "octave-cli",
-            "sourceFolder": "${workspaceFolder}"
-        },
-        {
-            "type": "OctaveDebugger",
-            "request": "launch",
-            "name": "hello",
-            "program": "hello",
-            "octave": "octave-cli",
-            "sourceFolder": "${workspaceFolder}"
-        },
-        {
-            "type": "OctaveDebugger",
-            "request": "launch",
-            "name": "Debug Extension",
-            "program": "TestOctaveDebugger",
-            "octave": "octave-cli",
+            "name": "Execute selected file.",
+            "program": "${file}",
+            "octave": "octave-gui",
             "sourceFolder": "${workspaceFolder}",
             "debugServer": 4711
+        },
+        {
+            "type": "OctaveDebugger",
+            "request": "launch",
+            "name": "Execute selected file - interactive",
+            "program": "${file}",
+            "octave": "octave-gui",
+            "sourceFolder": "${workspaceFolder}",
+            "octaveArguments": [ "--interactive" ],
+            "autoTerminate": false,
+            "debugServer": 4711
+        },
+        {
+            "type": "OctaveDebugger",
+            "request": "launch",
+            "name": "Interactive Mode",
+            "program": "",
+            "octave": "octave-cli",
+            "autoTerminate": false
         },
         {
             "type": "OctaveDebugger",
@@ -47,6 +41,38 @@
             "octave": "octave-cli",
             "sourceFolder": "${workspaceFolder}",
             "debugServer": 4711
+        },
+        {
+            "type": "OctaveDebugger",
+            "request": "launch",
+            "name": "TestEnv",
+            "program": "env.m",
+            "octave": "octave-cli",
+            "sourceFolder": "${workspaceFolder}",
+            "octaveEnvironment": { "FOO": "bar", "VAR": "XPTO" },
+            "shell": false,
+            "autoTerminate": true
+        },
+        {
+            "type": "OctaveDebugger",
+            "request": "launch",
+            "name": "Environment Check",
+            "program": "printf('FOO: \"%s\"\n', getenv('PATH'))",
+            "shell": true,
+            "octave": "export FOO=bar; octave-cli",
+            "workingDirectory": "${workspaceFolder}",
+            "autoTerminate": true
+        },
+        {
+            "type": "OctaveDebugger",
+            "request": "launch",
+            "name": "Echo Commands",
+            "program": "env.m",
+            "octave": "octave-cli",
+            "octaveEnvironment": { "FOO": "bar", "VAR": "XPTO" },
+            "octaveArguments": [ "--echo-commands" ],
+            "workingDirectory": "${workspaceFolder}",
+            "autoTerminate": true
         }
     ]
 }
