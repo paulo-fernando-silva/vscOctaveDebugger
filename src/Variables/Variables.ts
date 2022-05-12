@@ -187,9 +187,16 @@ export class Variables {
 
 
 	//**************************************************************************
-	private static readonly CLEAN_REGEX = /^\s*ans =\s*/;
+	// Octave seems to use this when the variable has only one row:
+	public static readonly ANS_AND_SPACE_REGEX = /^\s*ans =\s/;
+	// Octave seems to use this when the variable has more than one row:
+	public static readonly ANS_AND_NEW_LINE_REGEX = /^\s*ans =\n/;
+	// This is here as originally I was removing all white spaces:
+	private static readonly ANS_AND_WHITE_SPACES_REGEX = /^\s*ans =\s*/;
+	//**************************************************************************
 	public static clean(value: string): string {
-		return value.replace(Variables.CLEAN_REGEX, '').trim();
+		// removes ans and trims
+		return value.replace(Variables.ANS_AND_WHITE_SPACES_REGEX, '').trim();
 	}
 
 
@@ -213,9 +220,20 @@ export class Variables {
 		callback: (value: string) => void
 	): void
 	{
-		runtime.evaluateAsLine(variable, (value: string) => {
+		this.getRawValue(variable, runtime, (value: string) => {
 			callback(Variables.removeName(variable, value));
 		});
+	}
+
+
+	//**************************************************************************
+	public static getRawValue(
+		variable: string,
+		runtime: CommandInterface,
+		callback: (value: string) => void
+	): void
+	{
+		runtime.evaluateAsLine(variable, callback);
 	}
 
 
