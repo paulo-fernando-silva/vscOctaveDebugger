@@ -9,7 +9,7 @@ export interface CommandInterface {
 	evaluate(expression: string, callback: (lines: string[]) => void): void;
 
 	//**************************************************************************
-	execute(expression: string):void;
+	execute(expression: string): void;
 }
 
 

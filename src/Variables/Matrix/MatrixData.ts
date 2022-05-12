@@ -1,6 +1,6 @@
 /*
  * Represents the parsed matrix data.
- * Assumes the data is in colum order.
+ * Assumes the data is in column order.
  * Use Transpose to switch between row and column major.
  */
 export class MatrixData {
