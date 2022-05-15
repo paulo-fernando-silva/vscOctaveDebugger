@@ -1,3 +1,6 @@
+## 0.5.1
+* Added support for loading "long" strings by chunks.
+
 ## 0.5.0
 * Added support for classdef types (breakpoints are not supported yet in octave)
 
