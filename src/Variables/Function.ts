@@ -65,8 +65,8 @@ export class Function extends Variable {
 	//**************************************************************************
 	public listChildren(
 		runtime: CommandInterface,
-		count: number,
 		start: number,
+		count: number,
 		callback: (vars: Array<Variable>) => void
 	): void
 	{} // Function have no children.

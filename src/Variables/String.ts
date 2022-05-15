@@ -102,8 +102,8 @@ export class String extends Variable {
 	//**************************************************************************
 	public listChildren(
 		runtime: CommandInterface,
-		count: number,
 		start: number,
+		count: number,
 		callback: (vars: Array<Variable>) => void
 	): void
 	{

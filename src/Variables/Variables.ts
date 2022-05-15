@@ -91,14 +91,14 @@ export class Variables {
 	public static listByReference(
 		ref: number,
 		runtime: CommandInterface,
-		count: number,
 		start: number,
+		count: number,
 		callback: (variables: Array<Variable>) => void
 	): void
 	{
 		const variable = Variables.getByReference(ref);
 		if(variable !== null) {
-			variable.listChildren(runtime, count, start, callback);
+			variable.listChildren(runtime, start, count, callback);
 		} else {
 			OctaveLogger.error(`Error: listByReference invalid reference ${ref}`);
 			callback(Variables._EMPTY_ARRAY);

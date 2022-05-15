@@ -492,7 +492,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 		const start = args.start || 0;
 
 		const cl = new CommandList(this._stepCount);
-		Variables.listByReference(args.variablesReference, cl, count, start, callback);
+		Variables.listByReference(args.variablesReference, cl, start, count, callback);
 		this.executeCommandList(cl, () => { callback(OctaveDebugSession.EMPTY_VARS); });
 	}
 

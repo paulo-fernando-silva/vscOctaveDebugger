@@ -29,8 +29,8 @@ export abstract class Variable {
 	//**************************************************************************
 	public abstract listChildren(
 		runtime: CommandInterface,
-		count: number,
 		start: number,
+		count: number,
 		callback: (vars: Array<Variable>) => void): void;
 
 

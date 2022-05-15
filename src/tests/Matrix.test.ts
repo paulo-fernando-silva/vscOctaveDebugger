@@ -326,7 +326,7 @@ const value =
 				const factory = new SparseMatrix();
 				factory.loadNew(name, factory.typename(), runtime, (sm: SparseMatrix) => {
 					matrix = sm;
-					matrix.listChildren(runtime, values.length, 0, (vars: Array<SparseMatrix>) => {
+					matrix.listChildren(runtime, 0, values.length, (vars: Array<SparseMatrix>) => {
 						indices = matrix.indices();
 						children = vars;
 						done();
