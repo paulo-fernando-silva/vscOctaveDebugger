@@ -554,7 +554,7 @@ class OctaveDebugSession extends LoggingDebugSession {
 				this._stepping = false;
 				this._runtime.evaluateAsLine('dbwhere', (output: string) => {
 					const WHERE_REGEX = /at top level/;
-					if(output.match(WHERE_REGEX)) {
+					if(WHERE_REGEX.test(output)) {
 						this.sendTerminatedEvent();
 					}
 				});

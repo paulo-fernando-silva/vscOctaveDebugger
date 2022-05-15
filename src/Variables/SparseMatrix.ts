@@ -47,7 +47,7 @@ export class SparseMatrix extends Matrix {
 
 	//**************************************************************************
 	public loads(type: string): boolean {
-		return type.match(SparseMatrix.TYPENAME_REGEX) !== null;
+		return SparseMatrix.TYPENAME_REGEX.test(type);
 	}
 
 

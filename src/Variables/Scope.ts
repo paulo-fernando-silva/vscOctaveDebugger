@@ -54,7 +54,7 @@ export class Scope extends Variable {
 			output.forEach(line => {
 				if(matchesHeader) {
 					vars += ' ' + line;
-				} else if(line.match(Scope.HEADER_REGEX) !== null) {
+				} else if(Scope.HEADER_REGEX.test(line)) {
 					matchesHeader = true;
 				}
 			});

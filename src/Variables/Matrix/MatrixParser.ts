@@ -36,10 +36,10 @@ export class MatrixParser {
 		const N_lines = inLines.length;
 		let elements = new Array<Array<string>>();
 
-		if(inLines[0].match(mutipleColumnsGroup)) {
+		if(mutipleColumnsGroup.test(inLines[0])) {
 			let line = 1; // skip mutipleColumnsGroup
 			// Grab the elements of the first columns group, row by row.
-			for(;line !== N_lines && !inLines[line].match(mutipleColumnsGroup); ++line) {
+			for(;line !== N_lines && !mutipleColumnsGroup.test(inLines[line]); ++line) {
 				// push a new row of elements
 				elements.push(MatrixParser.split(inLines[line], isComplex));
 			}
@@ -48,7 +48,7 @@ export class MatrixParser {
 			}
 			// If it has more columns groups concatenate row elements with existing rows
 			for(let row = 0; line !== N_lines; ++line) {
-				if(inLines[line].match(mutipleColumnsGroup)) {
+				if(mutipleColumnsGroup.test(inLines[line])) {
 					row = 0; // reached a new column group: reset row index
 				} else {
 					// concatenate current row elements with an existing row
@@ -110,7 +110,8 @@ export class MatrixParser {
 	// Entry point for matrix parsing. Can parse any number of matrices:
 	public static parseMatrices(value: string, isComplex: boolean): Array<MatrixData> {
 		// Do we have a multi-matrix or single matrix:
-		if(value.match(/\s*ans\([^\)]+\) =/)) {
+		const MULTI_MATRIX_REGEX = /\s*ans\([^\)]+\) =/;
+		if(MULTI_MATRIX_REGEX.test(value)) {
 			return MatrixParser.parseMultipleMatrices(value, isComplex);
 		}
 		// We might have only one matrix:

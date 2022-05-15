@@ -112,8 +112,7 @@ export class Runtime extends EventEmitter implements CommandInterface {
 
 	//**************************************************************************
 	private isSync(data: string): boolean {
-		const match = data.match(Runtime.SYNC_REGEX);
-		return match !== null;
+		return Runtime.SYNC_REGEX.test(data);
 	}
 
 
@@ -185,7 +184,7 @@ export class Runtime extends EventEmitter implements CommandInterface {
 
 	//**************************************************************************
 	private terminated(data: string): boolean {
-		if(data.match(Runtime.TERMINATOR_REGEX) !== null) {
+		if(Runtime.TERMINATOR_REGEX.test(data)) {
 			OctaveLogger.debug(`Runtime: program ${this._program} exited normally.`);
 			// If we're suppose to terminate when the scrip exists:
 			if(this.autoTerminate()) {
@@ -205,7 +204,7 @@ export class Runtime extends EventEmitter implements CommandInterface {
 	//**************************************************************************
 	public checkForBreaks(line: string): boolean {
 		const BREAK_REGEX = /^stopped in .*? at line \d+.*$/;
-		if(line.match(BREAK_REGEX) !== null) {
+		if(BREAK_REGEX.test(line)) {
 			this.emit(Constants.eBREAK);
 			return true; // Event handled. Stop processing.
 		}
