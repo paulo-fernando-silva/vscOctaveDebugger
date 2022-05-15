@@ -119,28 +119,76 @@ export class String extends Variable {
 			this._children = new Array<Variable>(this._numberOfChildren);
 		}
 
+		if(start + count > this._children.length) {
+			throw `Error: start+count > #children: ${start}+${count} > ${this._children.length}`;
+		}
+
 		if(this.childrenNeedLoading(start, count)) {
 			if(this._validValue) {
 				this.parseChildren(this._value, this._numberOfChildren, start, count, callback);
 			} else {
-				// TODO: load by chunks (rows might be huge)
-				const name = this.name();
-				const range = `${start + 1}:${start+count}`; // indices start at 1
-				let rangeName: string;
-				let ansRegex: RegExp;
-				if(this.isLine()) {
-					rangeName = `${name}(${range})`;
-					ansRegex = Variables.ANS_AND_SPACE_REGEX;
+				// Load by chunks (rows might be huge), use load new for each child...
+				const childLength = this.childrenLength();
+				// If children are individually loadable, the we load them as a block
+				// even if the block itself wouldn't necessarily be loadable.
+				const loadable = Variables.loadable([1, 1], childLength);
+				if(loadable) {
+					this.loadChildrenBlock(runtime, start, count, callback);
 				} else {
-					rangeName = `${name}(${range},:)`;
-					ansRegex = Variables.ANS_AND_NEW_LINE_REGEX;
+					this.createChildrenPlaceholders(runtime, start, count, callback);
 				}
-				Variables.getRawValue(rangeName, runtime, (value: string) => {
-					value = value.replace(ansRegex, '');
-					this.parseChildren(value, count, start, count, callback);
-				});
 			}
 		}
+	}
+
+
+	//**************************************************************************
+	private createChildrenPlaceholders(
+		runtime: CommandInterface,
+		start: number,
+		count: number,
+		callback: (vars: Array<Variable>) => void
+	): void
+	{
+		const name = this.name();
+		const type = this.typename();
+		const childLength = this.childrenLength();
+		const size = [1, childLength];
+		const range = (childLength === 1?'':',:');
+		const value = size.join(Constants.SIZE_SEPARATOR)
+		for(let i = 0; i !== count; ++i) {
+			const idx = start + i + 1; // matlab indices start at 1
+			const v = this.createConcreteType(`${name}(${idx}${range})`, value, false, size, type);
+			this._children[start + i] = v;
+
+		}
+		callback(this._children.slice(start, start+count));
+	}
+
+
+	//**************************************************************************
+	private loadChildrenBlock(
+		runtime: CommandInterface,
+		start: number,
+		count: number,
+		callback: (vars: Array<Variable>) => void
+	): void
+	{
+		const name = this.name();
+		const range = `${start + 1}:${start+count}`; // indices start at 1
+		let rangeName: string;
+		let ansRegex: RegExp;
+		if(this.isLine()) {
+			rangeName = `${name}(${range})`;
+			ansRegex = Variables.ANS_AND_SPACE_REGEX;
+		} else {
+			rangeName = `${name}(${range},:)`;
+			ansRegex = Variables.ANS_AND_NEW_LINE_REGEX;
+		}
+		Variables.getRawValue(rangeName, runtime, (value: string) => {
+			value = value.replace(ansRegex, '');
+			this.parseChildren(value, count, start, count, callback);
+		});
 	}
 
 
