@@ -1,3 +1,6 @@
+## 0.5.2
+* Fix debugger not starting because of invalid breakpoints.
+
 ## 0.5.1
 * Added support for loading "long" strings by chunks.
 
