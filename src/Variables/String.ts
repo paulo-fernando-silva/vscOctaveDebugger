@@ -129,7 +129,7 @@ export class String extends Variable {
 			} else {
 				// Load by chunks (rows might be huge), use load new for each child...
 				const childLength = this.childrenLength();
-				// If children are individually loadable, the we load them as a block
+				// If children are individually loadable, then we load them as a block
 				// even if the block itself wouldn't necessarily be loadable.
 				const loadable = Variables.loadable([1, 1], childLength);
 				if(loadable) {

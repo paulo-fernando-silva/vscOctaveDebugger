@@ -14,6 +14,7 @@ export class Breakpoints {
 	//#region private
 	//**************************************************************************
 	private static readonly BP_REGEX = /^\s*(?:ans =)?\s*((?:\d+\s*)+)$/;
+	private static readonly BAD_BP_REGEX = /^\s*ans =\s\[\]\(1x0\)$/;
 	private static setUnconditional(
 		breakpoints: Array<ConditionalBreakpoint>,
 		confirmedBreakpoints: Array<Breakpoint>,
@@ -37,6 +38,10 @@ export class Breakpoints {
 						const idx = (bp.column? bp.column : 0);
 						confirmedBreakpoints[idx] = new Breakpoint(true, parseInt(l));
 					});
+				} else if(Breakpoints.BAD_BP_REGEX.test(line)) {
+					const bp = breakpoints[i++];
+					const idx = (bp.column? bp.column : 0);
+					confirmedBreakpoints[idx] = new Breakpoint(false);
 				}
 			});
 
