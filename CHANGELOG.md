@@ -1,3 +1,6 @@
+## 0.5.3
+* Fix debugger not starting because of more than 1 invalid breakpoint (again).
+
 ## 0.5.2
 * Fix debugger not starting because of invalid breakpoints.
 

@@ -25,9 +25,14 @@ export class Breakpoints {
 	{
 		let lines = '';
 		breakpoints.forEach(b => lines += `${b.line} `);
-		let i = 0;
 
 		runtime.evaluate(`dbstop ${fname} ${lines}`, (output: string[]) => {
+			let i = 0;
+			const badBreakpoint = () => {
+				const bp = breakpoints[i++];
+				const idx = (bp.column? bp.column : 0);
+				confirmedBreakpoints[idx] = new Breakpoint(false);
+			}
 			output.forEach(line => {
 				const match = line.match(Breakpoints.BP_REGEX);
 
@@ -39,15 +44,15 @@ export class Breakpoints {
 						confirmedBreakpoints[idx] = new Breakpoint(true, parseInt(l));
 					});
 				} else if(Breakpoints.BAD_BP_REGEX.test(line)) {
-					const bp = breakpoints[i++];
-					const idx = (bp.column? bp.column : 0);
-					confirmedBreakpoints[idx] = new Breakpoint(false);
+					badBreakpoint();
 				}
 			});
 
-			if(i === breakpoints.length) {
-				callback(confirmedBreakpoints);
+			while(i !== breakpoints.length) {
+				badBreakpoint()
 			}
+
+			callback(confirmedBreakpoints);
 		});
 	}
 
