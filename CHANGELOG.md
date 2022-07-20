@@ -1,3 +1,6 @@
+## 0.5.4
+* Bump terser from 5.7.0 to 5.14.2
+
 ## 0.5.3
 * Fix debugger not starting because of more than 1 invalid breakpoint (again).
 

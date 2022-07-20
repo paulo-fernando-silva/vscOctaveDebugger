@@ -1,7 +1,7 @@
 {
 	"name": "vsc-octave-debugger",
 	"displayName": "Octave Debugger",
-	"version": "0.5.3",
+	"version": "0.5.4",
 	"publisher": "paulosilva",
 	"description": "Debug Octave and Matlab code in Visual Studio Code.",
 	"author": {
