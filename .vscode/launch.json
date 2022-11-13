@@ -35,8 +35,7 @@
 				"--debug-brk"
 			],
 			"outFiles": [ "${workspaceFolder}/out/**/*.js" ],
-			"internalConsoleOptions": "openOnSessionStart",
-			"protocol": "inspector"
+			"internalConsoleOptions": "openOnSessionStart"
 		}
 	],
 	"compounds": [
