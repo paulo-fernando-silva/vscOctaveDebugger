@@ -1,3 +1,6 @@
+## 0.5.5
+* Tweaked hover evaluation to use current selected stack frame.
+
 ## 0.5.4
 * Bump terser from 5.7.0 to 5.14.2
 
