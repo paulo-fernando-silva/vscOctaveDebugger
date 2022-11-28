@@ -537,7 +537,12 @@ class OctaveDebugSession extends LoggingDebugSession {
 			this.sendResponse(response);
 		};
 
-		Expression.evaluate(args.expression, this._runtime, args.context, sendResponse);
+		const cb = () => Expression.evaluate(args.expression, this._runtime, args.context, sendResponse);
+		if(args.frameId !== undefined) {
+			this._stackManager.selectStackFrame(args.frameId, this._runtime, cb);
+		} else {
+			cb();
+		}
 	}
 
 

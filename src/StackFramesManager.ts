@@ -19,47 +19,44 @@ export class StackFramesManager {
 
 	//**************************************************************************
 	public selectStackFrame(
-		i: number,
+		frame: number,
 		runtime: CommandInterface,
 		callback: () => void
 	): void
 	{
-		if(i === this._frame) {
+		if(frame === this._frame) {
 			callback();
-		} else if(i < this._frame) {
-			this.down(this._frame - i, runtime, callback);
 		} else {
-			this.up(i - this._frame, runtime, callback);
+			const validation = (output: string[]) => {
+				this.vadidateTransition(output, frame);
+				callback();
+			};
+			// Make sure the frame offset is positive:
+			if(frame < this._frame) {
+				runtime.evaluate(`dbdown ${this._frame - frame}`, validation);
+			} else {
+				runtime.evaluate(`dbup ${frame - this._frame}`, validation);
+			}
 		}
 	}
 
 
 	//**************************************************************************
-	private up(
-		n: number,
-		runtime: CommandInterface,
-		callback: () => void
-	): void
-	{
-		if(n > 0) {
-			runtime.evaluate(`dbup ${n}`, (output: string[]) => { callback(); });
+	private static readonly TRANSITION_REGEX = /^\s*(?:stopped in.*)|(?:at top level)$/;
+	/*	Expecting something like:
+			'stopped in foom at line 88 [/path/file.m] '
+		OR:
+			'at top level'
+	 */
+	private vadidateTransition(output: string[], frame: number): void {
+		if(output.length !== 0) {
+			if(output[0].match(StackFramesManager.TRANSITION_REGEX)) {
+				this._frame = frame;
+			} else {
+				OctaveLogger.warn(`vadidateTransition:unknown output[0] "${output[0]}"!`);
+			}
 		} else {
-			OctaveLogger.error(`Error: up(${n})!`);
-		}
-	}
-
-
-	//**************************************************************************
-	private down(
-		n: number,
-		runtime: CommandInterface,
-		callback: () => void
-	): void
-	{
-		if(n > 0) {
-			runtime.evaluate(`dbdown ${n}`, (output: string[]) => { callback(); });
-		} else {
-			OctaveLogger.error(`Error: down(${n})!`);
+			OctaveLogger.warn(`vadidateTransition:output.length: ${output.length}!`);
 		}
 	}
 
