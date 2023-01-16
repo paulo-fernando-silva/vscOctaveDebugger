@@ -62,12 +62,12 @@ export class StackFramesManager {
 
 
 	//**************************************************************************
-	private static readonly STACK_REGEX = /^\s*(?:-->)?\s*(\w+)(?:>(\w+))*? at line (\d+) \[(.*)\]$/;
+	private static readonly STACK_REGEX = /^\s*(?:-->)?\s*(\w+)(?:>(\S+))*? at line (\d+) \[(.*)\]$/;
 	/* Example of the expected stack output:
 stopped in:
 
  --> TestOctaveDebugger>main3 at line 15 [/path/TestOctaveDebugger.m]
-     TestOctaveDebugger>main2 at line 33 [/path/TestOctaveDebugger.m]
+     TestOctaveDebugger>@<anonymous> at line 33 [/path/TestOctaveDebugger.m]
 		   TestOctaveDebugger at line 11 [/path/TestOctaveDebugger.m]
 debug>
 	*/

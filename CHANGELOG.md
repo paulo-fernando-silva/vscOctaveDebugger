@@ -1,3 +1,6 @@
+## 0.5.6
+* Fix stack fetch - lambdas are now supported.
+
 ## 0.5.5
 * Tweaked hover evaluation to use current selected stack frame.
 
