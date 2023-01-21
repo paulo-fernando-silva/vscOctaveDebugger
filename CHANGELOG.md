@@ -1,3 +1,6 @@
+## 0.5.7
+* Added sorting to the VARIABLES view.
+
 ## 0.5.6
 * Fix stack fetch - lambdas are now supported.
 
