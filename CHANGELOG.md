@@ -1,3 +1,7 @@
+## 0.5.8
+* Fix sorting VARIABLES view. Only name is used, not indices. Assumes stable sort.
+* Fix error on hover over a :
+
 ## 0.5.7
 * Added sorting to the VARIABLES view.
 
