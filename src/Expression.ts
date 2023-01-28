@@ -22,7 +22,7 @@ export class Expression {
 			// We don't send anything back now as any output will be written on the console anyway.
 			// This also avoids the issue with the pause, input, etc.
 			callback('', 0);
-		} else if(!expression.startsWith("'")) {
+		} else if(Expression.valid(expression)) {
 			if(expression !== '') {
 				// some function calls require variable name without indexing
 				const variableName = Expression.parseName(expression);
@@ -45,6 +45,13 @@ export class Expression {
 				callback(Constants.EVAL_UNDEF, 0);
 			}
 		}
+	}
+
+
+	//**************************************************************************
+	private static valid(expression: string): boolean {
+		return !expression.startsWith("'")
+			&& expression !== ":";
 	}
 
 
