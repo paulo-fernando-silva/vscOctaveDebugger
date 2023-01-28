@@ -20,7 +20,7 @@ export class UnknownType extends Variable {
 	)
 	{
 		super();
-		this._name = name;
+		this.setFullname(name);
 		this._value = value;
 		// Use original typename before changing it.
 		this._extendedTypename =

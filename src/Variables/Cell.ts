@@ -80,7 +80,8 @@ export class Cell extends Matrix {
 		const idx = this.fixIndices(freeIndices, fixedIndices);
 		if(idx.free.length === 0) {
 			// If there are no free indices then the variable can be laoded directly.
-			const name = this.makeName(this.basename(), idx.free, idx.fixed, Constants.CELL_LEFT, Constants.CELL_RIGHT);
+			const name = this.basename() +
+				this.makeIndexing(idx.free, idx.fixed, Constants.CELL_LEFT, Constants.CELL_RIGHT);
 			Variables.loadVariable(name, runtime, callback);
 		} else {
 			// When we have a free indices, the variable is still a cell

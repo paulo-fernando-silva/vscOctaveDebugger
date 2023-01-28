@@ -475,6 +475,15 @@ class OctaveDebugSession extends LoggingDebugSession {
 	): void
 	{
 		const callback = (variables: Array<OctaveVariable>) => {
+			variables.sort((a,b) => {
+				const auc = a.basename().toUpperCase();
+				const buc = b.basename().toUpperCase();
+				if(auc < buc)
+					return -1;
+				if(auc > buc)
+					return 1;
+				return 0;
+			});
 			const vars = variables.map(v => <Variable>{
 				name: v.name(),
 				type: v.extendedTypename(),
@@ -482,15 +491,6 @@ class OctaveDebugSession extends LoggingDebugSession {
 				variablesReference: v.reference(),
 				namedVariables: v.namedVariables(),
 				indexedVariables: v.indexedVariables()
-			});
-			vars.sort((a,b) => {
-				const auc = a.name.toUpperCase();
-				const buc = b.name.toUpperCase();
-				if(auc < buc)
-					return -1;
-				if(auc > buc)
-					return 1;
-				return 0;
 			});
 			response.body = { variables: vars };
 			this.sendResponse(response);

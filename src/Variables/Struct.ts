@@ -93,7 +93,7 @@ export class Struct extends Matrix {
 
 		if(freeIndices.length === 0) {
 			// if there are no free indices then the variable is a scalar struct
-			const name = this.makeName(this.basename(), freeIndices, fixedIndices);
+			const name = this.basename() + this.makeIndexing(freeIndices, fixedIndices);
 			const fields = this._fields.map((v: string) => name + v);
 			struct = new ScalarStruct(name, fields);
 		} else {

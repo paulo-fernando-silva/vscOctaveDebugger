@@ -17,7 +17,7 @@ export class Function extends Variable {
 	)
 	{
 		super();
-		this._name = name;
+		this.setFullname(name);
 		this._value = value;
 		this._typename = type;
 	}

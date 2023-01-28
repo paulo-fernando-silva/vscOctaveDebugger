@@ -1,3 +1,4 @@
+import * as Constants from '../Constants';
 import { CommandInterface } from '../Commands';
 
 
@@ -11,7 +12,8 @@ import { CommandInterface } from '../Commands';
 // but that would coulpe the two APIs even more.
 export abstract class Variable {
 	//**************************************************************************
-	protected _name: string = '';
+	private _basename: string = '';	// name of the variable without indexing
+	private _indexing: string = '';	// indices active in this variable
 	protected _value: string = '';
 	protected _reference: number = 0;
 	protected _namedVariables: number = 0;
@@ -47,7 +49,43 @@ export abstract class Variable {
 
 
 	//**************************************************************************
-	public name(): string { return this._name; }
+	public setFullname(name: string): void {
+		// Assuming that indices start after a ({ and no other ({ exists before.
+		var idx = name.indexOf(Constants.DEFAULT_LEFT);
+		if(idx === -1)
+			idx = name.indexOf(Constants.CELL_LEFT);
+		if(idx !== -1) {
+			this.setBasename(name.substring(0, idx));
+			this.setIndexing(name.substring(idx));
+		} else {
+			this.setBasename(name);
+			this.setIndexing('');
+		}
+	}
+
+
+	//**************************************************************************
+	public setBasename(name: string): void {
+		this._basename = name;
+	}
+
+
+	//**************************************************************************
+	public setIndexing(idx: string): void {
+		this._indexing = idx;
+	}
+
+
+	//**************************************************************************
+	public basename(): string { return this._basename; }
+
+
+	//**************************************************************************
+	public indexing(): string { return this._indexing; }
+
+
+	//**************************************************************************
+	public name(): string { return this.basename() + this.indexing(); }
 
 
 	//**************************************************************************

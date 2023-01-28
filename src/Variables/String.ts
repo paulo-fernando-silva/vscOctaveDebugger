@@ -23,7 +23,7 @@ export class String extends Variable {
 	)
 	{
 		super();
-		this._name = name;
+		this.setFullname(name);
 		this._value = value;
 		this._validValue = validValue;
 		this._size = size;

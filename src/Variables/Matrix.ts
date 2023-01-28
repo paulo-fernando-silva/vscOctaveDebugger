@@ -19,7 +19,6 @@ export class Matrix extends Variable {
 	// e.g. "complex diagonal matrix" uses "diagonal matrix" in certain places...
 	// typename used by Octave when printing the value
 	private _typename: string; // typename used by Octave when printing the value
-	private _basename: string; // name of the variable without indices
 	private _fixedIndices: Array<number>; // subvariable indices
 	private _freeIndices: Array<number>; // children indices
 	private _children: Array<Variable>; // the childen parsed so far
@@ -50,7 +49,7 @@ export class Matrix extends Variable {
 		super();
 		// These need to be set before anything else is set.
 		this._typeRegex = new RegExp(type, 'i')
-		this._basename = name;
+		this.setBasename(name);
 		this._typename = type;
 		// These perform a more complex setting with some bookkeeping
 		this.setIndices(freeIndices, fixedIndices);
@@ -99,7 +98,7 @@ export class Matrix extends Variable {
 		this._freeIndices = idx.free;
 		this._fixedIndices = idx.fixed;
 		// Variable name may include indices as needed to get its value.
-		this._name = this.makeName(this._basename, this._freeIndices, this._fixedIndices);
+		this.setIndexing(this.makeIndexing(this._freeIndices, this._fixedIndices));
 		// If we have free indices we have children.
 		if(this._freeIndices.length !== 0) {
 			this._numberOfChildren = this._freeIndices[this._freeIndices.length - 1];
@@ -141,10 +140,6 @@ export class Matrix extends Variable {
 
 		this._value = val;
 	}
-
-
-	//**************************************************************************
-	public basename(): string { return this._basename; }
 
 
 	//**************************************************************************
@@ -507,8 +502,7 @@ export class Matrix extends Variable {
 
 
 	//**************************************************************************
-	public makeName(
-		name: string,
+	public makeIndexing(
 		freeIndices: Array<number>,
 		fixedIndices: Array<number>,
 		left: string = Constants.DEFAULT_LEFT,
@@ -520,14 +514,14 @@ export class Matrix extends Variable {
 		if(fixedIndices.length !== 0) {
 			fixedIndicesStr = fixedIndices.join(',');
 		} else {
-			return name;
+			return '';
 		}
 
 		if(freeIndices.length !== 0) {
 			freeIndicesStr = ':,'.repeat(freeIndices.length);
 		}
 
-		return `${name}${left}${freeIndicesStr}${fixedIndicesStr}${right}`;
+		return `${left}${freeIndicesStr}${fixedIndicesStr}${right}`;
 	}
 
 
@@ -537,7 +531,7 @@ export class Matrix extends Variable {
 		count: number
 	): string
 	{
-		const name: string = this._basename;
+		const name: string = this.basename();
 		const freeIndices: Array<number> = this._freeIndices;
 		const fixedIndices: Array<number> = this._fixedIndices;
 

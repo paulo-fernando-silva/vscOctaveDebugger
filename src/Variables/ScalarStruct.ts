@@ -17,7 +17,7 @@ export class ScalarStruct extends Variable {
 	)
 	{
 		super();
-		this._name = name;
+		this.setFullname(name);
 		this._value = fields.join(Constants.FIELDS_SEPARATOR);
 		this._fields = fields;
 		this._numberOfChildren = this._fields.length;
