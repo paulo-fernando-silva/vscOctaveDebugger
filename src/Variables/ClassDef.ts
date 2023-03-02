@@ -95,7 +95,7 @@ export class ClassDef extends Variable {
 	{
 		let fieldnames = new Array<string>();
 		runtime.evaluateAsLine(`properties(${name})`, (output: string) => {
-			output = output.replace(/properties for class \w+:/, '');
+			output = output.replace(/properties for class .+:/, '');
 			const fields = output.split(/\s+/).filter((x) => x);
 
 			fields.forEach(field => {
