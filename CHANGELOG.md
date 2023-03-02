@@ -1,3 +1,6 @@
+## 0.5.9
+* Fix classdef name parsing for classes in +packages, e.g. package.MyType
+
 ## 0.5.8
 * Fix sorting VARIABLES view. Only name is used, not indices. Assumes stable sort.
 * Fix error on hover over a :
