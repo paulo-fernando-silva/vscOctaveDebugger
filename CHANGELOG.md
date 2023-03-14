@@ -1,3 +1,6 @@
+## 0.5.10
+* Bump webpack from 5.38.1 to 5.76.0
+
 ## 0.5.9
 * Fix classdef name parsing for classes in +packages, e.g. package.MyType
 
