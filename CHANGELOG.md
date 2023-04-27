@@ -1,3 +1,8 @@
+## 0.5.11
+* Added support for classdefs inside packages like: +MYPakcage/MyClassdef.m
+* Minor readme tweak.
+* Minor cleanup in the package.json.
+
 ## 0.5.10
 * Bump webpack from 5.38.1 to 5.76.0
 
