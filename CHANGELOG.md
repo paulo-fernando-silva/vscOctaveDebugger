@@ -1,3 +1,6 @@
+## 0.5.12
+* Bump braces from 3.0.2 to 3.0.3.
+
 ## 0.5.11
 * Added support for classdefs inside packages like: +MYPakcage/MyClassdef.m
 * Minor readme tweak.
