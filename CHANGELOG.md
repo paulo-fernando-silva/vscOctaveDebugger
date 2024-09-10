@@ -1,3 +1,6 @@
+## 0.5.13
+* Bump webpack from 5.76.0 to 5.94.0.
+
 ## 0.5.12
 * Bump braces from 3.0.2 to 3.0.3.
 
