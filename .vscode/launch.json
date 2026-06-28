@@ -26,13 +26,12 @@
 			"request": "launch",
 			"name": "Unit Tests",
 			"cwd": "${workspaceFolder}",
-			"program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
+			"program": "${workspaceFolder}/node_modules/mocha/bin/mocha.js",
 			"args": [
 				"-u", "bdd",
 				"--timeout", "999999",
 				"--colors",
-				"./out/tests/",
-				"--debug-brk"
+				"./out/tests/"
 			],
 			"outFiles": [ "${workspaceFolder}/out/**/*.js" ],
 			"internalConsoleOptions": "openOnSessionStart"
